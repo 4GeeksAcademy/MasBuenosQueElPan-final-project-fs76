@@ -24,6 +24,8 @@ class Producer(db.Model):
     email = db.Column(db.String(300), unique=True, nullable=False)
     password = db.Column(db.String(300), unique=False, nullable=False)
     brand_name = db.Column(db.String(120), unique=True, nullable=False)
+    user_name = db.Column(db.String(120), unique=False, nullable=True)
+    user_last_name = db.Column(db.String(120), unique=False, nullable=True)
     cif = db.Column(db.String(120), unique=True, nullable=False)
     address = db.Column(db.String(300), unique=False, nullable=False)
     province = db.Column(db.String(120), unique=False, nullable=False)
@@ -39,6 +41,8 @@ class Producer(db.Model):
             "id": self.id,
             "email": self.email,
             "brand_name": self.brand_name,
+            "user_name": self.user_name,
+            "user_last_name": self.user_last_name,
             "cif": self.cif,
             "address": self.address,
             "province": self.province,

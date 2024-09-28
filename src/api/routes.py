@@ -31,6 +31,8 @@ def handle_signup():
     email = request.json["email"]
     password = request.json["password"]
     brand_name = request.json["brand_name"]
+    user_name = request.json["user_name"]
+    user_last_name = request.json["user_last_name"]
     cif = request.json["cif"]
     address = request.json["address"]
     province = request.json["province"]
@@ -42,6 +44,8 @@ def handle_signup():
         email=email,
         password=password,
         brand_name=brand_name,
+        user_name=user_name,
+        user_last_name=user_last_name,
         cif=cif,
         address=address,
         province=province,
@@ -66,7 +70,7 @@ def get_producers():
     return jsonify(result), 200
 
 
-
+# for logging in
 @api.route('/producer', methods=['GET'])
 def handle_login():
     email = request.json.get("email", None)
