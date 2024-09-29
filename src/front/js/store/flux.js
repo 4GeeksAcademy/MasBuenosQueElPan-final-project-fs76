@@ -13,13 +13,124 @@ const getState = ({ getStore, getActions, setStore }) => {
 					background: "white",
 					initial: "white"
 				}
-			]
+			],
+			producers: [],
+			isLoggedIn: false,
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
+
+			producerSignup: (email, password)=> {
+				const store = getStore();
+				const requestOptions = {
+				    method: "POST",
+				    headers: {"Content-Type": "application/json"},
+				    body: JSON.stringify({
+				        "email": email,
+				        "password": password
+				        }),
+				  };
+				  
+				  fetch(process.env.BACKEND_URL + "/producer/signup", requestOptions)
+				    .then((response) =>{
+						console.log(response.status)
+
+							if (response.status === 200) {
+								const newProducer = { email, password };
+								setStore({
+									producers: [...store.producers, newProducer],
+								});
+							}
+							return response.json()
+						})
+						.then(data => {
+							console.log(data)
+						})
+					
+				    .catch((error) => console.error("Error during signup:", error))
+				},
+
+			producerLogin:(email, password) => {
+				const store = getStore();
+				const requestOptions = {
+				    method: "POST",
+				    headers: {"Content-Type": "application/json"},
+				    body: JSON.stringify({
+				        "email": email,
+				        "password": password
+				        }),
+				  };
+				fetch(process.env.BACKEND_URL + "/producer/login", requestOptions)
+				.then((response) => {
+					console.log(response.status);
+					if (response.status === 200) {
+						setStore({isLoggedIn:true})
+					}
+					return response.json()
+				})
+				.then((data) => {
+					console.log(data);
+					localStorage.setItem("token", data.access_token)
+				})
+				.catch((error) => console.error("error while login in", error)
+				)
+			},
+
+			editProducer:() => {
+				const store = getStore();
+				const requestOptions = {
+				    method: "PUT",
+				    headers: {"Content-Type": "application/json"},
+				    body: JSON.stringify({
+				        "email": email,
+				        "password": password
+				        }),
+				  };
+				fetch(process.env.BACKEND_URL + "/producer/edit", requestOptions)
+				.then((response) => response.json())
+				.then((data) => console.log(data))
+				.catch((error) => console.error("error editing producer", error)
+				)
+			},
+			deleteProducer:() => {
+				const store = getStore();
+				const requestOptions = {
+				    method: "DELETE",
+				    headers: {"Content-Type": "application/json"},
+				    body: JSON.stringify({
+				        "email": email,
+				        "password": password
+				        }),
+				  };
+				fetch(process.env.BACKEND_URL + "/producer/delete", requestOptions)
+				.then((response) => response.json())
+				.then((data) => console.log(data))
+				.catch((error) => console.error("error editing producer", error)
+				)
+			},
+
+
+
+			getProducers:() =>{
+				const store = getStore()
+			fetch(process.env.BACKEND_URL + "/api/producers")
+			.then((response) => {
+				console.log(response.status);
+				if (response.status === 400) {
+					throw new Error ("could not fetch producers")
+				}
+				return response.json()
+			})
+			.then((data) => {
+				console.log(data);
+				setStore({ producers: data })
+			})
+			.catch((error)=> console.error("there was an error in the process",error)
+			)},
+
 
 			getMessage: async () => {
 				try{

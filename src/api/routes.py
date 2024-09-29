@@ -26,7 +26,7 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
-@api.route('/producer', methods=['POST'])
+@api.route('/producer/signup', methods=['POST'])
 def handle_signup():
     email = request.json["email"]
     password = request.json["password"]
@@ -54,6 +54,10 @@ def handle_signup():
         is_active=True
         )
     
+    if email:
+        existing_producer = Producer.query.filter_by(email=email).first()
+        if existing_producer:
+            return jsonify(exists=True, message="Email already exists"), 400
     print("New producer", new_producer)
 
     db.session.add(new_producer)
@@ -71,26 +75,26 @@ def get_producers():
 
 
 # for logging in
-@api.route('/producer', methods=['GET'])
+@api.route("/producer/login", methods=["POST"])
 def handle_login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
-    producer = Producer.query.filter_by(email=email).first() 
-    print("email",email)
-    print("password",password)
-    print("producer",producer)
+    producer = Producer.query.filter_by(email=email).first()
 
     if producer is None:
-        print("Incorrect email or email does not exist")
-        return jsonify({"msg": "Email  incorrect"}), 401
-    if producer.password != password:
-        print("incorrect password")
-        return jsonify({"msg": "password incorrect"}), 401
-    print(producer)
+        print("email does not exist")
+        return jsonify({"msg": "Incorrect email or email does not exist"}), 401
+    if producer.email != email or producer.password != password:
+        print("incorrect password or email")
+        return jsonify({"msg": "Password or email incorrect"}), 401
+
 
     access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token)
 
+
+# Protect a route with jwt_required, which will kick out requests
+# without a valid JWT present.
 @api.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
@@ -107,7 +111,7 @@ def get_producer(producer_id):
     else:
         return jsonify(producer.serialize()), 200
     
-@api.route('/producer/<int:producer_id>', methods=['DELETE'])
+@api.route('/producer/delete/<int:producer_id>', methods=['DELETE'])
 def delete_producer(producer_id):
 
     producer = Producer.query.filter_by(id=producer_id).first()
