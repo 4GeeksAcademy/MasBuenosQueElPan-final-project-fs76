@@ -30,6 +30,64 @@ const getState = ({ getStore, getActions, setStore }) => {
 				.then((data)=> setStore({ products: data }))
 			
 			},
+			modifyProduct: (newProductInfo) => {
+				const myid = newProductInfo.id
+				const raw = JSON.stringify({
+					"description": newProductInfo.description,
+					"name": newProductInfo.name,
+					"origin": newProductInfo.origin,
+					"price": newProductInfo.price
+				  });
+				  
+				  const requestOptions = {
+					method: "PUT",
+					headers: {
+						"Content-type": "application/json",
+					},
+					body: raw,
+					
+				  };
+
+				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
+  				.then((response) => response.json())
+				.then((data)=> 
+					getActions().getProducts()
+			)
+			},
+			deleteProduct: (id)=>{
+				const requestOptions = {
+					method: "DELETE",
+				  };
+				  
+				  fetch(`${process.env.BACKEND_URL}/api/product/${id}`, requestOptions)
+					.then((response) => response.text())
+					.then((result) => {console.log(result),
+						getActions().getProducts()})
+					.catch((error) => console.error(error));
+			},
+			addProducts:(newProduct) => {
+				const raw = JSON.stringify({
+					"origin": newProduct.origin,
+					"description": newProduct.description,
+					"name": newProduct.name,
+					"price": newProduct.price
+				  });
+				  
+				  const requestOptions = {
+					method: "POST",
+					body: raw,
+					headers: {
+						"Content-type": "application/json",
+					}
+				  };
+				  
+				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+					.then((response) => response.json())
+					.then((result) => 
+						getActions().getProducts()
+					)
+					.catch((error) => console.error(error));
+			},
 
 			getMessage: async () => {
 				try{

@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Product
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from decimal import Decimal
 
 api = Blueprint('api', __name__)
 
@@ -58,14 +59,11 @@ def add_product():
         #Hago verificación de que el precio sea número
 
         try:
-            price = int(price)
+            price = float(price)
+            if price <0:
+                return jsonify({"msg":"El número debe ser positivo"}), 400
         except ValueError:
             return jsonify({"msg":"El precio debe ser un número"}), 400
-        
-        #Comprobamos que no exista el nombre del producto 
-        existing_product = Product.query.filter_by(name=name).first()
-        if existing_product:
-            return jsonify({"msg":"El nombre del producto ya existe"}), 400
 
         #Añadir nuevo producto
         new_product = Product(
@@ -110,7 +108,7 @@ def edit_product(id):
             product.name = name
         if price:
             try:
-                product.price = int(price)
+                product.price = float(price)
             except ValueError:
                 return jsonify({"msg":"El precio debe ser un número"}), 400
             product.price = price
