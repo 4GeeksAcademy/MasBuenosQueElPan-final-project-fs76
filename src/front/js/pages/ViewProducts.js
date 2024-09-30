@@ -14,15 +14,23 @@ export const Product = () => {
     const [description, setDescription] = useState("")
     const [showModal, setShowModal] = useState(false);
     const [productid, setProductid] = useState("")
+    const [nameModal, setNameModal] = useState("")
+    const [originModal, setOriginModal] = useState("")
+    const [descriptionModal, setDescriptionModal] = useState("")
+    const [priceModal, setPriceModal] = useState("")
 
     const openModal = (id) => {
         setShowModal(true);
+        setName("");
+		setPrice("");
+		setOrigin("");
+		setDescription("");
         const foundProducts= store.products.find((elemento) => elemento.id === id);
         console.log (foundProducts)
-        setName(foundProducts.name)
-        setOrigin(foundProducts.origin)
-        setPrice(foundProducts.price)
-        setDescription(foundProducts.description)
+        setNameModal(foundProducts.name)
+        setOriginModal(foundProducts.origin)
+        setPriceModal(foundProducts.price)
+        setDescriptionModal(foundProducts.description)
         setProductid(foundProducts.id)
 
     };
@@ -31,17 +39,17 @@ export const Product = () => {
     };
     const sendNewData = () => {
 		const newProductInfo = {
-			name: name,
-            price: price,
-            origin: origin,
-            description: description,
+			name: nameModal,
+            price: priceModal,
+            origin: originModal,
+            description: descriptionModal,
             id: productid,
         };
 		actions.modifyProduct(newProductInfo);
-		setName("");
-        setPrice("");
-        setOrigin("");
-        setDescription("");
+		setNameModal("");
+        setOriginModal("");
+        setDescriptionModal("");
+        setPriceModal("");
         setProductid("")
 		closeModal();
 	}
@@ -126,19 +134,19 @@ export const Product = () => {
                             <div className="modal-body">
 								<div className="input-group flex-nowrap">
 									<span className="input-group-text" id="addon-wrapping"></span>
-									<input type="text" className="form-control" placeholder="Tomate..." onChange={(e)=>setName(e.target.value)} value = {name} aria-label="Username" aria-describedby="addon-wrapping"/>
+									<input type="text" className="form-control" placeholder="Tomate..." onChange={(e)=>setNameModal(e.target.value)} value = {nameModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
 								<div className="input-group flex-nowrap">
 									<span className="input-group-text" id="addon-wrapping"></span>
-									<input type="text" className="form-control" placeholder="Valencia..." onChange={(e)=>setOrigin(e.target.value)} value = {origin} aria-label="Username" aria-describedby="addon-wrapping"/>
+									<input type="text" className="form-control" placeholder="Valencia..." onChange={(e)=>setOriginModal(e.target.value)} value = {originModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
 								<div className="input-group flex-nowrap">
 									<span className="input-group-text" id="addon-wrapping"></span>
-									<input type="text" className="form-control" placeholder="Había una vez..." onChange={(e)=>setDescription(e.target.value)} value = {description} aria-label="Username" aria-describedby="addon-wrapping"/>
+									<input type="text" className="form-control" placeholder="Había una vez..." onChange={(e)=>setDescriptionModal(e.target.value)} value = {descriptionModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
 								<div className="input-group flex-nowrap">
 									<span className="input-group-text" id="addon-wrapping"></span>
-									<input type="text" className="form-control" placeholder="3,14..." onChange={(e)=>setPrice(e.target.value)} value = {price} aria-label="Username" aria-describedby="addon-wrapping"/>
+									<input type="text" className="form-control" placeholder="3,14..." onChange={(e)=>setPriceModal(e.target.value)} value = {priceModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
                             </div>
                             <div className="modal-footer">
