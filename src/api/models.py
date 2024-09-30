@@ -17,3 +17,23 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+    
+class ProductCategories (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    categorie = db.Column(db.String(40), unique=True, nullable=False)
+    
+
+    def __repr__(self):
+        return f'<Categorie {self.categorie}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "categorie": self.categorie,
+            # do not serialize the password, its a security breach
+        }
+    
+
+  
+
+
