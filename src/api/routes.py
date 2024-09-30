@@ -111,7 +111,7 @@ def get_producer(producer_id):
     else:
         return jsonify(producer.serialize()), 200
     
-@api.route('/producer/delete/<int:producer_id>', methods=['DELETE'])
+@api.route('/producer/<int:producer_id>', methods=['DELETE'])
 def delete_producer(producer_id):
 
     producer = Producer.query.filter_by(id=producer_id).first()
@@ -119,6 +119,30 @@ def delete_producer(producer_id):
         return jsonify("ERROR: Could not delete the account. Maybe it doesn't exist"), 404
 
     db.session.delete(producer)
+    db.session.commit()
+
+    return jsonify(producer.serialize()), 200
+
+@api.route('/producer/<int:producer_id>', methods=['PUT'])
+def edit_producer(producer_id):
+    producer_data = request.get_json()
+    print(producer_data)
+    producer = Producer.query.filter_by(id=producer_id).first()
+
+    if producer is None:
+        return ("error","producer not found")
+    producer.email= producer_data.get("email", producer.email)
+    producer.password= producer_data.get("password", producer.password)
+    producer.brand_name= producer_data.get("brand_name", producer.brand_name)
+    producer.user_name= producer_data.get("user_name", producer.user_name)
+    producer.user_last_name= producer_data.get("user_last_name", producer.user_last_name)
+    producer.cif= producer_data.get("cif", producer.cif)
+    producer.address= producer_data.get("address", producer.address)
+    producer.province= producer_data.get("province", producer.province)
+    producer.zip_code= producer_data.get("zip_code", producer.zip_code)
+    producer.phone= producer_data.get("phone", producer.phone)
+    
+
     db.session.commit()
 
     return jsonify(producer.serialize()), 200

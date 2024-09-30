@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
+import { Link } from "react-router-dom";
 import { ProducerLogin } from "../component/producerLogin";
 import { ProducerSignup } from "../component/producerSignup";
 
@@ -10,6 +11,7 @@ export const Producers = () => {
         // actions.producerSignup();
         // actions.producerLogin();
      },[])
+
 
     return (
         <>
@@ -26,8 +28,11 @@ export const Producers = () => {
                         <p>{producer.user_name} {producer.user_last_name}</p>
                         <p>{producer.address}</p>
                         <p>{producer.phone}</p>
-                        <button type="button" className="delete btn btn-danger">Delete</button>
-                        <button type="button" className="edit btn btn-warning">Edit</button>
+                        <button type="button" className="delete btn btn-danger" onClick={()=>actions.deleteProducer(producer.id)}>Delete</button>
+                        <Link to={`/producer/ ${producer.id}`}>
+                            <button type="button" className="edit btn btn-warning">Edit</button>
+						</Link>
+                        
                     </div>
                 )
             ) : (

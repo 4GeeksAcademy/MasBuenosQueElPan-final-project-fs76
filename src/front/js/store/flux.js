@@ -34,7 +34,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        }),
 				  };
 				  
-				  fetch(process.env.BACKEND_URL + "/producer/signup", requestOptions)
+				  fetch(process.env.BACKEND_URL + "/api/producer/signup", requestOptions)
 				    .then((response) =>{
 						console.log(response.status)
 
@@ -63,7 +63,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "password": password
 				        }),
 				  };
-				fetch(process.env.BACKEND_URL + "/producer/login", requestOptions)
+				fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
 				.then((response) => {
 					console.log(response.status);
 					if (response.status === 200) {
@@ -79,39 +79,67 @@ const getState = ({ getStore, getActions, setStore }) => {
 				)
 			},
 
-			editProducer:() => {
+			// getProducer:(producerId) => {
+			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+			// 	console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+			// 	.then((response) => {
+			// 		console.log(response.status);
+			// 		if (response.status === 400)
+			// 			throw new error ("could not fecth the producer info")
+			// 		return response.json()
+			// 	})
+			// 	.then((data) => {console.log(data)})
+			// 	.catch((error) => console.error("error fetching producer", error))
+				
+			// },
+
+			editProducer:(producerId, currentProducer, updatedInfo) => {
 				const store = getStore();
 				const requestOptions = {
 				    method: "PUT",
 				    headers: {"Content-Type": "application/json"},
-				    body: JSON.stringify({
-				        "email": email,
-				        "password": password
-				        }),
+				    body: JSON.stringify({...currentProducer, ...updatedInfo}),
 				  };
-				fetch(process.env.BACKEND_URL + "/producer/edit", requestOptions)
-				.then((response) => response.json())
-				.then((data) => console.log(data))
-				.catch((error) => console.error("error editing producer", error)
-				)
-			},
-			deleteProducer:() => {
-				const store = getStore();
-				const requestOptions = {
-				    method: "DELETE",
-				    headers: {"Content-Type": "application/json"},
-				    body: JSON.stringify({
-				        "email": email,
-				        "password": password
-				        }),
-				  };
-				fetch(process.env.BACKEND_URL + "/producer/delete", requestOptions)
-				.then((response) => response.json())
-				.then((data) => console.log(data))
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+				.then((response) => {
+					console.log(response.status);
+					if (response.status === 400) {
+						throw new error ("error editing producer")
+					}
+					return response.json()
+				})
+				.then((data) => {
+					console.log(data);
+					const updatedProducerInfo = store.producers.map(producer => producer.id === producerId ? {...producer, ...updatedInfo} : producer);
+					setStore({ producers: updatedProducerInfo})
+				})
 				.catch((error) => console.error("error editing producer", error)
 				)
 			},
 
+			deleteProducer:(producerId) =>{
+				const requestOptions = {
+				    method: "DELETE",
+				    headers: {"Content-Type": "application/json"},
+				  };
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+				// console.log("deleting producer from flux")
+				// console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+				
+				.then((response) => {
+					console.log(response.status);
+					if (response.status === 400) {
+						throw new error ("error while trying to delete in first then")
+					}
+					return response.json()
+				})
+				.then ((data) => {
+					console.log(data)
+				})
+				.catch((error)=> console.log("error deleting producer", error)
+				)
+				
+			},
 
 
 			getProducers:() =>{
@@ -130,6 +158,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 			})
 			.catch((error)=> console.error("there was an error in the process",error)
 			)},
+			
+			
 
 
 			getMessage: async () => {
