@@ -17,17 +17,18 @@ export const Producers = () => {
         <>
         <div className="container d-inline-flex my-4 gap-3">
             <ProducerSignup />
-            <ProducerLogin />
+            {/* <ProducerLogin /> */}
         </div>
             <h2>Producer List</h2>
+            <div className="container d-inline-flex my-4 gap-3">
             {store.producers.length > 0 ? (
                 store.producers.map((producer, index) => 
                     <div key={index}>
-                        <h3>{producer.brand_name}</h3>
+                        <h3>{producer.brand_name || "no brand_name"}</h3>
                         <p>{producer.email}</p>
-                        <p>{producer.user_name} {producer.user_last_name}</p>
-                        <p>{producer.address}</p>
-                        <p>{producer.phone}</p>
+                        <p>{producer.user_name || "no username"} {producer.user_last_name || "no user_last_name"}</p>
+                        <p>{producer.address || "no address"}</p>
+                        <p>{producer.phone || "no phone"}</p>
                         <button type="button" className="delete btn btn-danger" onClick={()=>actions.deleteProducer(producer.id)}>Delete</button>
                         <Link to={"/producer/" + producer.id}>
                             <button type="button" className="edit btn btn-warning">Edit</button>
@@ -38,6 +39,7 @@ export const Producers = () => {
             ) : (
                 <p>No producers found</p>
             )}
+            </div>
         </>
     );
 };

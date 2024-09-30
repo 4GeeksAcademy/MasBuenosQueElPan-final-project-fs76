@@ -1,5 +1,4 @@
 const getState = ({ getStore, getActions, setStore }) => {
-	const storedProducers = JSON.parse(localStorage.getItem('producers')) || [];
 	return {
 		store: {
 			message: null,
@@ -15,8 +14,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
-			producers: storedProducers,
-			isLoggedIn: false,
+			producers: [],
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -33,6 +31,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "email": email,
 				        "password": password
 				        }),
+						
 				  };
 				  
 				  fetch(process.env.BACKEND_URL + "/api/producer/signup", requestOptions)
@@ -40,6 +39,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						console.log(response.status)
 
 							if (response.status === 200) {
+								// actions.getProducers()
 								const newProducer = { email, password };
 								setStore({
 									producers: [...store.producers, newProducer],
@@ -64,13 +64,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "password": password
 				        }),
 				  };
-				fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
+				fetch(process.env.BACKEND_URL + "/api/producer", requestOptions)
 				.then((response) => {
 					console.log(response.status);
 					if (response.status === 200) {
-						setStore({isLoggedIn:true})
+						return response.json()
 					}
-					return response.json()
 				})
 				.then((data) => {
 					console.log(data);

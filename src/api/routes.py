@@ -30,27 +30,27 @@ def handle_hello():
 def handle_signup():
     email = request.json["email"]
     password = request.json["password"]
-    brand_name = request.json["brand_name"]
-    user_name = request.json["user_name"]
-    user_last_name = request.json["user_last_name"]
-    cif = request.json["cif"]
-    address = request.json["address"]
-    province = request.json["province"]
-    zip_code = request.json["zip_code"]
-    phone = request.json["phone"]
+    # brand_name = request.json["brand_name"]
+    # user_name = request.json["user_name"]
+    # user_last_name = request.json["user_last_name"]
+    # cif = request.json["cif"]
+    # address = request.json["address"]
+    # province = request.json["province"]
+    # zip_code = request.json["zip_code"]
+    # phone = request.json["phone"]
     print(email,password)
 
     new_producer = Producer(
         email=email,
         password=password,
-        brand_name=brand_name,
-        user_name=user_name,
-        user_last_name=user_last_name,
-        cif=cif,
-        address=address,
-        province=province,
-        zip_code=zip_code,
-        phone=phone,
+        # brand_name=brand_name,
+        # user_name=user_name,
+        # user_last_name=user_last_name,
+        # cif=cif,
+        # address=address,
+        # province=province,
+        # zip_code=zip_code,
+        # phone=phone,
         is_active=True
         )
     
