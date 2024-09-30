@@ -1,4 +1,5 @@
 const getState = ({ getStore, getActions, setStore }) => {
+	const storedProducers = JSON.parse(localStorage.getItem('producers')) || [];
 	return {
 		store: {
 			message: null,
@@ -14,7 +15,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
-			producers: [],
+			producers: storedProducers,
 			isLoggedIn: false,
 		},
 		actions: {

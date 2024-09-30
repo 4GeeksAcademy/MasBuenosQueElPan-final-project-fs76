@@ -29,7 +29,7 @@ export const Producers = () => {
                         <p>{producer.address}</p>
                         <p>{producer.phone}</p>
                         <button type="button" className="delete btn btn-danger" onClick={()=>actions.deleteProducer(producer.id)}>Delete</button>
-                        <Link to={`/producer/ ${producer.id}`}>
+                        <Link to={"/producer/" + producer.id}>
                             <button type="button" className="edit btn btn-warning">Edit</button>
 						</Link>
                         
