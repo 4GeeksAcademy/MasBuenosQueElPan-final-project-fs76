@@ -114,7 +114,7 @@ export const Product = () => {
                     </div>
                     <div className="mb-3">
                         <label form="priceinput" className="form-label">Price</label>
-                        <input type="text" className="form-control" id="priceinput" placeholder="3,12..."  value={price} onChange={(event)=>setPrice(event.target.value)} />
+                        <input type="number" className="form-control" id="priceinput" placeholder="3,12..."  value={price} onChange={(event)=>setPrice(event.target.value)} />
                     </div>
                     <div className="mb-3">
                         <label form="descriptioninput" className="form-label">description</label>
@@ -138,19 +138,19 @@ export const Product = () => {
                             </div>
                             <div className="modal-body">
 								<div className="input-group flex-nowrap">
-									<span className="input-group-text" id="addon-wrapping"></span>
+									<span className="input-group-text" id="addon-wrapping">Nombre Producto</span>
 									<input type="text" className="form-control" placeholder="Tomate..." onChange={(e)=>setNameModal(e.target.value)} value = {nameModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
 								<div className="input-group flex-nowrap">
-									<span className="input-group-text" id="addon-wrapping"></span>
+									<span className="input-group-text" id="addon-wrapping">Origen</span>
 									<input type="text" className="form-control" placeholder="Valencia..." onChange={(e)=>setOriginModal(e.target.value)} value = {originModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
 								<div className="input-group flex-nowrap">
-									<span className="input-group-text" id="addon-wrapping"></span>
+									<span className="input-group-text" id="addon-wrapping">Descripción</span>
 									<input type="text" className="form-control" placeholder="Había una vez..." onChange={(e)=>setDescriptionModal(e.target.value)} value = {descriptionModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
 								<div className="input-group flex-nowrap">
-									<span className="input-group-text" id="addon-wrapping"></span>
+									<span className="input-group-text" id="addon-wrapping">Precio</span>
 									<input type="text" className="form-control" placeholder="3,14..." onChange={(e)=>setPriceModal(e.target.value)} value = {priceModal} aria-label="Username" aria-describedby="addon-wrapping"/>
 								</div>
                             </div>
