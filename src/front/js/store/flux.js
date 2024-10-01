@@ -2,6 +2,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
+			products: [
+				
+			],
 			demo: [
 				{
 					title: "FIRST",
@@ -14,15 +17,89 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
-			producers: [],
-			categories: []
+			producers: [
+
+			],
+			categories: [
+				
+			]
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
+
+			//Estos son productos!! fetch(process.env.BACKEND_URL + "/api/producers")
+			getProducts:() => {
+				const store = getStore();
+				const requestOptions = {
+					method: "GET",
+				  };
+				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+				.then((response)=> response.json())
+				.then((data)=> setStore({ products: data }))
 			
+			},
+			modifyProduct: (newProductInfo) => {
+				const myid = newProductInfo.id
+				const raw = JSON.stringify({
+					"description": newProductInfo.description,
+					"name": newProductInfo.name,
+					"origin": newProductInfo.origin,
+					"price": newProductInfo.price
+				  });
+				  
+				  const requestOptions = {
+					method: "PUT",
+					headers: {
+						"Content-type": "application/json",
+					},
+					body: raw,
+					
+				  };
+
+				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
+  				.then((response) => response.json())
+				.then((data)=> 
+					getActions().getProducts()
+			)
+			},
+			deleteProduct: (id)=>{
+				const requestOptions = {
+					method: "DELETE",
+				  };
+				  
+				  fetch(`${process.env.BACKEND_URL}/api/product/${id}`, requestOptions)
+					.then((response) => response.text())
+					.then((result) => {console.log(result),
+						getActions().getProducts()})
+					.catch((error) => console.error(error));
+			},
+			addProducts:(newProduct) => {
+				const raw = JSON.stringify({
+					"origin": newProduct.origin,
+					"description": newProduct.description,
+					"name": newProduct.name,
+					"price": newProduct.price
+				  });
+				  
+				  const requestOptions = {
+					method: "POST",
+					body: raw,
+					headers: {
+						"Content-type": "application/json",
+					}
+				  };
+				  
+				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+					.then((response) => response.json())
+					.then((result) => 
+						getActions().getProducts()
+					)
+					.catch((error) => console.error(error));
+			},
+			//Estos son categorías!!
 			functionCategories: ()=>
 			{	const store = getStore()
 				const requestOptions = {
@@ -76,7 +153,30 @@ const getState = ({ getStore, getActions, setStore }) => {
 				})
 				.catch((error) => console.error(error));
 			},
+			updateCategory: (categoryId, newName) => {
+				// console.log(categoryId);
+				(categoryId)
+                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ categorie: newName })
+                })
+                .then((response) => response.json())
+                .then((result) => {
+                    // console.log("Respuesta de la edición", result);
+                    const store = getStore();
+                    // Actualiza el estado local con la nueva información de la categoría
+                    const updatedCategories = store.categories.map(category => 
+                        category.id === categoryId ? { ...category, categorie: newName } : category
+                    );
+                    setStore({ categories: updatedCategories });
+                })
+                .catch((error) => console.error(error));
+            },
 
+			//Estos son productores!!
 			producerSignup: (email, password)=> {
 				const store = getStore();
 				const requestOptions = {
@@ -148,28 +248,40 @@ const getState = ({ getStore, getActions, setStore }) => {
 				
 			// },
 
-			editProducer:(producerId, currentProducer, updatedInfo) => {
+			editProducer: (producerId, updatedInfo) => {
 				const store = getStore();
+				
+				// Obtener el productor actual desde el estado
+				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
+				
+				if (!currentProducer) {
+					console.error("Producer not found");
+					return;
+				}
+				
 				const requestOptions = {
-				    method: "PUT",
-				    headers: {"Content-Type": "application/json"},
-				    body: JSON.stringify({...currentProducer, ...updatedInfo}),
-				  };
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
+				};
+			
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
-				.then((response) => {
-					console.log(response.status);
-					if (response.status === 400) {
-						throw new error ("error editing producer")
-					}
-					return response.json()
-				})
-				.then((data) => {
-					console.log(data);
-					const updatedProducerInfo = store.producers.map(producer => producer.id === producerId ? {...producer, ...updatedInfo} : producer);
-					setStore({ producers: updatedProducerInfo})
-				})
-				.catch((error) => console.error("error editing producer", error)
-				)
+					.then((response) => {
+						console.log(response.status);
+						if (response.status === 400) {
+							throw new Error("Error editing producer");
+						}
+						return response.json();
+					})
+					.then((data) => {
+						console.log(data);
+						// Actualizar la lista de productores en el estado
+						const updatedProducerInfo = store.producers.map(producer => 
+							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
+						);
+						setStore({ producers: updatedProducerInfo });
+					})
+					.catch((error) => console.error("Error editing producer", error));
 			},
 
 			deleteProducer:(producerId) =>{
@@ -189,7 +301,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return response.json()
 				})
 				.then ((data) => {
-					console.log(data)
+					console.log(data),
+					getActions().getProducers()
 				})
 				.catch((error)=> console.log("error deleting producer", error)
 				)
@@ -225,32 +338,33 @@ const getState = ({ getStore, getActions, setStore }) => {
 					setStore({ message: data.message })
 					// don't forget to return something, that is how the async resolves
 					return data;
-				}catch(error){
+				}
+				catch(error){
 					console.log("Error loading message from backend", error)
 				}
 			},
-			updateCategory: (categoryId, newName) => {
-				console.log(categoryId);
-				(categoryId)
-                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ categorie: newName })
-                })
-                .then((response) => response.json())
-                .then((result) => {
-                    console.log(result);
-                    const store = getStore();
-                    // Actualiza el estado local con la nueva información de la categoría
-                    const updatedCategories = store.categories.map(category => 
-                        category.id === categoryId ? { ...category, categorie: newName } : category
-                    );
-                    setStore({ categories: updatedCategories });
-                })
-                .catch((error) => console.error(error));
-            },
+			// updateCategory: (categoryId, newName) => {
+			// 	console.log(categoryId);
+			// 	(categoryId)
+            //     fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+            //         method: "PUT",
+            //         headers: {
+            //             "Content-Type": "application/json"
+            //         },
+            //         body: JSON.stringify({ categorie: newName })
+            //     })
+            //     .then((response) => response.json())
+            //     .then((result) => {
+            //         console.log(result);
+            //         const store = getStore();
+            //         // Actualiza el estado local con la nueva información de la categoría
+            //         const updatedCategories = store.categories.map(category => 
+            //             category.id === categoryId ? { ...category, categorie: newName } : category
+            //         );
+            //         setStore({ categories: updatedCategories });
+            //     })
+            //     .catch((error) => console.error(error));
+            // },
     
 			changeColor: (index, color) => {
 				//get the store
@@ -271,3 +385,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 };
 
 export default getState;
+
+
+

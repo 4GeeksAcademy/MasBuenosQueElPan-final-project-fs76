@@ -10,7 +10,7 @@ export const Producers = () => {
         actions.getProducers();
         // actions.producerSignup();
         // actions.producerLogin();
-     },[store.producers])
+     },[])   //store.producers
 
 
     return (

@@ -26,7 +26,7 @@ export const EditProducer = () => {
         setShowSuccessMessage(true);
         setTimeout(() => {
             navigate("/producers");
-        }, 4000);
+        }, 2000);
     }
     const handleExit = () => {
         navigate("/producers")

@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Numeric
 
 db = SQLAlchemy()
 
@@ -17,8 +18,28 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
-    
 
+##PRODUCT##
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(60), unique=False, nullable=False)
+    price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+    description = db.Column(db.String(200), unique=False, nullable=False)
+    origin = db.Column(db.String(120), unique=False, nullable=False)
+    #Representación básica
+    def __repr__(self):
+        return f'<Product {self.name}>'
+    #Representación completa
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "price": self.price,
+            "description": self.description,
+            "origin": self.origin,
+        }
+
+##PRODUCER##
 class Producer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(300), unique=True, nullable=False)
@@ -32,10 +53,10 @@ class Producer(db.Model):
     zip_code = db.Column(db.Integer, unique=False, nullable=True)
     phone = db.Column(db.Integer, unique=True, nullable=True)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-
+    #Representación básico
     def __repr__(self):
         return f'<User {self.email}>'
-
+    #Representación completa
     def serialize(self):
         return {
             "id": self.id,
@@ -50,15 +71,15 @@ class Producer(db.Model):
             "phone": self.phone,
             # do not serialize the password, its a security breach
         }
-    
 
+##PRODUCT CATEGORIES##
 class ProductCategories (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     categorie = db.Column(db.String(40), unique=True, nullable=False)
-    
+    #Representación básica
     def __repr__(self):
         return f'<Categorie {self.categorie}>'
-    
+    #Representación completa
     def serialize(self):
         return {
             "categorie": self.categorie,

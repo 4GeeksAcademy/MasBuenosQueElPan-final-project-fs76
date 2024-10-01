@@ -2,9 +2,10 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories
+from api.models import db, User, Producer, ProductCategories, Product
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from decimal import Decimal
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -26,6 +27,133 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+
+#####GET Products#####
+@api.route('/product', methods=['GET'])
+def view_products():
+    all_products = Product.query.all()
+    result = list(map(lambda product: product.serialize(), all_products))
+    if not result:
+        response_body = {
+            "msg" : "No existen datos"
+        }
+        return jsonify(response_body),200
+    return jsonify(result), 200
+
+#####POST Products#####
+
+@api.route('/product', methods=['POST'])
+def add_product():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"msg":"No se han proporcioando datos"}), 400
+        
+        ##Body Obtener respuesta
+        name = data.get('name')
+        price = data.get('price')
+        description = data.get('description')
+        origin = data.get('origin')
+
+        #Validación de la respuesta
+        if not name or not price or not description or not origin:
+            return jsonify({"msg": "Faltan datos"}), 400
+        
+        #Hago verificación de que el precio sea número
+
+        try:
+            price = float(price)
+            if price <0:
+                return jsonify({"msg":"El número debe ser positivo"}), 400
+        except ValueError:
+            return jsonify({"msg":"El precio debe ser un número"}), 400
+
+        #Añadir nuevo producto
+        new_product = Product(
+            name=name,
+            price=price,
+            description=description,
+            origin=origin 
+        )
+
+        #Actualizar la base de datos
+        db.session.add(new_product)
+        db.session.commit()
+
+        return jsonify(new_product.serialize()),201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+#####PUT Products#####
+
+@api.route('/product/<int:id>', methods=['PUT'])
+def edit_product(id):
+    try:
+        #Primero traemos el producto de la base de datos
+        product = Product.query.get(id)
+        if not product:
+            return jsonify({"msg":"Product no encontrado"}), 404
+
+        #Traemos la respuesta
+        data = request.get_json()
+        if not data:
+            return jsonify({"msg":"No se han proporcionado datos"}), 400
+        
+        name = data.get("name")
+        price = data.get("price")
+        description = data.get("description")
+        origin = data.get("origin")
+
+        #Actualizamos la base de datos
+        if name:
+            product.name = name
+        if price:
+            try:
+                product.price = float(price)
+            except ValueError:
+                return jsonify({"msg":"El precio debe ser un número"}), 400
+            product.price = price
+        if description:
+            product.description = description
+        if origin:
+            product.origin = origin
+        
+        #Guardamos los datos en la base de datos
+        db.session.commit()
+
+        return jsonify(product.serialize()),200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+#####DELETE Products#####
+
+@api.route('/product/<int:id>', methods=['DELETE'])
+def delete_product(id):
+    try:
+        #Seleccionamos el producto que queremos eliminar
+        product = Product.query.get(id)
+
+        if not product:
+            return jsonify({"msg": "Producto no encontrado"}), 404
+        
+        #Eliminamos el producto
+        db.session.delete(product)
+        db.session.commit()
+
+        return jsonify({"msg":"se ha eliminado el producto"}), 200
+        
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+####PRODUCER SINGUP #####
 @api.route('/producer/signup', methods=['POST'])
 def handle_signup():
     email = request.json["email"]
@@ -65,7 +193,7 @@ def handle_signup():
 
     return jsonify({"message": "User created successfully!"}), 201
 
-
+####GET PRODUCERS####
 @api.route('/producers', methods=['GET'])
 def get_producers():
     producers = Producer.query.order_by(Producer.email).all()
@@ -74,7 +202,20 @@ def get_producers():
     return jsonify(result), 200
 
 
-# for logging in
+@api.route('/user', methods=['GET'])
+def view_users():
+    all_users= User.query.all()
+    results = list(map(lambda usuario: usuario.serialize(), all_users))
+    print(results)
+
+    response_body = {
+        "msg": "Hello, this is your GET /user response "
+    }
+
+    return jsonify(results), 200
+
+
+##### PRODUCER for logging in######
 @api.route("/producer/login", methods=["POST"])
 def handle_login():
     email = request.json.get("email", None)
@@ -103,6 +244,7 @@ def protected():
     return jsonify(logged_in_as=current_user), 200
 
 
+#####GET ONE PRODUCER#####
 @api.route('/producer/<int:producer_id>', methods=['GET'])
 def get_producer(producer_id):
     producer = Producer.query.filter_by(id=producer_id).first()
@@ -111,6 +253,7 @@ def get_producer(producer_id):
     else:
         return jsonify(producer.serialize()), 200
     
+##### DELETE ONE PRODUCER####
 @api.route('/producer/<int:producer_id>', methods=['DELETE'])
 def delete_producer(producer_id):
 
@@ -123,6 +266,7 @@ def delete_producer(producer_id):
 
     return jsonify(producer.serialize()), 200
 
+#####EDIT ONE PRODUCER#####
 @api.route('/producer/<int:producer_id>', methods=['PUT'])
 def edit_producer(producer_id):
     producer_data = request.get_json()
@@ -147,14 +291,16 @@ def edit_producer(producer_id):
 
     return jsonify(producer.serialize()), 200
 
+#####GET CATEGORIES#####
 @api.route('/categories', methods=['GET'])
 def get_categories():
     all_categories= ProductCategories.query.all()    
     results = list (map(lambda categorie: categorie.serialize (), all_categories)) 
     
-
     return jsonify(results), 200
 
+
+####GET ONE CATEGORIE#####
 @api.route('/categories/<int:categorie_id>', methods=['GET'])
 def get_categorie(categorie_id):
     print(f"Fetching category with ID: {categorie_id}")
@@ -164,6 +310,7 @@ def get_categorie(categorie_id):
         return jsonify({"msg": "Category not found"}), 404
     return jsonify(categorie.serialize()), 200
 
+#####DELETE ONE CATEGORIE####
 @api.route('/categories/<int:categorie_id>', methods=['DELETE'])
 def delete_categorie(categorie_id):
     print(categorie_id)
@@ -176,7 +323,7 @@ def delete_categorie(categorie_id):
     return jsonify({'message': f' Has  borrado la categoría {categorie_id}'}), 200
 
 
-
+##### POST CETEGORIES#####
 @api.route('/categories', methods=['POST'])
 def add_categorie():
     body = request.get_json()
@@ -198,6 +345,8 @@ def add_categorie():
      
     return jsonify(response_body), 200
 
+
+##### PUT CATEGORIES#####
 @api.route('/categories/<int:categorie_id>', methods=['PUT'])
 def update_categorie(categorie_id):
     categorie_data = request.get_json()
