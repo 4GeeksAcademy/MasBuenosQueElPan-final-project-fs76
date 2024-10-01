@@ -14,7 +14,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
-		
+			producers: [],
 			categories: []
 		},
 		actions: {
@@ -30,7 +30,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					
 				  };
 				  
-				  fetch("https://expert-memory-66q5pvp95vj257vq-3001.app.github.dev/api/categorias", requestOptions)
+				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
 					.then((response) => response.json())
 					.then((result) => {console.log (result),
 						setStore({categories: result} ) }) 
@@ -39,22 +39,30 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			
 			deleteCategory: (categoryId) => {
-                fetch(`https://expert-memory-66q5pvp95vj257vq-3001.app.github.dev/api/categorias/${categoryId}`, {
-                    method: "DELETE"
+				console.log(categoryId);
+				
+                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+                    method: "DELETE",
+					headers: {"Content-Type": "application/json"},
                 })
-                .then((response) => response.json())
+                .then((response) => {
+					console.log(response.status);
+					
+					response.json()})
                 .then((result) => {
                     console.log(result);
                     const store = getStore();
                     // Filtra las categorías eliminando la que fue borrada
                     const updatedCategories = store.categories.filter(category => category.id !== categoryId);
-                    setStore({ categories: updatedCategories });
+					console.log(updatedCategories);
+					
+					setStore({ categories: updatedCategories });
                 })
                 .catch((error) => console.error(error));
             },
 			
 			addCategory: (newCategoryName) => {
-				fetch("https://expert-memory-66q5pvp95vj257vq-3001.app.github.dev/api/categorias", {
+				fetch(process.env.BACKEND_URL + "/api/categories", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json"
@@ -69,6 +77,146 @@ const getState = ({ getStore, getActions, setStore }) => {
 				.catch((error) => console.error(error));
 			},
 
+			producerSignup: (email, password)=> {
+				const store = getStore();
+				const requestOptions = {
+				    method: "POST",
+				    headers: {"Content-Type": "application/json"},
+				    body: JSON.stringify({
+				        "email": email,
+				        "password": password
+				        }),
+						
+				  };
+				  
+				  fetch(process.env.BACKEND_URL + "/api/producer/signup", requestOptions)
+				    .then((response) =>{
+						console.log(response.status)
+
+							if (response.status === 200) {
+								// actions.getProducers()
+								const newProducer = { email, password };
+								setStore({
+									producers: [...store.producers, newProducer],
+								});
+							}
+							return response.json()
+						})
+						.then(data => {
+							console.log(data)
+						})
+					
+				    .catch((error) => console.error("Error during signup:", error))
+				},
+
+			producerLogin:(email, password) => {
+				const store = getStore();
+				const requestOptions = {
+				    method: "POST",
+				    headers: {"Content-Type": "application/json"},
+				    body: JSON.stringify({
+				        "email": email,
+				        "password": password
+				        }),
+				  };
+				fetch(process.env.BACKEND_URL + "/api/producer", requestOptions)
+				.then((response) => {
+					console.log(response.status);
+					if (response.status === 200) {
+						return response.json()
+					}
+				})
+				.then((data) => {
+					console.log(data);
+					localStorage.setItem("token", data.access_token)
+				})
+				.catch((error) => console.error("error while login in", error)
+				)
+			},
+
+			// getProducer:(producerId) => {
+			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+			// 	console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+			// 	.then((response) => {
+			// 		console.log(response.status);
+			// 		if (response.status === 400)
+			// 			throw new error ("could not fecth the producer info")
+			// 		return response.json()
+			// 	})
+			// 	.then((data) => {console.log(data)})
+			// 	.catch((error) => console.error("error fetching producer", error))
+				
+			// },
+
+			editProducer:(producerId, currentProducer, updatedInfo) => {
+				const store = getStore();
+				const requestOptions = {
+				    method: "PUT",
+				    headers: {"Content-Type": "application/json"},
+				    body: JSON.stringify({...currentProducer, ...updatedInfo}),
+				  };
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+				.then((response) => {
+					console.log(response.status);
+					if (response.status === 400) {
+						throw new error ("error editing producer")
+					}
+					return response.json()
+				})
+				.then((data) => {
+					console.log(data);
+					const updatedProducerInfo = store.producers.map(producer => producer.id === producerId ? {...producer, ...updatedInfo} : producer);
+					setStore({ producers: updatedProducerInfo})
+				})
+				.catch((error) => console.error("error editing producer", error)
+				)
+			},
+
+			deleteProducer:(producerId) =>{
+				const requestOptions = {
+				    method: "DELETE",
+				    headers: {"Content-Type": "application/json"},
+				  };
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+				// console.log("deleting producer from flux")
+				// console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+				
+				.then((response) => {
+					console.log(response.status);
+					if (response.status === 400) {
+						throw new error ("error while trying to delete in first then")
+					}
+					return response.json()
+				})
+				.then ((data) => {
+					console.log(data)
+				})
+				.catch((error)=> console.log("error deleting producer", error)
+				)
+				
+			},
+
+
+			getProducers:() =>{
+				const store = getStore()
+			fetch(process.env.BACKEND_URL + "/api/producers")
+			.then((response) => {
+				console.log(response.status);
+				if (response.status === 400) {
+					throw new Error ("could not fetch producers")
+				}
+				return response.json()
+			})
+			.then((data) => {
+				console.log(data);
+				setStore({ producers: data })
+			})
+			.catch((error)=> console.error("there was an error in the process",error)
+			)},
+			
+			
+
+
 			getMessage: async () => {
 				try{
 					// fetching data from the backend
@@ -82,7 +230,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 			updateCategory: (categoryId, newName) => {
-                fetch(`https://expert-memory-66q5pvp95vj257vq-3001.app.github.dev/api/categorias/${categoryId}`, {
+				console.log(categoryId);
+				(categoryId)
+                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json"
