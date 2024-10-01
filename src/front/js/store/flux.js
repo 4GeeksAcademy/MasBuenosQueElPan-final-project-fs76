@@ -15,11 +15,66 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			],
 			producers: [],
+			categories: []
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
+			},
+			
+			functionCategories: ()=>
+			{	const store = getStore()
+				const requestOptions = {
+					method: "GET",
+					
+				  };
+				  
+				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
+					.then((response) => response.json())
+					.then((result) => {console.log (result),
+						setStore({categories: result} ) }) 
+					.catch((error) => console.error(error));
+				
+			},
+			
+			deleteCategory: (categoryId) => {
+				console.log(categoryId);
+				
+                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+                    method: "DELETE",
+					headers: {"Content-Type": "application/json"},
+                })
+                .then((response) => {
+					console.log(response.status);
+					
+					response.json()})
+                .then((result) => {
+                    console.log(result);
+                    const store = getStore();
+                    // Filtra las categorías eliminando la que fue borrada
+                    const updatedCategories = store.categories.filter(category => category.id !== categoryId);
+					console.log(updatedCategories);
+					
+					setStore({ categories: updatedCategories });
+                })
+                .catch((error) => console.error(error));
+            },
+			
+			addCategory: (newCategoryName) => {
+				fetch(process.env.BACKEND_URL + "/api/categories", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ categorie: newCategoryName })
+				})
+				.then((response) => response.json())
+				.then((result) => {
+					console.log(result);
+					getActions().functionCategories();
+				})
+				.catch((error) => console.error(error));
 			},
 
 			producerSignup: (email, password)=> {
@@ -174,6 +229,29 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log("Error loading message from backend", error)
 				}
 			},
+			updateCategory: (categoryId, newName) => {
+				console.log(categoryId);
+				(categoryId)
+                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ categorie: newName })
+                })
+                .then((response) => response.json())
+                .then((result) => {
+                    console.log(result);
+                    const store = getStore();
+                    // Actualiza el estado local con la nueva información de la categoría
+                    const updatedCategories = store.categories.map(category => 
+                        category.id === categoryId ? { ...category, categorie: newName } : category
+                    );
+                    setStore({ categories: updatedCategories });
+                })
+                .catch((error) => console.error(error));
+            },
+    
 			changeColor: (index, color) => {
 				//get the store
 				const store = getStore();

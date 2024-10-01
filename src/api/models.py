@@ -50,3 +50,23 @@ class Producer(db.Model):
             "phone": self.phone,
             # do not serialize the password, its a security breach
         }
+    
+
+class ProductCategories (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    categorie = db.Column(db.String(40), unique=True, nullable=False)
+    
+    def __repr__(self):
+        return f'<Categorie {self.categorie}>'
+    
+    def serialize(self):
+        return {
+            "categorie": self.categorie,
+            "id": self.id,
+            # do not serialize the password, its a security breach
+        }
+    
+
+  
+
+

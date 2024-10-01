@@ -4,6 +4,7 @@ import ScrollToTop from "./component/scrollToTop";
 import { BackendURL } from "./component/backendURL";
 
 import { Home } from "./pages/home";
+import { Categories } from "./pages/categories";
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import { Producers } from "./pages/producers";
@@ -32,6 +33,7 @@ const Layout = () => {
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Producers />} path="/producers" />
                         <Route element={<EditProducer />} path="/producer/:producerId" />
+                        <Route element={<Categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
