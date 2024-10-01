@@ -25,8 +25,11 @@ export const Navbar = () => {
 					<Link to="/product" className="mx-2">
 						<button className="btn btn-primary">View Products</button>
 					</Link>
+					<Link to="/productlist" className="mx-2">
+						<button className="btn btn-primary">Product List</button>
+					</Link>
 				</div>
-				
+
 			</div>
 		</nav>
 	);

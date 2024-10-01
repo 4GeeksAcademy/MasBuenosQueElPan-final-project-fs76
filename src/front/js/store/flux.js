@@ -233,6 +233,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				.catch((error) => console.error("error while login in", error)
 				)
 			},
+			
 
 			// getProducer:(producerId) => {
 			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
