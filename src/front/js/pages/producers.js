@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
 import { ProducerLogin } from "../component/producerLogin";
@@ -6,19 +6,48 @@ import { ProducerSignup } from "../component/producerSignup";
 
 export const Producers = () => {
     const { store, actions } = useContext(Context);
+    const [ showSignup, setShowSignup ] = useState(false)
+
     useEffect(()=>{
         actions.getProducers();
         // actions.producerSignup();
         // actions.producerLogin();
-     },[])   //store.producers
+     },[])
 
 
     return (
         <>
-        <div className="container d-inline-flex my-4 gap-3">
-            <ProducerSignup />
-            {/* <ProducerLogin /> */}
-        </div>
+            <div>
+                
+                {showSignup ? (
+                    <ProducerSignup onBackToLogin={() => setShowSignup(false)} />
+                ) : (
+                    <ProducerLogin onSignup={() => setShowSignup(true)} />
+                )}
+                
+                {/* {showSignup ? (
+                    <ProducerSignup onBackToLogin={() => setShowSignup(false)} />
+                ) : (
+                    <>
+                        <h2>Producer Login</h2>
+                        <div className="mb-3">
+                            <label htmlFor="loginEmailInput" className="form-label">Email address</label>
+                            <input type="email" className="form-control" id="loginEmailInput" placeholder="name@example.com" />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="loginPasswordInput" className="form-label">Password</label>
+                            <input type="password" id="loginPasswordInput" className="form-control" aria-describedby="passwordHelpBlock" />
+                        </div>
+                        <div className="mb-3">
+                            <span className="" onClick={() => setShowSignup(true)} style={{ cursor: 'pointer', color: 'blue' }}>
+                                or Sign Up here
+                            </span>
+                        </div>
+                        <button type="submit" className="signup btn btn-primary">Login</button>
+                    </>
+                )} */}
+            </div>
+        
             <h2>Producer List</h2>
             <div className="container d-inline-flex my-4 gap-3">
             {store.producers.length > 0 ? (

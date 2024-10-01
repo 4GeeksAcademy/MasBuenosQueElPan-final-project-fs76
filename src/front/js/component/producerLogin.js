@@ -1,20 +1,26 @@
 import React, { useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
+import { Link } from "react-router-dom";
 
 export const ProducerLogin = () => {
     const { store, actions } = useContext(Context);
 
     return (
         <>
-        <div className="container d-block border border-radius">
+        <div className="container d-block border border-radius my-4">
         <h2>Producer Login</h2>
             <div className="mb-3">
                 <label htmlFor="loginEmailInput" className="form-label">Email address</label>
                 <input type="email" className="form-control" id="loginEmailInput" placeholder="name@example.com" />
             </div>
             <div className="mb-3">
-            <label htmlFor="loginPasswordInput" className="form-label">Password</label>
+                <label htmlFor="loginPasswordInput" className="form-label">Password</label>
                 <input type="password" id="loginPasswordInput" className="form-control" aria-describedby="passwordHelpBlock" />
+            </div>
+            <div className="mb-3">
+                <Link to="/producer/signup">
+                    <span className="">or Sign Up here</span>
+                </Link>
             </div>
             <button type="submit" className="signup btn btn-primary">Sing up</button>
         </div>

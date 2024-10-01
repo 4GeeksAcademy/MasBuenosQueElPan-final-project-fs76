@@ -27,7 +27,7 @@ export const ProducerSignup = () => {
 
     return (
         <>
-        <div className="container d-block border border-radius">
+        <div className="container d-block border border-radius my-4">
         <h2>Producer Signup</h2>
             <div className="mb-3">
                 <label htmlFor="signupEmailInput" className="form-label">Email address</label>
@@ -56,7 +56,10 @@ export const ProducerSignup = () => {
                 <span className="visually-hidden" role="status">Loading...</span>
             </div>
             }
-            <button type="submit" onClick={handleSignup} className="signup btn btn-primary">Sing up</button>
+            <button type="submit" onClick={handleSignup} className="signup btn btn-success">Sing up</button>
+            <Link to="/producers">
+                <button type="button" className="backlogin btn btn-secondary">Back to Login</button>
+            </Link>
         </div>
         </>
     );
