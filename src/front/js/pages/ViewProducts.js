@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import "../../styles/home.css";
+import { Link } from "react-router-dom";
 
 export const Product = () => {
 	const { store, actions } = useContext(Context);
@@ -121,6 +122,10 @@ export const Product = () => {
                     </div>
                     
                     <button type="submit" className="btn btn-primary">Submit</button>
+                    <Link to="/" className="mx-2">
+						<button className="btn btn-primary">Back Home</button>
+					</Link>
+
                 </form>
             </div>
             {showModal && (
