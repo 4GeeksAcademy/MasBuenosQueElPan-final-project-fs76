@@ -81,7 +81,8 @@ export const Product = () => {
 	return (
         <div className="container">
 			<ul className="list-group">
-				{store.products.map((productos, index) => {
+            {store.products && store.products.lenght >0 ? (
+				store.products.map((productos, index) => {
 					return (
 						<li
 							key={index}
@@ -98,7 +99,8 @@ export const Product = () => {
                                 </div>
 						</li>
 					);
-				})}
+				})
+            ) : <li>Todavía no existe ningún producto</li> }
 			</ul>
 			<br />
             <hr/>
@@ -121,7 +123,7 @@ export const Product = () => {
                         <input type="text" className="form-control" id="descriptioninput" placeholder="En un mundo lleno de margaritas..."  value={description} onChange={(event)=>setDescription(event.target.value)} />
                     </div>
                     
-                    <button type="submit" className="btn btn-primary">Submit</button>
+                    <button type="submit" className="btn btn-primary">Add New Product</button>
                     <Link to="/" className="mx-2">
 						<button className="btn btn-primary">Back Home</button>
 					</Link>

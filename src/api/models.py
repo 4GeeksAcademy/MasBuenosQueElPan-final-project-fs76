@@ -18,6 +18,74 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+    
+####CUSTOMER####
+class Customer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(60), unique=False, nullable = False)
+    last_name = db.Column(db.String(60), unique=False, nullable = False)
+    email = db.Column(db.String(120), unique = True, nullable = False)
+    password = db.Column (db.String(120), unique = False, nullable = False)
+    adress = db.Column(db.String(120), unique = False, nullable = False)
+    # province_id = db.Column(db.Integer, db.ForeignKey('province.id'), nullable=True) # Relación con la tabla de provincias
+    # province = db.relationship('Province', backref=db.backref('customers', lazy=True))
+    province = db.Column (db.String(120), unique=False, nullable=False)
+    aviation = db.Column(db.String(120), unique = False, nullable = False)
+    zipcode = db.Column (db.String(120), unique = False, nullable = False)
+    phone = db.Column (db.Integer, unique = False, nullable = False)
+    country = db.Column (db.String(80), unique = False, nullable = False)
+    is_active = db.Column (db.Boolean())
+    #Representación básica
+    def __repr__(self):
+        return f'<Customer {self.name}'
+    #Representación completa
+    def serialize(self):
+        return {
+            "id": self.id,
+            "customer_name": self.name,
+            "customer_lastname": self.last_name,
+            "customer_email": self.email,
+            "customer_password": self.password,
+            "customer_adress": self.adress,
+            "customer_provicen": self.province.name,
+            "customer_zipcode": self.zipcode,
+            "customer_phone": self.phone,
+            "customer_country": self.country,
+            "customer_isactive": self.is_active
+        }
+    
+
+# #####PROVINCES#####
+# class Province(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(120), unique=True, nullable=False)
+
+#     def __repr__(self):
+#         return f'<Province {self.name}>'
+
+#     def serialize(self):
+#         return {
+#             "id": self.id,
+#             "name": self.name
+#         }
+
+# #####DEFAULT PROVINCES#####
+# def populate_provinces():
+#     provinces = [
+#     "A Coruña", "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Baleares", 
+#     "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", 
+#     "Cuenca", "Girona", "Granada", "Guadalajara", "Guipúzcoa", "Huelva", "Huesca", "Jaén", "La Rioja", 
+#     "Las Palmas", "León", "Lleida", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", 
+#     "Pontevedra", "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", "Tarragona", 
+#     "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"] 
+#     for province in provinces:
+#         existing_province = Province.query.filter_by(name=province).first()
+#         if not existing_province:
+#             new_province = Province(name=province)
+#             db.session.add(new_province)
+#     db.session.commit()
+
+
 
 ##PRODUCT##
 class Product(db.Model):
@@ -55,7 +123,7 @@ class Producer(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     #Representación básico
     def __repr__(self):
-        return f'<User {self.email}>'
+        return f'<Producer {self.email}>'
     #Representación completa
     def serialize(self):
         return {

@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories, Product
+from api.models import db, User, Producer, ProductCategories, Product, Customer
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from decimal import Decimal
@@ -27,6 +27,80 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+# ####GET Provinces#####
+# @api.route('/provinces', methods=['GET'])
+# def get_provinces():
+#     all_provinces=Province.query.all()
+#     result = list(map(lambda province : province.serialize(),all_provinces))
+#     return jsonify(result),200
+
+#####GET Customer#####
+@api.route('/customers', methods=['GET'])
+def get_customers():
+    all_custumer = Customer.query.all()
+    result = list(map(lambda customer: customer.serialize(),all_custumer))
+    if not result:
+        return jsonify({"msg": "No existen datos"}), 200
+    return jsonify(result), 200
+
+
+#####POST Customer#####
+@api.route('/customers', methods=['POST'])
+def create_customer():
+    try:
+        #Primero traermos los datos
+        data = request.get_json()
+        if not data:
+            return jsonify({"msg": "No se han proporcionado datos"}), 400
+        #asignamos los datos
+        name = data.get('name')
+        last_name = data.get('last_name')
+        email = data.get('email')
+        password = data.get('password')
+        adress = data.get('adress')
+        # province_name = data.get ('province')
+        province = data.get('province')
+        zipcode = data.get ('zipcode')
+        phone = data.get ('phone')
+        country = data.get('country')
+
+        #Valido la respuesta
+        required_fields = ['name', 'last_name', 'email', 'password', 'adress', 'province', 'zipcode', 'phone', 'country']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"msg": f"Falta el campo {field}"}), 400
+            
+        # # Buscar la provincia en la base de datos
+        # province = Province.query.filter_by(name=province_name).first()
+        # if not province:
+        #     return jsonify({"msg": "La provincia especificada no existe"}), 400
+
+
+        #Añadimos el nuevo customer
+        new_customer = Customer(
+            name=name,
+            last_name = last_name,
+            email = email,
+            password = password,
+            adress = adress,
+            # province_id=province.id,
+            province = province,
+            zipcode = zipcode,
+            phone = phone,
+            country = country
+        )
+        #Actualizar la base de datos
+        db.session.add(new_customer)
+        db.session.commit()
+
+        return jsonify(new_customer.serialize()),201
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+
 
 #####GET Products#####
 @api.route('/product', methods=['GET'])
@@ -47,7 +121,7 @@ def add_product():
     try:
         data = request.get_json()
         if not data:
-            return jsonify({"msg":"No se han proporcioando datos"}), 400
+            return jsonify({"msg":"No se han proporcionado datos"}), 400
         
         ##Body Obtener respuesta
         name = data.get('name')
