@@ -29,7 +29,7 @@ const injectContext = PassedComponent => {
 			 * store, instead use actions, like this:
 			 **/
 			state.actions.getMessage();
-			state.actions.functionCategories();
+			state.actions.getCategories();
 			// <---- calling this function from the flux.js actions
 		}, []);
 

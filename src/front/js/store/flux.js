@@ -100,8 +100,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 			},
 			//Estos son categorías!!
-			functionCategories: ()=>
-			{	const store = getStore()
+			getCategories: ()=>{	
+				const store = getStore()
 				const requestOptions = {
 					method: "GET",
 					
@@ -113,7 +113,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 						setStore({categories: result} ) }) 
 					.catch((error) => console.error(error));
 				
-			},
+			
+					
 			
 			deleteCategory: (categoryId) => {
 				console.log(categoryId);

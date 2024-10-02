@@ -11,7 +11,7 @@ export const Categories = () => {
 	console.log (store.categories)
 	useEffect(() => {
 		const loadCategories = async () => {
-			await actions.functionCategories();
+			await actions.getCategories();
 		};
 		loadCategories();
 	}, []);
