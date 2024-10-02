@@ -191,7 +191,22 @@ def handle_signup():
     db.session.add(new_producer)
     db.session.commit()
 
-    return jsonify({"message": "User created successfully!"}), 201
+    return jsonify(new_producer.serialize()), 201
+
+####CHECK IF PRODUCER EXIST####
+@api.route('/checkProducer', methods=['POST'])
+def check_PRODUCER_exists():
+    email = request.json.get('email')
+
+    if not email:
+        return jsonify(message="Email is required"), 400
+
+    if email:
+        existing_user = Producer.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify(exists=True, message="Email already exists"), 200
+
+    return jsonify(exists=False), 200
 
 ####GET PRODUCERS####
 @api.route('/producers', methods=['GET'])

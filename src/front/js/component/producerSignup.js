@@ -8,21 +8,37 @@ export const ProducerSignup = () => {
     const [ email, setEmail ] = useState("");
     const [ password, setPassword ] = useState("");
     const [ showSuccessMessage, setShowSuccessMessage ] = useState(false);
+
+
     const navigate = useNavigate();
 
-    const handleSignup = (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
         if (!email || !password) {
-            return alert ("inputs must be fill")
-        } else if (!email.includes("@")) {
-            return alert ("@ must be in the email");
+            return alert("Both email and password must be filled.");
         }
-        actions.producerSignup(email, password)
-        setShowSuccessMessage(true)
-
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
+        if (!email.includes("@")) {
+            return alert("Email must contain '@'.");
+        }
+    
+        const producerExists = await actions.checkProducerExists(email);
+            if (producerExists) {
+                return ("User already exists.");
+            }
+            try {
+                const newProducer = await actions.producerSignup(email, password); 
+                
+                setShowSuccessMessage(true); 
+                console.log("Signup successful, navigating to login");
+                
+                setTimeout(() => {
+                    // 
+                    // "/producer/form"
+                    navigate(`/producer/form/${newProducer.id}`); 
+                }, 3000);
+            } catch (error) {
+                console.error("Signup error:", error);
+            };
     }
 
     return (
@@ -51,13 +67,13 @@ export const ProducerSignup = () => {
                 </div>
             </div>
             {showSuccessMessage &&
-            <div className="alert alert-success">Signup successful! Recharging producers!
+            <div className="alert alert-success">Signup successful!
                 <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
                 <span className="visually-hidden" role="status">Loading...</span>
             </div>
             }
             <button type="submit" onClick={handleSignup} className="signup btn btn-success">Sing up</button>
-            <Link to="/producers">
+            <Link to="/producer/login">
                 <button type="button" className="backlogin btn btn-secondary">Back to Login</button>
             </Link>
         </div>

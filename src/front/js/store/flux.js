@@ -20,6 +20,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			producers: [
 
 			],
+			isLoggedIn: false,
 			categories: [
 				
 			]
@@ -186,28 +187,36 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "email": email,
 				        "password": password
 				        }),
-						
 				  };
-				  
 				  fetch(process.env.BACKEND_URL + "/api/producer/signup", requestOptions)
-				    .then((response) =>{
-						console.log(response.status)
-
-							if (response.status === 200) {
-								// actions.getProducers()
-								const newProducer = { email, password };
-								setStore({
-									producers: [...store.producers, newProducer],
-								});
-							}
-							return response.json()
-						})
-						.then(data => {
-							console.log(data)
-						})
-					
+				  .then((response) => {
+					console.log(response.status);
+					if (response.status === 201) {
+						return response.json();
+					}
+					})
+					.then(data => {
+						const newProducer = { email, password, id: data.id };
+						setStore({
+							producers: [...store.producers, newProducer]});
+						console.log("data from flux Signup",data);
+						console.log("id from flux Signup",data.id);
+						return data.id;
+					})
 				    .catch((error) => console.error("Error during signup:", error))
 				},
+				checkProducerExists: (email) => {
+					return fetch(process.env.BACKEND_URL + "/api/checkProducer", {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json;charset=UTF-8'
+						},
+						body: JSON.stringify({ email })
+					})
+					.then(response => response.json())
+					.then(data => data.exists);
+				},
+	
 
 			producerLogin:(email, password) => {
 				const store = getStore();
@@ -219,15 +228,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "password": password
 				        }),
 				  };
-				fetch(process.env.BACKEND_URL + "/api/producer", requestOptions)
+				fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
 				.then((response) => {
 					console.log(response.status);
 					if (response.status === 200) {
-						return response.json()
-					}
+						setStore ({ isLoggedIn: true})
+					} else return "wrong email or password"
+					return response.json()
 				})
 				.then((data) => {
-					console.log(data);
+					console.log("loginData from flux",data);
 					localStorage.setItem("token", data.access_token)
 				})
 				.catch((error) => console.error("error while login in", error)
@@ -236,7 +246,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 			// getProducer:(producerId) => {
 			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-			// 	console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+			// 	// console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
 			// 	.then((response) => {
 			// 		console.log(response.status);
 			// 		if (response.status === 400)
@@ -321,7 +331,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return response.json()
 			})
 			.then((data) => {
-				console.log(data);
+				console.log("all prdoucers data from flux",data);
 				setStore({ producers: data })
 			})
 			.catch((error)=> console.error("there was an error in the process",error)

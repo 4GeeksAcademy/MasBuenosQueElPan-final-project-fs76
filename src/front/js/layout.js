@@ -10,6 +10,7 @@ import { Single } from "./pages/single";
 import { Producers } from "./pages/producers";
 import { EditProducer } from "./pages/editProducer";
 import { ProducerSignup } from "./component/producerSignup";
+import { ProducerInfoForm } from "./pages/producerInfoForm";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
@@ -33,9 +34,10 @@ const Layout = () => {
                     <Routes>
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
-                        <Route element={<Producers />} path="/producers" />
+                        <Route element={<Producers />} path="/producer/login" />
                         <Route element={<EditProducer />} path="/producer/:producerId" />
                         <Route element={<ProducerSignup />} path="/producer/signup" />
+                        <Route element={<ProducerInfoForm/>} path="/producer/form/:producerId" />
                         <Route element={<Categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element = {<Product />} path="/product" />
