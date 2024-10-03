@@ -16,19 +16,23 @@ export const ProducerInfoForm = () => {
         if (currentProducer) {
             setProducerInfo(currentProducer)
         } else console.log("no info to return");
+        console.log("producerId", producerId);
+        console.log("producerInfo", producerInfo);
         
-     },[store.producers, producerId])
+        
+     },[store.producers, producerId])//  
+    
 
     const handleEdition = (e) => {
         e.preventDefault();
-        actions.editProducer(producerId, producerInfo)
+        actions.addProducerInfo(producerId, producerInfo)
         setShowSuccessMessage(true);
         setTimeout(() => {
-            navigate("/producers");
+            navigate(`/producer/dashboard/${localStorage.getItem("producerId")}`);
         }, 2000);
     }
     const handleExit = () => {
-        navigate("/producers")
+        navigate(`/producer/dashboard/${localStorage.getItem("producerId")}`)
      }
      const handleChange = (event) => {
         const { name , value } = event.target

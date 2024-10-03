@@ -25,11 +25,11 @@ export const EditProducer = () => {
         actions.editProducer(producerId, producerInfo)
         setShowSuccessMessage(true);
         setTimeout(() => {
-            navigate("/producers");
+            navigate("/producer/login");
         }, 2000);
     }
     const handleExit = () => {
-        navigate("/producers")
+        navigate("/producer/login")
      }
      const handleChange = (event) => {
         const { name , value } = event.target

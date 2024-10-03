@@ -20,7 +20,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 			producers: [
 
 			],
-			isLoggedIn: false,
+			isFirstLogin: true,
+			isLogedIn: false,
 			categories: [
 				
 			]
@@ -228,25 +229,52 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "password": password
 				        }),
 				  };
-				fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
+				return fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
 				.then((response) => {
 					console.log(response.status);
 					if (response.status === 200) {
-						setStore ({ isLoggedIn: true})
+						setStore ({ isLogedIn: true})
 					} else return "wrong email or password"
 					return response.json()
 				})
 				.then((data) => {
 					console.log("loginData from flux",data);
+					localStorage.setItem("producerId", data.producer_id)
 					localStorage.setItem("token", data.access_token)
+					localStorage.setItem("verified", data.is_verify)
+					return {isVerify:data.is_verify, producerId:data.producer_id}
 				})
 				.catch((error) => console.error("error while login in", error)
 				)
 			},
+			changeFirstLogStatus: () => {
+				setStore ({isFirstLogin: false})
+			},
+			getProducer: (producer_id) => {
+				const store = getStore();
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producer_id}`)
+					.then((response) => {
+						console.log(response.status);
+						if (response.status === 400) {
+							throw new Error("could not fetch producer");
+						}
+						return response.json();
+					})
+					.then((data) => {
+						console.log("single producer data from flux", data);
+						setStore({ producers: [data] }); // Store the single producer in an array
+					})
+					.catch((error) => console.error("there was an error in the process", error));
+			},
+
 
 			// getProducer:(producerId) => {
-			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-			// 	// console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+			// 	const requestOptions = {
+			// 	    method: "GET",
+			// 	    headers: {"Content-Type": "application/json"},
+			// 	  };
+			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+			// 	console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
 			// 	.then((response) => {
 			// 		console.log(response.status);
 			// 		if (response.status === 400)
@@ -263,6 +291,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				
 				// Obtener el productor actual desde el estado
 				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
+				console.log("currentProducer in edition", currentProducer);
 				
 				if (!currentProducer) {
 					console.error("Producer not found");
@@ -285,7 +314,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.then((data) => {
 						console.log(data);
-						// Actualizar la lista de productores en el estado
 						const updatedProducerInfo = store.producers.map(producer => 
 							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
 						);
@@ -293,6 +321,48 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error("Error editing producer", error));
 			},
+			producerLogout: () => {
+				setStore ({ isLogedIn: false})
+				localStorage.removeItem("token");
+			},
+			addProducerInfo: (producerId, updatedInfo) => {
+				const store = getStore();
+				
+				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
+				console.log("currentProducer from flux",currentProducer);
+				console.log("producerId from flux",producerId);
+				
+				if (!currentProducer) {
+					console.error("Producer not found");
+					return;
+				}
+				
+				const requestOptions = {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
+				};
+			
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+					.then((response) => {
+						console.log(response.status);
+						if (response.status === 400) {
+							throw new Error("Error editing producer");
+						}
+						return response.json();
+					})
+					.then((data) => {
+						console.log(data.id);
+						const updatedProducerInfo = store.producers.map(producer => 
+							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
+						);
+						console.log(updatedProducerInfo);
+						
+						setStore({ producers: updatedProducerInfo });
+					})
+					.catch((error) => console.error("Error editing producer", error));
+			},
+
 
 			deleteProducer:(producerId) =>{
 				const requestOptions = {

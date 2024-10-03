@@ -11,6 +11,7 @@ import { Producers } from "./pages/producers";
 import { EditProducer } from "./pages/editProducer";
 import { ProducerSignup } from "./component/producerSignup";
 import { ProducerInfoForm } from "./pages/producerInfoForm";
+import { ProducerView } from "./pages/producerView";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
@@ -35,8 +36,9 @@ const Layout = () => {
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Producers />} path="/producer/login" />
-                        <Route element={<EditProducer />} path="/producer/:producerId" />
+                        <Route element={<EditProducer />} path="/producer/edit/:producerId" />
                         <Route element={<ProducerSignup />} path="/producer/signup" />
+                        <Route element={<ProducerView />} path="/producer/dashboard/:producerId" />
                         <Route element={<ProducerInfoForm/>} path="/producer/form/:producerId" />
                         <Route element={<Categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />

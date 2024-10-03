@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 // import { ProducerInfoForm } from "../pages/producerInfoForm";
 import { useNavigate } from "react-router-dom";
+
 
 export const ProducerLogin = () => {
     const { store, actions } = useContext(Context);
@@ -11,8 +12,9 @@ export const ProducerLogin = () => {
     const [ showEmptyInputs, setShowEmptyInputs ] = useState(false);
     const [ showAt, setShowAt ] = useState(false);
     const [ showExists, setShowExists] = useState(false);
-
+    const [ loggingIn, setLogginIn ] = useState(false)
     const navigate = useNavigate()
+    const { producerId } = useParams()
     // At = @
 
     useEffect(() => {
@@ -44,18 +46,54 @@ export const ProducerLogin = () => {
                 setShowExists(true);
                 return;
             }
-            actions.producerLogin(email, password)
-            .then((data) => {
-                console.log("data from login", data);
+            // actions.producerLogin(email, password)
+            // setLogginIn(true)
+            // setTimeout(() => {
+            //     navigate("/producer/dashboard");
+            // }, 2500);
+            actions.producerLogin(email, password).then(data => {
+                console.log("data from producerlogin", data);
                 console.log("Navigating to producer view");
-                setShowExists(true)
-                return;
+                if (data.isVerify) {
+                    setLogginIn(true)
+                    navigate(`/producer/dashboard/${data.producerId}`)
+                } else {
+                    navigate(`/producer/form/${data.producerId}`)
+                }
+                
+                // if (store.isFirstLogin) {
+                //     console.log("First login detected");
+                //     setLogginIn(true)
+                //     actions.changeFirstLogStatus();
+                //     navigate(`/producer/form/ ${producerId}`);
+                // } else {
+                //     console.log("This producer already did the first login");
+                //     setLogginIn(true)
+                //     navigate("/producer/dashboard"); 
+                // }
+            return data
             })
             .catch(error => {
                 console.error("Error during login:", error);
-                alert("An error occurred during login. Please try again later.");
+                alert(error.message);
             });
-        // actions.producerLogin(email, password)
+            
+
+            // if (store.isFirstLogin) {
+            //     console.log("first login done");
+            //     setStore({ isFirstLogin: false });
+            //     setTimeout(() => {
+            //         navigate("/producer/form");
+            //     }, 2500);
+            // } else {
+            //     console.log("this producer already did the first login")
+                // setTimeout(() => {
+                //     navigate("/producer/dashboard");
+                // }, 2500);
+            // }
+            // setTimeout(() => {
+            //     navigate("/producer/profile");
+            // }, 2500);
         })
     }
 
@@ -106,6 +144,12 @@ export const ProducerLogin = () => {
                 </Link>
             </div>
             <button type="submit" onClick={handleLogin} className="signup btn btn-primary">Login</button>
+        {loggingIn &&
+        <div className="alert alert-success mt-5">Loggin successful! Redirecting to profile
+            <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
+            <span className="visually-hidden" role="status">Loading...</span>
+        </div>
+        }
         </div>
         </>
     );
