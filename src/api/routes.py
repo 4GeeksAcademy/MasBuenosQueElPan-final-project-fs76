@@ -11,6 +11,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from werkzeug.security import check_password_hash
 
 api = Blueprint('api', __name__)
 
@@ -48,11 +49,62 @@ def get_customers():
 @api.route('/customers', methods=['POST'])
 def create_customer():
     try:
-        #Primero traermos los datos
+        # Obtener los datos
         data = request.get_json()
         if not data:
             return jsonify({"msg": "No se han proporcionado datos"}), 400
-        #asignamos los datos
+        
+        # Validar campos obligatorios
+        required_fields = ['name', 'last_name', 'email', 'password', 'address', 'province', 'zipcode', 'phone', 'country']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"msg": f"Falta el campo {field}"}), 400
+
+        # Asigno los datos
+        name = data.get('name')
+        last_name = data.get('last_name')
+        email = data.get('email')
+        password = data.get('password')
+        address = data.get('address')
+        province = data.get('province')
+        zipcode = data.get('zipcode')
+        phone = data.get('phone')
+        country = data.get('country')
+
+        # Añadir el nuevo cliente
+        new_customer = Customer(
+            name=name,
+            last_name=last_name,
+            email=email,
+            password=password,
+            address=address,
+            province=province,
+            zipcode=zipcode,
+            phone=phone,
+            country=country
+        )
+
+        # Actualizar la base de datos
+        db.session.add(new_customer)
+        db.session.commit()
+
+        return jsonify(new_customer.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+#####PUT Customer#####
+@api.route('/customer/<int:id>', methods=['PUT'])
+def edit_customer(id):
+    try:
+        customer = Customer.query.get(id)
+        if not customer:
+            return jsonify({"msg":"No existe el usuario"}), 404
+        data = request.get_json()
+        if not data:
+            return jsonify({"msg":"No se han proporcionado datos"}), 400
         name = data.get('name')
         last_name = data.get('last_name')
         email = data.get('email')
@@ -64,42 +116,79 @@ def create_customer():
         phone = data.get ('phone')
         country = data.get('country')
 
-        #Valido la respuesta
-        required_fields = ['name', 'last_name', 'email', 'password', 'adress', 'province', 'zipcode', 'phone', 'country']
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({"msg": f"Falta el campo {field}"}), 400
-            
-        # # Buscar la provincia en la base de datos
-        # province = Province.query.filter_by(name=province_name).first()
-        # if not province:
-        #     return jsonify({"msg": "La provincia especificada no existe"}), 400
+        #Actualizamos la bade de datos
+        if name:
+            customer.name = name
+        if last_name:
+            customer.last_name = last_name
+        if email:
+            customer.email = email
+        if password:
+            customer.password = password
+        if adress:
+            customer.adress = adress
+        if province:
+            customer.province = province
+        if zipcode:
+            customer.zipcode = zipcode
+        if phone:
+            customer.phone = phone
+        if country:
+            customer.country = country
 
-
-        #Añadimos el nuevo customer
-        new_customer = Customer(
-            name=name,
-            last_name = last_name,
-            email = email,
-            password = password,
-            adress = adress,
-            # province_id=province.id,
-            province = province,
-            zipcode = zipcode,
-            phone = phone,
-            country = country
-        )
-        #Actualizar la base de datos
-        db.session.add(new_customer)
+        #Guardamos los datos en la base de datos
         db.session.commit()
 
-        return jsonify(new_customer.serialize()),201
+        return jsonify(customer.serialize()), 200
+    except Exception as e:
+        db.sessions.rollback()
+        return jsonify({"error": str(e)}), 500
     
+
+
+#####DELETE Customer#####
+@api.route('/customer/<int:id>', methods=['DELETE'])
+def delete_customer(id):
+    try:
+        #Seleccionamos el producto que queremos eliminar
+        customer = Customer.query.get(id)
+
+        if not customer:
+            return jsonify({"msg": "Producto no encontrado"}), 404
+        
+        #Eliminamos el producto
+        db.session.delete(customer)
+        db.session.commit()
+
+        return jsonify({"msg":"se ha eliminado el usuario"}), 200
+        
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 
+#####LOGIN CUTSOMER#####
+@api.route('/login', methods=['POST'])
+def customer_login():
+    try:
+        data = request.get_json()
+        if not data or not data.get("email") or not data.get("password"):
+            return jsonify({"msg":"Faltan credenciales"}), 400
+        email = data.get('email')
+        password = data.get('password')
+        print(email)
+        print(password)
+        #Busco el usuario con el amail recibido
+        user = Customer.query.filter_by(email=email).first()
+        #Verificamos para hacer el login
+        # if user and check_password_hash(user.password, password):
+            #Generamos token de acceso
+        access_token = create_access_token(identity={"id": user.id, "email":user.email})
+        return jsonify({"msg": "Inicio de sesión exitoso", "access_token":access_token}),200
+        # else:
+        #     return jsonify({"msg": "Credenciales incorrectas"}), 401
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500 
 
 
 #####GET Products#####

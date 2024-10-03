@@ -81,7 +81,7 @@ export const Product = () => {
 	return (
         <div className="container">
 			<ul className="list-group">
-            {store.products && store.products.lenght >0 ? (
+            {store.products.length >0 ? (
 				store.products.map((productos, index) => {
 					return (
 						<li

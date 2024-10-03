@@ -26,18 +26,15 @@ class Customer(db.Model):
     last_name = db.Column(db.String(60), unique=False, nullable = False)
     email = db.Column(db.String(120), unique = True, nullable = False)
     password = db.Column (db.String(120), unique = False, nullable = False)
-    adress = db.Column(db.String(120), unique = False, nullable = False)
-    # province_id = db.Column(db.Integer, db.ForeignKey('province.id'), nullable=True) # Relación con la tabla de provincias
-    # province = db.relationship('Province', backref=db.backref('customers', lazy=True))
-    province = db.Column (db.String(120), unique=False, nullable=False)
-    aviation = db.Column(db.String(120), unique = False, nullable = False)
-    zipcode = db.Column (db.String(120), unique = False, nullable = False)
-    phone = db.Column (db.Integer, unique = False, nullable = False)
-    country = db.Column (db.String(80), unique = False, nullable = False)
-    is_active = db.Column (db.Boolean())
+    address = db.Column(db.String(60), unique = False, nullable = False)
+    province = db.Column (db.String(40), unique=False, nullable=False)
+    zipcode = db.Column (db.String(14), unique = False, nullable = False)
+    phone = db.Column (db.String(20), unique = False, nullable = False)
+    country = db.Column (db.String(20), unique = False, nullable = False)
+    is_active = db.Column (db.Boolean, default=True, nullable=False)
     #Representación básica
     def __repr__(self):
-        return f'<Customer {self.name}'
+        return f'<Customer {self.name}>'
     #Representación completa
     def serialize(self):
         return {
@@ -46,8 +43,8 @@ class Customer(db.Model):
             "customer_lastname": self.last_name,
             "customer_email": self.email,
             "customer_password": self.password,
-            "customer_adress": self.adress,
-            "customer_provicen": self.province.name,
+            "customer_address": self.address, 
+            "customer_province": self.province,
             "customer_zipcode": self.zipcode,
             "customer_phone": self.phone,
             "customer_country": self.country,
