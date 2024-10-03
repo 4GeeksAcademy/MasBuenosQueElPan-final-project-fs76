@@ -10,8 +10,6 @@ export const Producers = () => {
 
     useEffect(()=>{
         actions.getProducers();
-        // actions.producerSignup();
-        // actions.producerLogin();
      },[])
 
 
@@ -48,7 +46,7 @@ export const Producers = () => {
                 )} */}
             </div>
         
-            <h2>Producer List</h2>
+            {/* <h2>Producer List</h2>
             <div className="container d-inline-flex my-4 gap-3">
             {store.producers.length > 0 ? (
                 store.producers.map((producer, index) => 
@@ -68,7 +66,7 @@ export const Producers = () => {
             ) : (
                 <p>No producers found</p>
             )}
-            </div>
+            </div> */}
         </>
     );
 };

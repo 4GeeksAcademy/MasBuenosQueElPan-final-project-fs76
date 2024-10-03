@@ -21,14 +21,14 @@ export const ProducerView = () => {
 
     return (
         <>
-        <h1>This is the producer view</h1>
+        <h1 className="my-3">This is the producer view</h1>
         <button type="button" className="btn btn-danger" onClick={()=> actions.producerLogout()}>Log out</button>
         {store.producers.map((producer, index) => 
                     <div key={index}>
-                        <h3>COMPANY NAME: {producer.brand_name || "no brand_name"}</h3>
-                        <h1>Hello {producer.user_name || "no username"} {producer.user_last_name || "no user_last_name"}</h1>
+                        <h3>Nombre de la compañía: {producer.brand_name || "no brand_name"}</h3>
+                        <h1>Hola, {producer.user_name || "no username"} {producer.user_last_name || "no user_last_name"}!</h1>
                         <Link to={"/producer/form/" + producer.id}>
-                            <button type="button" className="edit btn btn-warning">Edit</button>
+                            <button type="button" className="edit btn btn-warning">Edita tu información o de la empresa aquí</button>
 						</Link>
                     </div>
         )}
