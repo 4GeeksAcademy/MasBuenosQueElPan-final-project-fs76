@@ -5,6 +5,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			products: [
 				
 			],
+			token: null,
 			demo: [
 				{
 					title: "FIRST",
@@ -31,18 +32,52 @@ const getState = ({ getStore, getActions, setStore }) => {
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
-
+			setToken: (token) =>{
+				setStore({token:token})
+			},
+			logOut: () => {
+				setStore({token: null})
+			},
+			createCustomer:(newCustomer) => {
+				const raw = JSON.stringify({
+					"name": newCustomer.name,
+					"last_name": newCustomer.last_name,
+					"email": newCustomer.email,
+					"password": newCustomer.password,
+					"address": newCustomer.address,
+					"province": newCustomer.province,
+					"zipcode": newCustomer.zipcode,
+					"phone": newCustomer.phone,
+					"country": newCustomer.country
+				  });
+				  console.log("La información a mandar es la siguiente:", newCustomer)
+				const requestOptions = {
+					method: "POST",
+					body: raw,
+					headers: {
+						"Content-type": "application/json",
+					}
+				};
+				  
+				fetch(process.env.BACKEND_URL + "/api/customers", requestOptions)
+				.then((response) => response.json())
+				.then((result) => 
+					console.log(result)
+				)
+				.catch((error) => console.error(error));
+				
+			},
 			//Estos son productos!! fetch(process.env.BACKEND_URL + "/api/producers")
 			getProducts:() => {
-				const store = getStore();
-				const requestOptions = {
-					method: "GET",
-				  };
-				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
-				.then((response)=> response.json())
-				.then((data)=> setStore({ products: data }))
-			
-			},
+                const store = getStore();
+                const requestOptions = {
+                    method: "GET",
+                  };
+                fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+                .then((response)=> response.json())
+                .then((data)=> setStore({ products: data }))
+
+            },
 			modifyProduct: (newProductInfo) => {
 				const myid = newProductInfo.id
 				const raw = JSON.stringify({
@@ -79,28 +114,28 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 			},
 			addProducts:(newProduct) => {
-				const raw = JSON.stringify({
-					"origin": newProduct.origin,
-					"description": newProduct.description,
-					"name": newProduct.name,
-					"price": newProduct.price
-				  });
-				  
-				  const requestOptions = {
-					method: "POST",
-					body: raw,
-					headers: {
-						"Content-type": "application/json",
-					}
-				  };
-				  
-				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
-					.then((response) => response.json())
-					.then((result) => 
-						getActions().getProducts()
-					)
-					.catch((error) => console.error(error));
-			},
+                const raw = JSON.stringify({
+                    "origin": newProduct.origin,
+                    "description": newProduct.description,
+                    "name": newProduct.name,
+                    "price": newProduct.price
+                  });
+
+                  const requestOptions = {
+                    method: "POST",
+                    body: raw,
+                    headers: {
+                        "Content-type": "application/json",
+                    }
+                  };
+
+                  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+                    .then((response) => response.json())
+                    .then((result) => 
+                        getActions().getProducts()
+                    )
+                    .catch((error) => console.error(error));
+            },
 			//Estos son categorías!!
 			functionCategories: ()=>
 			{	const store = getStore()
