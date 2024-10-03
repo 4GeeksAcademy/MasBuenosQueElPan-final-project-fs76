@@ -21,6 +21,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 			producers: [
 
 			],
+			isFirstLogin: true,
+			isLogedIn: false,
 			categories: [
 				
 			]
@@ -221,29 +223,36 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "email": email,
 				        "password": password
 				        }),
-						
 				  };
-				  
 				  fetch(process.env.BACKEND_URL + "/api/producer/signup", requestOptions)
-				    .then((response) =>{
-						console.log(response.status)
-
-							if (response.status === 200) {
-								// actions.getProducers()
-								const newProducer = { email, password };
-								setStore({
-									producers: [...store.producers, newProducer],
-								});
-							}
-							return response.json()
-						})
-						.then(data => {
-							console.log(data)
-						})
-					
+				  .then((response) => {
+					console.log(response.status);
+					if (response.status === 201) {
+						return response.json();
+					}
+					})
+					.then(data => {
+						const newProducer = { email, password, id: data.id };
+						setStore({
+							producers: [...store.producers, newProducer]});
+						console.log("data from flux Signup",data);
+						console.log("id from flux Signup",data.id);
+						return data.id;
+					})
 				    .catch((error) => console.error("Error during signup:", error))
 				},
-
+				checkProducerExists: (email) => {
+					return fetch(process.env.BACKEND_URL + "/api/checkProducer", {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json;charset=UTF-8'
+						},
+						body: JSON.stringify({ email })
+					})
+					.then(response => response.json())
+					.then(data => data.exists);
+				},
+	
 			producerLogin:(email, password) => {
 				const store = getStore();
 				const requestOptions = {
@@ -254,40 +263,50 @@ const getState = ({ getStore, getActions, setStore }) => {
 				        "password": password
 				        }),
 				  };
-				fetch(process.env.BACKEND_URL + "/api/producer", requestOptions)
+				return fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
 				.then((response) => {
 					console.log(response.status);
 					if (response.status === 200) {
-						return response.json()
-					}
+						setStore ({ isLogedIn: true})
+					} else return "Email o contraseña erróneas"
+					return response.json()
 				})
 				.then((data) => {
-					console.log(data);
+					console.log("loginData from flux",data);
+					localStorage.setItem("producerId", data.producer_id)
 					localStorage.setItem("token", data.access_token)
+					localStorage.setItem("verified", data.is_verify)
+					return {isVerify:data.is_verify, producerId:data.producer_id}
 				})
 				.catch((error) => console.error("error while login in", error)
 				)
 			},
-
-			// getProducer:(producerId) => {
-			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-			// 	console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-			// 	.then((response) => {
-			// 		console.log(response.status);
-			// 		if (response.status === 400)
-			// 			throw new error ("could not fecth the producer info")
-			// 		return response.json()
-			// 	})
-			// 	.then((data) => {console.log(data)})
-			// 	.catch((error) => console.error("error fetching producer", error))
-				
-			// },
+			changeFirstLogStatus: () => {
+				setStore ({isFirstLogin: false})
+			},
+			getProducer: (producer_id) => {
+				const store = getStore();
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producer_id}`)
+					.then((response) => {
+						console.log(response.status);
+						if (response.status === 400) {
+							throw new Error("No se ha podido obtener la información del Productor");
+						}
+						return response.json();
+					})
+					.then((data) => {
+						console.log("single producer data from flux", data);
+						setStore({ producers: [data] }); 
+					})
+					.catch((error) => console.error("there was an error in the process", error));
+			},
 
 			editProducer: (producerId, updatedInfo) => {
 				const store = getStore();
 				
 				// Obtener el productor actual desde el estado
 				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
+				console.log("currentProducer in edition", currentProducer);
 				
 				if (!currentProducer) {
 					console.error("Producer not found");
@@ -310,7 +329,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.then((data) => {
 						console.log(data);
-						// Actualizar la lista de productores en el estado
 						const updatedProducerInfo = store.producers.map(producer => 
 							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
 						);
@@ -319,19 +337,56 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error("Error editing producer", error));
 			},
 
+			producerLogout: () => {
+				setStore ({ isLogedIn: false})
+				localStorage.removeItem("token");
+			},
+
+			addProducerInfo: (producerId, updatedInfo) => {
+				const store = getStore();
+				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
+				console.log("currentProducer from flux",currentProducer);
+				console.log("producerId from flux",producerId);
+				if (!currentProducer) {
+					console.error("Producer not found");
+					return;
+				}
+				const requestOptions = {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
+				};
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+					.then((response) => {
+						console.log(response.status);
+						if (response.status === 400) {
+							throw new Error("Error al editar la información del productor");
+						}
+						return response.json();
+					})
+					.then((data) => {
+						console.log(data.id);
+						const updatedProducerInfo = store.producers.map(producer => 
+							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
+						);
+						console.log(updatedProducerInfo);
+						
+						setStore({ producers: updatedProducerInfo });
+					})
+					.catch((error) => console.error("Error al editar la información del productor", error));
+			},
+
+
 			deleteProducer:(producerId) =>{
 				const requestOptions = {
 				    method: "DELETE",
 				    headers: {"Content-Type": "application/json"},
 				  };
-				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
-				// console.log("deleting producer from flux")
-				// console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-				
+				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)				
 				.then((response) => {
 					console.log(response.status);
 					if (response.status === 400) {
-						throw new error ("error while trying to delete in first then")
+						throw new error ("Error al eliminar el productor")
 					}
 					return response.json()
 				})
@@ -339,11 +394,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log(data),
 					getActions().getProducers()
 				})
-				.catch((error)=> console.log("error deleting producer", error)
+				.catch((error)=> console.log("No se pudo eliminar el productor", error)
 				)
-				
 			},
-
 
 			getProducers:() =>{
 				const store = getStore()
@@ -351,20 +404,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 			.then((response) => {
 				console.log(response.status);
 				if (response.status === 400) {
-					throw new Error ("could not fetch producers")
+					throw new Error ("No se han podido obtener los productores")
 				}
 				return response.json()
 			})
 			.then((data) => {
-				console.log(data);
+				console.log("all prdoucers data from flux",data);
 				setStore({ producers: data })
 			})
-			.catch((error)=> console.error("there was an error in the process",error)
+			.catch((error)=> console.error("Ha habido un error al tratar de eliminar el productor",error)
 			)},
 			
 			
-
-
 			getMessage: async () => {
 				try{
 					// fetching data from the backend
