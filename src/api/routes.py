@@ -11,7 +11,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash , generate_password_hash
 
 
 api = Blueprint('api', __name__)
@@ -72,12 +72,14 @@ def create_customer():
         phone = data.get('phone')
         country = data.get('country')
 
+        # Hashear la contraseña antes de almacenar
+        hashed_password = generate_password_hash(password)
         # Añadir el nuevo cliente
         new_customer = Customer(
             name=name,
             last_name=last_name,
             email=email,
-            password=password,
+            password=hashed_password,
             address=address,
             province=province,
             zipcode=zipcode,
@@ -182,12 +184,12 @@ def customer_login():
         #Busco el usuario con el amail recibido
         user = Customer.query.filter_by(email=email).first()
         #Verificamos para hacer el login
-        # if user and check_password_hash(user.password, password):
+        if user and check_password_hash(user.password, password):
             #Generamos token de acceso
-        access_token = create_access_token(identity={"id": user.id, "email":user.email})
-        return jsonify({"msg": "Inicio de sesión exitoso", "access_token":access_token}),200
-        # else:
-        #     return jsonify({"msg": "Credenciales incorrectas"}), 401
+            access_token = create_access_token(identity={"id": user.id, "email":user.email})
+            return jsonify({"msg": "Inicio de sesión exitoso", "access_token":access_token, "user_id":user.id}),200
+        else:
+            return jsonify({"msg": "Credenciales incorrectas"}), 401
     except Exception as e:
         return jsonify({"error":str(e)}), 500 
 
