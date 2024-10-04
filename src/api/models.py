@@ -25,7 +25,7 @@ class Customer(db.Model):
     name = db.Column(db.String(60), unique=False, nullable = False)
     last_name = db.Column(db.String(60), unique=False, nullable = False)
     email = db.Column(db.String(120), unique = True, nullable = False)
-    password = db.Column (db.String(120), unique = False, nullable = False)
+    password = db.Column (db.String(400), unique = False, nullable = False)
     address = db.Column(db.String(60), unique = False, nullable = False)
     province = db.Column (db.String(40), unique=False, nullable=False)
     zipcode = db.Column (db.String(14), unique = False, nullable = False)

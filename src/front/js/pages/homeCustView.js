@@ -9,7 +9,9 @@ export const HomeCustView = () => {
 	const navigate = useNavigate();
 	const handleLogOut =() =>{
 		actions.logOut()
-		navigate("/customer/Login") 
+		if (!store.token) {
+			navigate("/customer/Login");
+		} 
 	}
 	return (
 		<div className="text-center mt-5">

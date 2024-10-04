@@ -10,9 +10,11 @@ export const CustomerLoginUp = () => {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const navigate = useNavigate();
+	const [loading, setLoading] = useState(false);
 	const loginData = (event) =>{
 		event.preventDefault();
-		const loginData = {
+		setLoading(true);
+		const loginDataUser = {
 			email: email,
 			password: password,
 		}
@@ -21,7 +23,7 @@ export const CustomerLoginUp = () => {
 			headers:{
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify(loginData)
+			body: JSON.stringify(loginDataUser)
 		}
 		fetch(process.env.BACKEND_URL + "/api/login", requestOptions)
 		.then((response)=> response.json())
@@ -31,7 +33,17 @@ export const CustomerLoginUp = () => {
 				alert("Inicio de sessión exitoso")
 				navigate("/customer/home");
 			}
+			else {
+				return alert("Usuario o contraseña incorrectas")
+			}
 		})
+		.catch((error) => {
+			console.error("Error:", error);
+			alert("Ocurrió un problema con la solicitud");
+		})
+		.finally(() => {
+			setLoading(false); 
+		});
 	
 	}
 
