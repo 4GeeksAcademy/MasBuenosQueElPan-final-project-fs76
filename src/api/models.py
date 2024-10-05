@@ -87,6 +87,47 @@ class ProductCategories (db.Model):
             # do not serialize the password, its a security breach
         }
     
+class Cart_Products(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cart_id = db.Column(Numeric(100), unique=False, nullable=False)
+    product_id= db.Column(Numeric(100), unique=False, nullable=False)
+   
+    #Representación básica
+    def __repr__(self):
+        return f'<Cart_products {self.product_id}>'
+    #Representación completa
+    def serialize(self):
+        return {
+            "id": self.id,
+            "cart_id": self.cart_id,
+            "product_id": self.product_id
+            
+        }
+class Cart_Items(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_cart_id = db.Column(Numeric(100), unique=False, nullable=False)
+    product_id= db.Column(Numeric(100), unique=False, nullable=False)
+    quantity= db.Column(Numeric, unique=False, nullable=False)
+    price= db.Column(Numeric (10, 2), unique=False, nullable=False)
+    subtotal= db.Column(Numeric(10, 2), unique=False, nullable=False)
+    total_price= db.Column(Numeric(10, 2), unique=False, nullable=False)
+    
+
+    def __repr__(self):
+        return f'<Cart {self.product_id} >'
+   
+    def serialize(self):
+        return {
+            "id": self.id,
+            "customer_cart_id": self.customer_cart_id,
+            "product_id": self.customer_cart_id,
+            "quantity": self.quantity,
+            "price": float(self.price),
+            "subtotal": float(self.subtotal),
+            "total_price": float(self.total_price)
+            
+            
+        }
 
   
 

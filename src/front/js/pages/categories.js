@@ -5,10 +5,10 @@ import { Context } from "../store/appContext";
 
 export const Categories = () => {
 	const { store, actions } = useContext(Context);
-	const [newCategoryName, setNewCategoryName] = useState ("");
+	const [newCategoryName, setNewCategoryName] = useState("");
 	const [editingCategoryId, setEditingCategoryId] = useState(null);
 	const [updatedCategoryName, setUpdatedCategoryName] = useState("");
-	console.log (store.categories)
+	console.log(store.categories)
 	useEffect(() => {
 		const loadCategories = async () => {
 			await actions.getCategories();
@@ -34,25 +34,25 @@ export const Categories = () => {
 	};
 	// Función para guardar los cambios en la categoría
 	const handleSave = (categoryId) => {
-			actions.updateCategory(categoryId, updatedCategoryName);
-			setEditingCategoryId(null); // Salir del modo de edición
-		};
-	
+		actions.updateCategory(categoryId, updatedCategoryName);
+		setEditingCategoryId(null); // Salir del modo de edición
+	};
+
 	// Función para cancelar la edición
 	const cancelEditing = () => {
-			setEditingCategoryId(null);
-			setUpdatedCategoryName("");
-		};
-	
+		setEditingCategoryId(null);
+		setUpdatedCategoryName("");
+	};
+
 	return (
-		
-			<div className="container">
+
+		<div className="container">
 			<ul className="list-group">
 				{store.categories && store.categories.length > 0 ? (
 					store.categories.map((item, index) => {
 						return (
 							<li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-								
+
 								{editingCategoryId === item.id ? (
 									<input
 										type="text"

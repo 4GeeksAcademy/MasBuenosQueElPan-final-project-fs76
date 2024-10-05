@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories, Product
+from api.models import db, User, Producer, ProductCategories, Product, Cart_Items, Cart_Products
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from decimal import Decimal
@@ -39,6 +39,18 @@ def view_products():
         }
         return jsonify(response_body),200
     return jsonify(result), 200
+
+#####POST Products#####
+@api.route('/product/<int:product_id>', methods=['GET'])
+def view_product(product_id):
+    product = Product.query.get(product_id)
+    if product is None:
+        return jsonify (message="Product not found"), 404
+        
+    return jsonify(product.serialize()), 200
+
+        
+    
 
 #####POST Products#####
 
@@ -323,7 +335,7 @@ def delete_categorie(categorie_id):
     return jsonify({'message': f' Has  borrado la categoría {categorie_id}'}), 200
 
 
-##### POST CETEGORIES#####
+##### POST CATEGORIES#####
 @api.route('/categories', methods=['POST'])
 def add_categorie():
     body = request.get_json()
@@ -364,6 +376,14 @@ def update_categorie(categorie_id):
 
     return jsonify(categorie.serialize()), 200
 
+#####GET CART ITEMS#####
+@api.route('/cart', methods=['GET'])
+def get_cart_items():
+    all_cart_items = Cart_Items.query.all()    
+    results = list(map(lambda cart_item: cart_item.serialize(), all_cart_items)) 
+    return jsonify(results), 200
+
+
 
 
     # body = request.get_json()
@@ -381,5 +401,5 @@ def update_categorie(categorie_id):
     
     # db.session.commit()
 
-    return jsonify({"msg": f"La categoría {categorie_id} ha sido actualizada"}), 200
+    # return jsonify({"msg": f"La categoría {categorie_id} ha sido actualizada"}), 200
 

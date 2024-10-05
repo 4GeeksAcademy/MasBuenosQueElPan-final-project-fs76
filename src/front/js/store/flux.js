@@ -2,9 +2,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
-			products: [
-				
-			],
+			products: [],
 			demo: [
 				{
 					title: "FIRST",
@@ -17,376 +15,241 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
-			producers: [
-
-			],
-			categories: [
-				
-			]
+			producers: [],
+			categories: [],
+			cart_items: []
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
+			// Use getActions to call a function within a function
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
 
-			//Estos son productos!! fetch(process.env.BACKEND_URL + "/api/producers")
-			getProducts:() => {
-				const store = getStore();
-				const requestOptions = {
-					method: "GET",
-				  };
+			// Estos son productos
+			getProducts: () => {
+				const requestOptions = { method: "GET" };
 				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
-				.then((response)=> response.json())
-				.then((data)=> setStore({ products: data }))
-			
+					.then((response) => response.json())
+					.then((data) => setStore({ products: data }));
 			},
+
 			modifyProduct: (newProductInfo) => {
-				const myid = newProductInfo.id
 				const raw = JSON.stringify({
 					"description": newProductInfo.description,
 					"name": newProductInfo.name,
 					"origin": newProductInfo.origin,
 					"price": newProductInfo.price
-				  });
-				  
-				  const requestOptions = {
-					method: "PUT",
-					headers: {
-						"Content-type": "application/json",
-					},
-					body: raw,
-					
-				  };
-
-				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
-  				.then((response) => response.json())
-				.then((data)=> 
-					getActions().getProducts()
-			)
-			},
-			deleteProduct: (id)=>{
+				});
 				const requestOptions = {
-					method: "DELETE",
-				  };
-				  
-				  fetch(`${process.env.BACKEND_URL}/api/product/${id}`, requestOptions)
+					method: "PUT",
+					headers: { "Content-type": "application/json" },
+					body: raw
+				};
+				fetch(`${process.env.BACKEND_URL}/api/product/${newProductInfo.id}`, requestOptions)
+					.then((response) => response.json())
+					.then(() => getActions().getProducts());
+			},
+
+			deleteProduct: (id) => {
+				const requestOptions = { method: "DELETE" };
+				fetch(`${process.env.BACKEND_URL}/api/product/${id}`, requestOptions)
 					.then((response) => response.text())
-					.then((result) => {console.log(result),
-						getActions().getProducts()})
+					.then(() => getActions().getProducts())
 					.catch((error) => console.error(error));
 			},
-			addProducts:(newProduct) => {
+
+			addProducts: (newProduct) => {
 				const raw = JSON.stringify({
 					"origin": newProduct.origin,
 					"description": newProduct.description,
 					"name": newProduct.name,
 					"price": newProduct.price
-				  });
-				  
-				  const requestOptions = {
+				});
+				const requestOptions = {
 					method: "POST",
 					body: raw,
-					headers: {
-						"Content-type": "application/json",
-					}
-				  };
-				  
-				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+					headers: { "Content-type": "application/json" }
+				};
+				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
 					.then((response) => response.json())
-					.then((result) => 
-						getActions().getProducts()
-					)
+					.then(() => getActions().getProducts())
 					.catch((error) => console.error(error));
 			},
-			//Estos son categorías!!
-			getCategories: ()=>{	
-				const store = getStore()
-				const requestOptions = {
-					method: "GET",
-					
-				  };
-				  
-				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
+
+			// Estos son categorías
+			getCategories: () => {
+				const requestOptions = { method: "GET" };
+				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
 					.then((response) => response.json())
-					.then((result) => {console.log (result),
-						setStore({categories: result} ) }) 
+					.then((result) => setStore({ categories: result }))
 					.catch((error) => console.error(error));
-				
-			
-					
-			
+			},
+
 			deleteCategory: (categoryId) => {
-				console.log(categoryId);
-				
-                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
-                    method: "DELETE",
-					headers: {"Content-Type": "application/json"},
-                })
-                .then((response) => {
-					console.log(response.status);
-					
-					response.json()})
-                .then((result) => {
-                    console.log(result);
-                    const store = getStore();
-                    // Filtra las categorías eliminando la que fue borrada
-                    const updatedCategories = store.categories.filter(category => category.id !== categoryId);
-					console.log(updatedCategories);
-					
-					setStore({ categories: updatedCategories });
-                })
-                .catch((error) => console.error(error));
-            },
-			
+				fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, { method: "DELETE", headers: { "Content-Type": "application/json" } })
+					.then((response) => response.json())
+					.then(() => {
+						const store = getStore();
+						const updatedCategories = store.categories.filter(category => category.id !== categoryId);
+						setStore({ categories: updatedCategories });
+					})
+					.catch((error) => console.error(error));
+			},
+
 			addCategory: (newCategoryName) => {
 				fetch(process.env.BACKEND_URL + "/api/categories", {
 					method: "POST",
-					headers: {
-						"Content-Type": "application/json"
-					},
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ categorie: newCategoryName })
 				})
-				.then((response) => response.json())
-				.then((result) => {
-					console.log(result);
-					getActions().functionCategories();
-				})
-				.catch((error) => console.error(error));
+					.then((response) => response.json())
+					.then(() => getActions().getCategories())
+					.catch((error) => console.error(error));
 			},
+
 			updateCategory: (categoryId, newName) => {
-				// console.log(categoryId);
-				(categoryId)
-                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ categorie: newName })
-                })
-                .then((response) => response.json())
-                .then((result) => {
-                    // console.log("Respuesta de la edición", result);
-                    const store = getStore();
-                    // Actualiza el estado local con la nueva información de la categoría
-                    const updatedCategories = store.categories.map(category => 
-                        category.id === categoryId ? { ...category, categorie: newName } : category
-                    );
-                    setStore({ categories: updatedCategories });
-                })
-                .catch((error) => console.error(error));
-            },
-
-			//Estos son productores!!
-			producerSignup: (email, password)=> {
-				const store = getStore();
-				const requestOptions = {
-				    method: "POST",
-				    headers: {"Content-Type": "application/json"},
-				    body: JSON.stringify({
-				        "email": email,
-				        "password": password
-				        }),
-						
-				  };
-				  
-				  fetch(process.env.BACKEND_URL + "/api/producer/signup", requestOptions)
-				    .then((response) =>{
-						console.log(response.status)
-
-							if (response.status === 200) {
-								// actions.getProducers()
-								const newProducer = { email, password };
-								setStore({
-									producers: [...store.producers, newProducer],
-								});
-							}
-							return response.json()
-						})
-						.then(data => {
-							console.log(data)
-						})
-					
-				    .catch((error) => console.error("Error during signup:", error))
-				},
-
-			producerLogin:(email, password) => {
-				const store = getStore();
-				const requestOptions = {
-				    method: "POST",
-				    headers: {"Content-Type": "application/json"},
-				    body: JSON.stringify({
-				        "email": email,
-				        "password": password
-				        }),
-				  };
-				fetch(process.env.BACKEND_URL + "/api/producer", requestOptions)
-				.then((response) => {
-					console.log(response.status);
-					if (response.status === 200) {
-						return response.json()
-					}
+				fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ category: newName })
 				})
-				.then((data) => {
-					console.log(data);
-					localStorage.setItem("token", data.access_token)
-				})
-				.catch((error) => console.error("error while login in", error)
-				)
+					.then((response) => response.json())
+					.then(() => {
+						const store = getStore();
+						const updatedCategories = store.categories.map(category =>
+							category.id === categoryId ? { ...category, categorie: newName } : category
+						);
+						setStore({ categories: updatedCategories });
+					})
+					.catch((error) => console.error(error));
 			},
-			
 
-			// getProducer:(producerId) => {
-			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-			// 	console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-			// 	.then((response) => {
-			// 		console.log(response.status);
-			// 		if (response.status === 400)
-			// 			throw new error ("could not fecth the producer info")
-			// 		return response.json()
-			// 	})
-			// 	.then((data) => {console.log(data)})
-			// 	.catch((error) => console.error("error fetching producer", error))
-				
-			// },
+			// Estos son productores
+			producerSignup: (email, password) => {
+				const store = getStore();
+				const requestOptions = {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ "email": email, "password": password })
+				};
+				fetch(process.env.BACKEND_URL + "/api/producer/signup", requestOptions)
+					.then((response) => {
+						if (response.status === 200) {
+							setStore({ producers: [...store.producers, { email, password }] });
+						}
+						return response.json();
+					})
+					.catch((error) => console.error("Error during signup:", error));
+			},
+
+			producerLogin: (email, password) => {
+				const requestOptions = {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ "email": email, "password": password })
+				};
+				fetch(process.env.BACKEND_URL + "/api/producer", requestOptions)
+					.then((response) => {
+						if (response.status === 200) {
+							return response.json();
+						}
+					})
+					.then((data) => {
+						localStorage.setItem("token", data.access_token);
+					})
+					.catch((error) => console.error("Error during login:", error));
+			},
 
 			editProducer: (producerId, updatedInfo) => {
 				const store = getStore();
-				
-				// Obtener el productor actual desde el estado
 				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
-				
+
 				if (!currentProducer) {
 					console.error("Producer not found");
 					return;
 				}
-				
+
 				const requestOptions = {
 					method: "PUT",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
+					body: JSON.stringify({ ...currentProducer, ...updatedInfo })
 				};
-			
+
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
-					.then((response) => {
-						console.log(response.status);
-						if (response.status === 400) {
-							throw new Error("Error editing producer");
-						}
-						return response.json();
-					})
-					.then((data) => {
-						console.log(data);
-						// Actualizar la lista de productores en el estado
-						const updatedProducerInfo = store.producers.map(producer => 
+					.then((response) => response.json())
+					.then(() => {
+						const updatedProducers = store.producers.map(producer =>
 							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
 						);
-						setStore({ producers: updatedProducerInfo });
+						setStore({ producers: updatedProducers });
 					})
 					.catch((error) => console.error("Error editing producer", error));
 			},
 
-			deleteProducer:(producerId) =>{
-				const requestOptions = {
-				    method: "DELETE",
-				    headers: {"Content-Type": "application/json"},
-				  };
+			deleteProducer: (producerId) => {
+				const requestOptions = { method: "DELETE", headers: { "Content-Type": "application/json" } };
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
-				// console.log("deleting producer from flux")
-				// console.log(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-				
-				.then((response) => {
-					console.log(response.status);
-					if (response.status === 400) {
-						throw new error ("error while trying to delete in first then")
-					}
-					return response.json()
-				})
-				.then ((data) => {
-					console.log(data),
-					getActions().getProducers()
-				})
-				.catch((error)=> console.log("error deleting producer", error)
-				)
-				
+					.then((response) => response.json())
+					.then(() => getActions().getProducers())
+					.catch((error) => console.error("Error deleting producer:", error));
 			},
 
-
-			getProducers:() =>{
-				const store = getStore()
-			fetch(process.env.BACKEND_URL + "/api/producers")
-			.then((response) => {
-				console.log(response.status);
-				if (response.status === 400) {
-					throw new Error ("could not fetch producers")
-				}
-				return response.json()
-			})
-			.then((data) => {
-				console.log(data);
-				setStore({ producers: data })
-			})
-			.catch((error)=> console.error("there was an error in the process",error)
-			)},
-			
-			
-
+			getProducers: () => {
+				const requestOptions = { method: "GET" };
+				fetch(process.env.BACKEND_URL + "/api/producers", requestOptions)
+					.then((response) => response.json())
+					.then((data) => setStore({ producers: data }))
+					.catch((error) => console.error(error));
+			},
 
 			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
+				try {
+					const resp = await fetch(process.env.BACKEND_URL + "/api/hello");
+					const data = await resp.json();
+					setStore({ message: data.message });
 					return data;
-				}
-				catch(error){
-					console.log("Error loading message from backend", error)
+				} catch (error) {
+					console.error("Error loading message from backend", error);
 				}
 			},
-			// updateCategory: (categoryId, newName) => {
-			// 	console.log(categoryId);
-			// 	(categoryId)
-            //     fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
-            //         method: "PUT",
-            //         headers: {
-            //             "Content-Type": "application/json"
-            //         },
-            //         body: JSON.stringify({ categorie: newName })
-            //     })
-            //     .then((response) => response.json())
-            //     .then((result) => {
-            //         console.log(result);
-            //         const store = getStore();
-            //         // Actualiza el estado local con la nueva información de la categoría
-            //         const updatedCategories = store.categories.map(category => 
-            //             category.id === categoryId ? { ...category, categorie: newName } : category
-            //         );
-            //         setStore({ categories: updatedCategories });
-            //     })
-            //     .catch((error) => console.error(error));
-            // },
-    
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
+			changeColor: (index, color) => {
+				const store = getStore();
 				const demo = store.demo.map((elm, i) => {
 					if (i === index) elm.background = color;
 					return elm;
 				});
+				setStore({ demo });
+			},
+			getCartItems: () => {
+				const requestOptions = { method: "GET" };
+				fetch(process.env.BACKEND_URL + "/api/cart", requestOptions)
+					.then((response) => {
+						if (!response.ok) {
+							throw new Error(`HTTP error! status: ${response.status}`);
+						}
+						return response.json();
+					})
+					.then((data) => setStore({ cart_items: data }))
+					.catch((error) => console.error("Error fetching cart items:", error));
+			},
+			addToCart: (productId, quantity) => {
+				const store = getStore();
+				const newCartItem = { productId, quantity };
+				const existingItemIndex = store.cart_items.findIndex(item => item.productId === productId);
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
+				if (existingItemIndex > -1) {
+					// Actualiza la cantidad si el producto ya está en el carrito
+					const updatedItems = [...store.cart_items];
+					updatedItems[existingItemIndex].quantity += quantity;
+					setStore({ cart_items: updatedItems });
+				} else {
+					// Agrega un nuevo producto al carrito
+					setStore({ cart_items: [...store.cart_items, newCartItem] });
+				}
+			},
 		}
 	};
 };
 
 export default getState;
-
-
-

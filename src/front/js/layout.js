@@ -13,17 +13,15 @@ import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
-import { Product } from "./pages/ViewProducts";
+import { Product } from "./pages/ViewProducts";  // Asegúrate de que este componente esté manejando productos
 import { CustomerProductList } from "./pages/CustomerProductList";
+import { CustomerProductView } from "./pages/CustomerProductView"; // Importa el componente de vista del producto
+import { CartItems } from "./pages/CartView";
 
-
-//create your first component
 const Layout = () => {
-    //the basename is used when your project is published in a subdirectory and not in the root of the domain
-    // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
 
-    if(!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL/ >;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL === "") return <BackendURL />;
 
     return (
         <div>
@@ -37,8 +35,9 @@ const Layout = () => {
                         <Route element={<EditProducer />} path="/producer/:producerId" />
                         <Route element={<Categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />
-                        <Route element ={<Product />} path="/product" />
-                        <Route element ={<CustomerProductList />} path="/productlist" />
+                        <Route element={<CustomerProductList />} path="/productlist" />
+                        <Route element={<CustomerProductView />} path="/product/:product_id" />
+                        <Route element={<CartItems />} path="/cart" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

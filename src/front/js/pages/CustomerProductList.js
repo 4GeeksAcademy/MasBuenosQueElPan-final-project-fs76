@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
+import rigoImageUrl from "../../img/rigo-baby.jpg";
 
 export const CustomerProductList = () => {
     const { store, actions } = useContext(Context);
@@ -47,11 +48,12 @@ export const CustomerProductList = () => {
                         store.products.map((product, index) => (
                             <div key={index}>
                                 <div className="card" style={{ width: "18rem" }}>
-                                    <img src={"..."} className="card-img-top" alt={"..."} />
+                                    <img src={rigoImageUrl} />
                                     <div className="card-body">
                                         <h5 className="card-title">{product.name}</h5>
                                         {/* Cambiar button por Link para la navegación */}
-                                        <Link to={"/products/" + product.id} className="btn btn-primary">
+                                        <Link to={"/product/" + product.id} className="btn btn-primary">
+
                                             {product.price}
                                         </Link>
                                     </div>
