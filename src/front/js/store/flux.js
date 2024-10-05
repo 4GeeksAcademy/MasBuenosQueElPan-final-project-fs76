@@ -29,9 +29,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+			// exampleFunction: () => {
+			// 	getActions().changeColor(0, "green");
+			// },
 			setToken: (token) =>{
 				setStore({token:token})
 			},
@@ -73,11 +73,18 @@ const getState = ({ getStore, getActions, setStore }) => {
                 const requestOptions = {
                     method: "GET",
                   };
-                fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+                fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
                 .then((response)=> response.json())
                 .then((data)=> setStore({ products: data }))
-
             },
+			// getProduct:(producerId) => {   //Para cuando podamos obtener los productos que haya añadido cada productor, revisar función
+			// 	const requestOptions = {
+			// 		method: "GET",
+			// 	};
+			// 	fetch(`${process.env.BACKEND_URL}/api/product?producerId=${producerId}`, requestOptions)
+			// 		.then((response) => response.json())
+			// 		.then((data) => setStore({ products: data }));
+			// },
 			modifyProduct: (newProductInfo) => {
 				const myid = newProductInfo.id
 				const raw = JSON.stringify({
@@ -113,31 +120,55 @@ const getState = ({ getStore, getActions, setStore }) => {
 						getActions().getProducts()})
 					.catch((error) => console.error(error));
 			},
-			addProducts:(newProduct) => {
-                const raw = JSON.stringify({
-                    "origin": newProduct.origin,
-                    "description": newProduct.description,
-                    "name": newProduct.name,
-                    "price": newProduct.price
-                  });
-
-                  const requestOptions = {
+			addProducts: (newProduct) => {
+				const store = setStore()
+				const requestOptions = {
                     method: "POST",
-                    body: raw,
+                    body: JSON.stringify({ "product": newProduct }),
                     headers: {
                         "Content-type": "application/json",
                     }
                   };
+				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
+				.then((response) => response.json())
+				.then((result) => {
+					{console.log (result),
+						setStore({products: [...store.products, newProduct]})};
+				})
+				.catch((error) => console.error(error));
+			},
+			// addProducts:(newProduct) => {
+			// 	const store = setStore();
+            //     const raw = JSON.stringify(newProduct)
+            //     // const raw = JSON.stringify({
+            //     //     "origin": newProduct.origin,
+            //     //     "description": newProduct.description,
+            //     //     "name": newProduct.name,
+            //     //     "price": newProduct.price
+            //     //   });
 
-                  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
-                    .then((response) => response.json())
-                    .then((result) => 
-                        getActions().getProducts()
-                    )
-                    .catch((error) => console.error(error));
-            },
+            //       const requestOptions = {
+            //         method: "POST",
+            //         body: raw,
+            //         headers: {
+            //             "Content-type": "application/json",
+            //         }
+            //       };
+
+            //       fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+            //         .then((response) => response.json())
+            //         .then((result) => {
+			// 			console.log(result);
+			// 			setStore({products: [...store.products, newProduct]});
+			// 			console.log("data from flux Signup",result);
+			// 			console.log("id from flux Signup",result.id);
+			// 			// return result.id;
+            //             // getActions().getProducts()
+			// 		})
+            //         .catch((error) => console.error(error));
+            // },
 			//Estos son categorías!!
-			functionCategories: ()=>
+			getCategories: ()=>
 			{	const store = getStore()
 				const requestOptions = {
 					method: "GET",
@@ -147,7 +178,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
 					.then((response) => response.json())
 					.then((result) => {console.log (result),
-						setStore({categories: result} ) }) 
+						setStore({categories: result})}) 
 					.catch((error) => console.error(error));
 				
 			},
@@ -176,17 +207,18 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
 			
 			addCategory: (newCategoryName) => {
+				const store = setStore()
 				fetch(process.env.BACKEND_URL + "/api/categories", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json"
 					},
-					body: JSON.stringify({ categorie: newCategoryName })
+					body: JSON.stringify({ "categorie": newCategoryName })
 				})
 				.then((response) => response.json())
 				.then((result) => {
-					console.log(result);
-					getActions().functionCategories();
+					{console.log (result),
+						setStore({categories: [...store.categories, newCategoryName]})};
 				})
 				.catch((error) => console.error(error));
 			},
@@ -416,19 +448,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 			)},
 			
 			
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}
-				catch(error){
-					console.log("Error loading message from backend", error)
-				}
-			},
+			// getMessage: async () => {
+			// 	try{
+			// 		// fetching data from the backend
+			// 		const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
+			// 		const data = await resp.json()
+			// 		setStore({ message: data.message })
+			// 		// don't forget to return something, that is how the async resolves
+			// 		return data;
+			// 	}
+			// 	catch(error){
+			// 		console.log("Error loading message from backend", error)
+			// 	}
+			// },
 			// updateCategory: (categoryId, newName) => {
 			// 	console.log(categoryId);
 			// 	(categoryId)
@@ -452,20 +484,20 @@ const getState = ({ getStore, getActions, setStore }) => {
             //     .catch((error) => console.error(error));
             // },
     
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+			// changeColor: (index, color) => {
+			// 	//get the store
+			// 	const store = getStore();
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+			// 	//we have to loop the entire demo array to look for the respective index
+			// 	//and change its color
+			// 	const demo = store.demo.map((elm, i) => {
+			// 		if (i === index) elm.background = color;
+			// 		return elm;
+			// 	});
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
+			// 	//reset the global store
+			// 	setStore({ demo: demo });
+			// }
 		}
 	};
 };

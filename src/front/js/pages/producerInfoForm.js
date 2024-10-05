@@ -1,3 +1,4 @@
+
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { useParams, useNavigate } from "react-router-dom";
@@ -12,17 +13,17 @@ export const ProducerInfoForm = () => {
 
     useEffect(()=>{
         const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId))
-        console.log("currentProducer in form", currentProducer)
+        // console.log("currentProducer in form", currentProducer)
         if (currentProducer) {
             setProducerInfo(currentProducer)
         } else console.log("no info to return");
-        console.log("producerId", producerId);
-        console.log("producerInfo", producerInfo);
+        // console.log("producerId", producerId);
+        // console.log("producerInfo", producerInfo);
         
         
      },[store.producers, producerId])//  
     
-
+     
     const handleEdition = (e) => {
         e.preventDefault();
         actions.addProducerInfo(producerId, producerInfo)
@@ -36,8 +37,8 @@ export const ProducerInfoForm = () => {
      }
      const handleChange = (event) => {
         const { name , value } = event.target
-        console.log("name from handleChange", name);
-        console.log("value from handleChange", value);
+        // console.log("name from handleChange", name);
+        // console.log("value from handleChange", value);
         setProducerInfo((prevInfo) => ({...prevInfo, [name]: value
      }));
      }

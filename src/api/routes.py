@@ -195,15 +195,33 @@ def customer_login():
 
 
 #####GET Products#####
-@api.route('/product', methods=['GET'])
+@api.route('/products', methods=['GET'])
 def view_products():
     all_products = Product.query.all()
     result = list(map(lambda product: product.serialize(), all_products))
     if not result:
         response_body = {
-            "msg" : "No existen datos"
+            "msg": "No existen datos"
         }
         return jsonify(response_body),200
+    return jsonify(result), 200
+
+#####GET Product: Para cuando podamos obtener los productos que haya añadido cada productor, revisar ruta#####
+@api.route('/product', methods=['GET'])
+def view_producer_products():
+    producer_id = request.args.get('producerId')
+    print(producer_id)
+    if producer_id:
+        all_products = Product.query.filter_by(producer_id=producer_id).all()  # Filtrar productos por producer_id
+    else:
+        return {"msg": "No existen datos"}  # Obtener todos los productos si no se proporciona producer_id
+
+    result = list(map(lambda product: product.serialize(), all_products))
+    if not result:
+        response_body = {
+            "msg": "No existen datos"
+        }
+        return jsonify(response_body), 200
     return jsonify(result), 200
 
 #####POST Products#####

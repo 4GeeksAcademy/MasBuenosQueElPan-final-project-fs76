@@ -2,16 +2,19 @@ import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import "../../styles/home.css";
 import { Link } from "react-router-dom";
+import rigoImageUrl from "../../img/rigo-baby.jpg";
 
 export const Product = () => {
 	const { store, actions } = useContext(Context);
-    useEffect( () => {
-        actions.getProducts()
-    }, [])
+    // useEffect( () => {
+    //     actions.getProducts()
+    // }, [])
 
     const [name, setName] = useState("")
     const [price, setPrice] = useState("")
     const [origin, setOrigin] = useState("")
+    // const [weight, setWeight] = useState("")
+    // const [category, setCategory] = useState("")
     const [description, setDescription] = useState("")
     const [showModal, setShowModal] = useState(false);
     const [productid, setProductid] = useState("")
@@ -79,32 +82,63 @@ export const Product = () => {
         
     }
 	return (
-        <div className="container">
-			<ul className="list-group">
-            {store.products.length >0 ? (
-				store.products.map((productos, index) => {
-					return (
-						<li
-							key={index}
-							className="list-group-item d-flex justify-content-between align-items-center ">
-                                <div>
-                                    <h4>{productos.name}</h4>
-                                    <span className="d-block"><strong>El origen del producto es:</strong> {productos.origin}</span>
-                                    <span className="d-block"><strong>El precio del producto es de:</strong> {productos.price} €/Kg</span>
-                                    <span className="d-block"><strong>Descripción:</strong> {productos.description}</span>
-                                </div>
-                                <div className="d-flex flex-column">
-                                    <button type="button" className="btn btn-success m-2" onClick={()=> actions.deleteProduct(productos.id)}>Eliminar</button>
-                                    <button type="button" className="btn btn-success m-20" onClick={() => openModal(productos.id)}>Editar</button>
-                                </div>
-						</li>
-					);
-				})
-            ) : <li>Todavía no existe ningún producto</li> }
-			</ul>
-			<br />
-            <hr/>
-            <div className="container ">
+        <>
+        <h2>Tus productos</h2>
+            <div className="container d-inline-flex">
+            {store.products.length > 0 ? (
+                    store.products.map((product, index) => (
+                    <div className="card" key={index} style={{"width": "18rem"}}>
+                        <img src={rigoImageUrl} className="card-img-top" alt="..."/>
+                        <div className="card-body">
+                            <h5 className="card-title" >{product.name}</h5>
+                            <p className="card-text">{product.price}€</p>
+                            <p className="card-text">{product.description}</p>
+                            <p className="card-text">{product.weight} Aquí el peso</p>
+                            <p className="card-text">{product.category} Aquí la categoría</p>
+                            <button className="btn btn-info" onClick={() => openModal(product.id)}>Editar</button>
+                            <button className="btn btn-danger"
+                                data-bs-toggle="modal"
+                                onClick={()=> actions.deleteProduct(product.id)}
+                                data-bs-target="#deleteProductModal">
+                                Borrar
+                            </button>
+                        </div>
+                    </div>
+            ))
+            ) : (
+                <p>Añade nuevos productos</p>
+            )}
+            </div>
+
+        
+
+
+        {/* // <div className="container">
+		// 	<ul className="list-group">
+        //     {store.products.length >0 ? ( */}
+		{/* // 		store.products.map((productos, index) => {
+		// 			return (
+		// 				<li
+		// 					key={index}
+		// 					className="list-group-item d-flex justify-content-between align-items-center ">
+        //                         <div> */}
+        {/* //                             <h4>{productos.name}</h4>
+        //                             <span className="d-block"><strong>El origen del producto es:</strong> {productos.origin}</span>
+        //                             <span className="d-block"><strong>El precio del producto es de:</strong> {productos.price} €/Kg</span>
+        //                             <span className="d-block"><strong>Descripción:</strong> {productos.description}</span>
+        //                         </div> */}
+        {/* //                         <div className="d-flex flex-column">
+        //                             <button type="button" className="btn btn-success m-2" onClick={()=> actions.deleteProduct(productos.id)}>Eliminar</button>
+        //                             <button type="button" className="btn btn-success m-20" onClick={() => openModal(productos.id)}>Editar</button>
+        //                         </div>
+		// 				</li>
+		// 			); */}
+		{/* // 		})
+        //     ) : <li>Todavía no existe ningún producto</li> }
+		// 	</ul> */}
+		{/* // 	<br />
+        //     <hr/> */}
+            {/* <div className="container ">
                 <form onSubmit={DataSend}>
                     <div className="mb-3">
                         <label form="nameinput" className="form-label">Nombre Producto</label>
@@ -129,7 +163,7 @@ export const Product = () => {
 					</Link>
 
                 </form>
-            </div>
+            </div> */}
             {showModal && (
                 <div className="modal fade show d-block" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div className="modal-dialog">
@@ -166,8 +200,6 @@ export const Product = () => {
             )}
             {/* Backdrop */}
             {showModal && <div className="modal-backdrop fade show"></div>}
-
-		</div>
-        
+        </>
 	);
 };
