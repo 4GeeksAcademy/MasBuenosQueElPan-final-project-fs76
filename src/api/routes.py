@@ -431,7 +431,38 @@ def remove_cart_item(product_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+    
+@api.route('/customers_cart', methods=['POST'])
+def save_cart():
+    try:
+        data = request.get_json()
+        customer_cart_id = data.get('customer_cart_id')
+        items = data.get('items')
 
+        # Guarda cada ítem en la tabla de customers_cart
+        for item in items:
+            new_cart_item = CustomersCart(
+                customer_cart_id=customer_cart_id,
+                product_id=item['product_id'],
+                quantity=item['quantity'],
+                price=item['price']
+            )
+            db.session.add(new_cart_item)
+
+        db.session.commit()
+        return jsonify({"msg": "Carrito guardado exitosamente!"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/customers_cart/<int:customer_cart_id>', methods=['GET'])
+def get_customer_cart_items(customer_cart_id):
+       try:
+           cart_items = CustomersCart.query.filter_by(customer_cart_id=customer_cart_id).all()
+           return jsonify([item.serialize() for item in cart_items]), 200
+       except Exception as e:
+           return jsonify({"error": str(e)}), 500
 
     # body = request.get_json()
 

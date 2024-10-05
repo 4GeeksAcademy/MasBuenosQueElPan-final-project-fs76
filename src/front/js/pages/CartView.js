@@ -12,7 +12,6 @@ export const CartItems = () => {
         loadCartItems();
     }, [actions]);
 
-    // Calcular el total
     const calculateTotal = () => {
         return store.cart_items.reduce((total, item) => {
             return total + (item.price * item.quantity);
@@ -20,6 +19,10 @@ export const CartItems = () => {
     };
 
     const total = calculateTotal();
+
+    const handleSaveCart = () => {
+        actions.saveCart(); // Llama a la función que guarda el carrito
+    };
 
     return (
         <div className="container">
@@ -45,14 +48,13 @@ export const CartItems = () => {
                                 <td>
                                     <button
                                         className="btn btn-danger"
-                                        onClick={() => actions.removeCartItem(item.product_id)} // Asegúrate de usar product_id
+                                        onClick={() => actions.removeCartItem(item.product_id)}
                                     >
                                         Eliminar
                                     </button>
                                 </td>
                             </tr>
                         ))}
-                        {/* Agregar una fila para el total */}
                         <tr>
                             <td colSpan="3" style={{ textAlign: 'right' }}><strong>Total:</strong></td>
                             <td><strong>{total.toFixed(2)}€</strong></td>
@@ -66,6 +68,9 @@ export const CartItems = () => {
                 </div>
             )}
             <br />
+            <button className="btn btn-success" onClick={handleSaveCart}>
+                Finalizar Compra
+            </button>
             <Link to="/">
                 <button className="btn btn-primary my-3">Volver a la página principal</button>
             </Link>

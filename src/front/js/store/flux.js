@@ -110,7 +110,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				fetch(process.env.BACKEND_URL + "/api/categories", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ categorie: newCategoryName })
+					body: JSON.stringify({ "category": newCategoryName })
 				})
 					.then((response) => response.json())
 					.then(() => getActions().getCategories())
@@ -127,7 +127,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.then(() => {
 						const store = getStore();
 						const updatedCategories = store.categories.map(category =>
-							category.id === categoryId ? { ...category, categorie: newName } : category
+							category.id === categoryId ? { ...category, category: newName } : category
 						);
 						setStore({ categories: updatedCategories });
 					})
@@ -299,6 +299,40 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch(error => {
 						console.error('Error eliminando del carrito:', error);
 						alert(`No se pudo eliminar el producto del carrito: ${error.message}`);
+					});
+			},
+			saveCart: () => {
+				const store = getStore();
+				const cartItems = store.cart_items;
+
+				const cartData = {
+					customer_cart_id: store.user.id, // El ID del cliente
+					items: cartItems.map(item => ({
+						product_id: item.product_id,
+						quantity: item.quantity,
+						price: item.price
+					}))
+				};
+
+				fetch(`${process.env.BACKEND_URL}/api/customers_cart`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(cartData),
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error(`Error al guardar el carrito: ${response.statusText}`);
+						}
+						return response.json();
+					})
+					.then(data => {
+						alert("Compra guardada exitosamente!");
+						// Opcionalmente, podrías limpiar el carrito después de guardar la compra
+						// setStore({ cart_items: [] });
+					})
+					.catch(error => {
+						console.error("Error al guardar el carrito:", error);
+						alert(`No se pudo guardar la compra: ${error.message}`);
 					});
 			},
 		}
