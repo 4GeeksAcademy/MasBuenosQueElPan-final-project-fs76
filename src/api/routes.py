@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories, Product, CartItem, CartProduct, CustomerCart
+from api.models import db, User, Producer, ProductCategories, Product, CartItem, CartProduct, CustomerCart, Customer
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from decimal import Decimal
@@ -11,6 +11,8 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from werkzeug.security import check_password_hash , generate_password_hash
+
 
 api = Blueprint('api', __name__)
 
@@ -27,17 +29,199 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+# ####GET Provinces#####
+# @api.route('/provinces', methods=['GET'])
+# def get_provinces():
+#     all_provinces=Province.query.all()
+#     result = list(map(lambda province : province.serialize(),all_provinces))
+#     return jsonify(result),200
+
+#####GET Customer#####
+@api.route('/customers', methods=['GET'])
+def get_customers():
+    all_custumer = Customer.query.all()
+    result = list(map(lambda customer: customer.serialize(),all_custumer))
+    if not result:
+        return jsonify({"msg": "No existen datos"}), 200
+    return jsonify(result), 200
+
+
+#####POST Customer#####
+@api.route('/customers', methods=['POST'])
+def create_customer():
+    try:
+        # Obtener los datos
+        data = request.get_json()
+        if not data:
+            return jsonify({"msg": "No se han proporcionado datos"}), 400
+        
+        # Validar campos obligatorios
+        required_fields = ['name', 'last_name', 'email', 'password', 'address', 'province', 'zipcode', 'phone', 'country']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"msg": f"Falta el campo {field}"}), 400
+
+        # Asigno los datos
+        name = data.get('name')
+        last_name = data.get('last_name')
+        email = data.get('email')
+        password = data.get('password')
+        address = data.get('address')
+        province = data.get('province')
+        zipcode = data.get('zipcode')
+        phone = data.get('phone')
+        country = data.get('country')
+
+        # Hashear la contraseña antes de almacenar
+        hashed_password = generate_password_hash(password)
+        # Añadir el nuevo cliente
+        new_customer = Customer(
+            name=name,
+            last_name=last_name,
+            email=email,
+            password=hashed_password,
+            address=address,
+            province=province,
+            zipcode=zipcode,
+            phone=phone,
+            country=country
+        )
+
+        # Actualizar la base de datos
+        db.session.add(new_customer)
+        db.session.commit()
+
+        return jsonify(new_customer.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+#####PUT Customer#####
+@api.route('/customer/<int:id>', methods=['PUT'])
+def edit_customer(id):
+    try:
+        customer = Customer.query.get(id)
+        if not customer:
+            return jsonify({"msg":"No existe el usuario"}), 404
+        data = request.get_json()
+        if not data:
+            return jsonify({"msg":"No se han proporcionado datos"}), 400
+        name = data.get('name')
+        last_name = data.get('last_name')
+        email = data.get('email')
+        password = data.get('password')
+        adress = data.get('adress')
+        # province_name = data.get ('province')
+        province = data.get('province')
+        zipcode = data.get ('zipcode')
+        phone = data.get ('phone')
+        country = data.get('country')
+
+        #Actualizamos la bade de datos
+        if name:
+            customer.name = name
+        if last_name:
+            customer.last_name = last_name
+        if email:
+            customer.email = email
+        if password:
+            customer.password = password
+        if adress:
+            customer.adress = adress
+        if province:
+            customer.province = province
+        if zipcode:
+            customer.zipcode = zipcode
+        if phone:
+            customer.phone = phone
+        if country:
+            customer.country = country
+
+        #Guardamos los datos en la base de datos
+        db.session.commit()
+
+        return jsonify(customer.serialize()), 200
+    except Exception as e:
+        db.sessions.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+
+
+#####DELETE Customer#####
+@api.route('/customer/<int:id>', methods=['DELETE'])
+def delete_customer(id):
+    try:
+        #Seleccionamos el producto que queremos eliminar
+        customer = Customer.query.get(id)
+
+        if not customer:
+            return jsonify({"msg": "Producto no encontrado"}), 404
+        
+        #Eliminamos el producto
+        db.session.delete(customer)
+        db.session.commit()
+
+        return jsonify({"msg":"se ha eliminado el usuario"}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+#####LOGIN CUTSOMER#####
+@api.route('/login', methods=['POST'])
+def customer_login():
+    try:
+        data = request.get_json()
+        if not data or not data.get("email") or not data.get("password"):
+            return jsonify({"msg":"Faltan credenciales"}), 400
+        email = data.get('email')
+        password = data.get('password')
+        print(email)
+        print(password)
+        #Busco el usuario con el amail recibido
+        user = Customer.query.filter_by(email=email).first()
+        #Verificamos para hacer el login
+        if user and check_password_hash(user.password, password):
+            #Generamos token de acceso
+            access_token = create_access_token(identity={"id": user.id, "email":user.email})
+            return jsonify({"msg": "Inicio de sesión exitoso", "access_token":access_token, "user_id":user.id}),200
+        else:
+            return jsonify({"msg": "Credenciales incorrectas"}), 401
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500 
+
 
 #####GET Products#####
-@api.route('/product', methods=['GET'])
+@api.route('/products', methods=['GET'])
 def view_products():
     all_products = Product.query.all()
     result = list(map(lambda product: product.serialize(), all_products))
     if not result:
         response_body = {
-            "msg" : "No existen datos"
+            "msg": "No existen datos"
         }
         return jsonify(response_body),200
+    return jsonify(result), 200
+
+#####GET Product: Para cuando podamos obtener los productos que haya añadido cada productor, revisar ruta#####
+@api.route('/product', methods=['GET'])
+def view_producer_products():
+    producer_id = request.args.get('producerId')
+    print(producer_id)
+    if producer_id:
+        all_products = Product.query.filter_by(producer_id=producer_id).all()  # Filtrar productos por producer_id
+    else:
+        return {"msg": "No existen datos"}  # Obtener todos los productos si no se proporciona producer_id
+
+    result = list(map(lambda product: product.serialize(), all_products))
+    if not result:
+        response_body = {
+            "msg": "No existen datos"
+        }
+        return jsonify(response_body), 200
     return jsonify(result), 200
 
 #####POST Products#####
@@ -59,7 +243,7 @@ def add_product():
     try:
         data = request.get_json()
         if not data:
-            return jsonify({"msg":"No se han proporcioando datos"}), 400
+            return jsonify({"msg":"No se han proporcionado datos"}), 400
         
         ##Body Obtener respuesta
         name = data.get('name')
@@ -203,7 +387,22 @@ def handle_signup():
     db.session.add(new_producer)
     db.session.commit()
 
-    return jsonify({"message": "User created successfully!"}), 201
+    return jsonify(new_producer.serialize()), 201
+
+####CHECK IF PRODUCER EXIST####
+@api.route('/checkProducer', methods=['POST'])
+def check_PRODUCER_exists():
+    email = request.json.get('email')
+
+    if not email:
+        return jsonify(message="Email is required"), 400
+
+    if email:
+        existing_user = Producer.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify(exists=True, message="Email already exists"), 200
+
+    return jsonify(exists=False), 200
 
 ####GET PRODUCERS####
 @api.route('/producers', methods=['GET'])
@@ -240,11 +439,11 @@ def handle_login():
     if producer.email != email or producer.password != password:
         print("incorrect password or email")
         return jsonify({"msg": "Password or email incorrect"}), 401
-
-
+    
     access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token)
-
+    if producer.brand_name is None:
+        return jsonify(access_token=access_token, is_verify=False, producer_id=producer.id)
+    return jsonify(access_token=access_token, is_verify=True, producer_id=producer.id)
 
 # Protect a route with jwt_required, which will kick out requests
 # without a valid JWT present.
@@ -281,6 +480,30 @@ def delete_producer(producer_id):
 #####EDIT ONE PRODUCER#####
 @api.route('/producer/<int:producer_id>', methods=['PUT'])
 def edit_producer(producer_id):
+    producer_data = request.get_json()
+    print(producer_data)
+    producer = Producer.query.filter_by(id=producer_id).first()
+
+    if producer is None:
+        return ("error","producer not found")
+    producer.email= producer_data.get("email", producer.email)
+    producer.password= producer_data.get("password", producer.password)
+    producer.brand_name= producer_data.get("brand_name", producer.brand_name)
+    producer.user_name= producer_data.get("user_name", producer.user_name)
+    producer.user_last_name= producer_data.get("user_last_name", producer.user_last_name)
+    producer.cif= producer_data.get("cif", producer.cif)
+    producer.address= producer_data.get("address", producer.address)
+    producer.province= producer_data.get("province", producer.province)
+    producer.zip_code= producer_data.get("zip_code", producer.zip_code)
+    producer.phone= producer_data.get("phone", producer.phone)
+    
+
+    db.session.commit()
+
+    return jsonify(producer.serialize()), 200
+
+@api.route('/producer/<int:producer_id>', methods=['PUT'])
+def add_producer_info(producer_id):
     producer_data = request.get_json()
     print(producer_data)
     producer = Producer.query.filter_by(id=producer_id).first()
@@ -480,14 +703,23 @@ def get_customer_carts(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@api.route('/api/cart/<int:user_id>', methods=['DELETE'])
+@api.route('/cart_item/<int:user_id>', methods=['DELETE'])
 def clear_cart(user_id):
-    # Lógica para eliminar todos los elementos del carrito de un usuario
-    # Supongamos que tienes un modelo CartItem que puede ser consultado
-    # para borrar elementos asociados con el ID del cliente.
-    CartItem.query.filter_by(customer_cart_id=user_id).delete()
-    db.session.commit()
-    return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+    try:
+        # Filtrar y eliminar los elementos del carrito asociados al usuario
+        CartItem.query.filter_by(customer_cart_id=user_id).delete()
+        db.session.commit()
+
+        return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+    except Exception as e:
+        # Manejo de errores y rollback
+        db.session.rollback()
+        return jsonify({"message": f"Error al vaciar el carrito: {str(e)}"}), 500
+# @api.route('/cart/<int:user_id>', methods=['DELETE'])
+# def clear_cart(user_id):
+#     CartItem.query.filter_by(customer_cart_id=user_id).delete()
+#     db.session.commit()
+#     return jsonify({"message": "Carrito vaciado exitosamente."}), 200
     
 
     # body = request.get_json()

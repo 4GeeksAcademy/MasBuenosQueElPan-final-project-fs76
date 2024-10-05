@@ -1,7 +1,29 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export const Navbar = () => {
+	const { store, actions } = useContext(Context);
+	const { producerId } = useParams()
+	const navigate = useNavigate();
+
+	
+
+	function handleLogout () {
+		console.log("Loging out");
+		localStorage.clear();
+		actions.producerLogout();
+		navigate("/producer/login")
+	}
+
+	function handleNewProduct () {
+		console.log("Going to add new product");
+		navigate(`/producer/dashboard/${localStorage.getItem("producerId")}/newproduct`)
+	}
+
+	
 	return (
 		<nav className="navbar navbar-light bg-light">
 			<div className="container">
@@ -9,7 +31,7 @@ export const Navbar = () => {
 					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
 				</Link>
 				<div className="ml-auto">
-					<Link to="/producers">
+					<Link to="/producer/login">
 						<button className="btn btn-primary">Producers</button>
 					</Link>
 				</div>
@@ -35,6 +57,23 @@ export const Navbar = () => {
 					</Link>
 				</div>
 
+				<div>
+					<Link to="/customer/Login" className="mx-2">
+						<button className="btn btn-primary">SignUp</button>
+					</Link>
+				</div>
+				{store.isLogedIn === true ? 
+				<>
+				<div className="d-flex justify-content-end w-100">
+					<button type="button" className="btn btn-primary" onClick={handleNewProduct}>Nuevo producto</button>
+				</div>
+				<div className="d-flex justify-content-end w-100">
+					<button type="button" className="btn btn-danger" onClick={handleLogout}>Cerrar sesión</button>
+				</div>
+				</>
+				 : ""		
+				}
+				
 			</div>
 		</nav>
 	);

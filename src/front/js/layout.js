@@ -9,14 +9,21 @@ import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import { Producers } from "./pages/producers";
 import { EditProducer } from "./pages/editProducer";
+import { ProducerSignup } from "./component/producerSignup";
+import { ProducerInfoForm } from "./pages/producerInfoForm";
+import { ProducerView } from "./pages/producerView";
+import { AddProduct } from "./pages/producerAddProduct";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
-import { Product } from "./pages/ViewProducts";  // Asegúrate de que este componente esté manejando productos
 import { CustomerProductList } from "./pages/CustomerProductList";
 import { CustomerProductView } from "./pages/CustomerProductView"; // Importa el componente de vista del producto
 import { CartItems } from "./pages/CartView";
+import { Product } from "./pages/ViewProducts";
+import { CustomerLoginUp } from "./pages/customerLogin";
+import { CustomerSignUp } from "./pages/customerSingUp";
+import { HomeCustView } from "./pages/homeCustView"
 
 const Layout = () => {
     const basename = process.env.BASENAME || "";
@@ -31,13 +38,21 @@ const Layout = () => {
                     <Routes>
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
-                        <Route element={<Producers />} path="/producers" />
-                        <Route element={<EditProducer />} path="/producer/:producerId" />
+                        <Route element={<Producers />} path="/producer/login" />
+                        <Route element={<EditProducer />} path="/producer/edit/:producerId" />
+                        <Route element={<ProducerSignup />} path="/producer/signup" />
+                        <Route element={<ProducerView />} path="/producer/dashboard/:producerId" />
+                        <Route element={<ProducerInfoForm />} path="/producer/form/:producerId" />
+                        <Route element={<AddProduct />} path="/producer/dashboard/:producerId/newproduct" />
                         <Route element={<Categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<CustomerProductList />} path="/productlist" />
                         <Route element={<CustomerProductView />} path="/product/:product_id" />
                         <Route element={<CartItems />} path="/cart" />
+                        <Route element={<Product />} path="/product" />
+                        <Route element={<CustomerLoginUp />} path="/customer/Login" />
+                        <Route element={< CustomerSignUp />} path="/customer/singUp" />
+                        <Route element={<HomeCustView />} path="/customer/home" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

@@ -1,47 +1,51 @@
+
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { useParams, useNavigate } from "react-router-dom";
 
 
-export const EditProducer = () => {
+export const ProducerInfoForm = () => {
     const { store, actions } = useContext(Context);
-    const { producerId } = useParams();
-    const navigate = useNavigate()    
+    const { producerId } = useParams()
+    const navigate = useNavigate();
     const [ producerInfo, setProducerInfo ] = useState({});
     const [ showSuccessMessage, setShowSuccessMessage ] = useState(false)
 
-
     useEffect(()=>{
         const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId))
-        
+        // console.log("currentProducer in form", currentProducer)
         if (currentProducer) {
             setProducerInfo(currentProducer)
         } else console.log("no info to return");
+        // console.log("producerId", producerId);
+        // console.log("producerInfo", producerInfo);
         
-     },[store.producers, producerId])
-
+        
+     },[store.producers, producerId])//  
+    
+     
     const handleEdition = (e) => {
         e.preventDefault();
-        actions.editProducer(producerId, producerInfo)
+        actions.addProducerInfo(producerId, producerInfo)
         setShowSuccessMessage(true);
         setTimeout(() => {
-            navigate("/producer/login");
+            navigate(`/producer/dashboard/${localStorage.getItem("producerId")}`);
         }, 2000);
     }
     const handleExit = () => {
-        navigate("/producer/login")
+        navigate(`/producer/dashboard/${localStorage.getItem("producerId")}`)
      }
      const handleChange = (event) => {
         const { name , value } = event.target
-        console.log("name from handleChange", name);
-        console.log("value from handleChange", value);
+        // console.log("name from handleChange", name);
+        // console.log("value from handleChange", value);
         setProducerInfo((prevInfo) => ({...prevInfo, [name]: value
      }));
      }
 
     return (
         <>
-        <h1>Edit producer info</h1>
+        <h1>Añade aquí tu información</h1>
         {producerInfo ? (
             <form onSubmit={handleEdition}>
                 <div className="mb-3">
@@ -53,11 +57,11 @@ export const EditProducer = () => {
                     <input type="text" name="brand_name" value={producerInfo.brand_name || ''} onChange={handleChange} className="form-control" id="brandNameInput"/>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="userNameInput" className="form-label">Nombre del usuario</label>
+                    <label htmlFor="userNameInput" className="form-label">Nombre de usuario</label>
                     <input type="text" name="user_name" value={producerInfo.user_name || ''} onChange={handleChange} className="form-control" id="userNameInput"/>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="userLastNameInput" className="form-label">Apellido del usuario</label>
+                    <label htmlFor="userLastNameInput" className="form-label">Apellido de usuario</label>
                     <input type="text" name="user_last_name" value={producerInfo.user_last_name || ''} onChange={handleChange} className="form-control" id="userLastNameInput"/>
                 </div>
                 <div className="mb-3">
@@ -81,17 +85,17 @@ export const EditProducer = () => {
                     <input type="number" name="phone" value={producerInfo.phone || ''} onChange={handleChange} className="form-control" id="phoneInput"/>
                 </div>
                 <div className="col-auto mb-3">
-                    <button type="submit" className="btn btn-primary me-3">Editar</button>
-                    <button type="button" onClick={()=>handleExit()} className="btn btn-secondary">Salir</button>
+                    <button type="submit" className="btn btn-primary me-3">Añadir</button>
+                    <button type="button" onClick={handleExit} className="btn btn-secondary">Salir</button>
                 </div>
             </form>
         ) : (
-        <p>Loading...</p>
+        <p>Ups! Parece que ha habido un problema...</p>
         )}
         {showSuccessMessage &&
-        <div className="alert alert-success">Info edited succsesfully. Redirecting to Homepage!
+        <div className="alert alert-success">Información añadida con éxito! 
             <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
-            <span className="visually-hidden" role="status">Loading...</span>
+            <span className="visually-hidden" role="status">Llevándote en tractor a Home!...</span>
         </div>
         }
         </>
