@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories, Product, Customer
+from api.models import db, User, Producer, ProductCategories, Product, CartItem, CartProduct, CustomerCart, Customer
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from decimal import Decimal
@@ -223,6 +223,18 @@ def view_producer_products():
         }
         return jsonify(response_body), 200
     return jsonify(result), 200
+
+#####POST Products#####
+@api.route('/product/<int:product_id>', methods=['GET'])
+def view_product(product_id):
+    product = Product.query.get(product_id)
+    if product is None:
+        return jsonify (message="Product not found"), 404
+        
+    return jsonify(product.serialize()), 200
+
+        
+    
 
 #####POST Products#####
 
@@ -546,7 +558,7 @@ def delete_categorie(categorie_id):
     return jsonify({'message': f' Has  borrado la categoría {categorie_id}'}), 200
 
 
-##### POST CETEGORIES#####
+##### POST CATEGORIES#####
 @api.route('/categories', methods=['POST'])
 def add_categorie():
     body = request.get_json()
@@ -587,7 +599,128 @@ def update_categorie(categorie_id):
 
     return jsonify(categorie.serialize()), 200
 
+#####GET CART ITEMS#####
+@api.route('/cart', methods=['GET'])
+def get_cart_items():
+    all_cart_items = CartItem.query.all()    
+    results = list(map(lambda cart_item: cart_item.serialize(), all_cart_items)) 
+    return jsonify(results), 200
 
+@api.route('/cart', methods=['POST'])
+def add_cart_item():
+       try:
+           data = request.get_json()
+           if not data:
+               return jsonify({"msg": "No se han proporcionado datos"}), 400
+
+           customer_cart_id = data.get('customer_cart_id')
+           product_id = data.get('product_id')
+           quantity = data.get('quantity')
+           price = data.get('price')
+
+           if not customer_cart_id or not product_id or not quantity or not price:
+               return jsonify({"msg": "Faltan datos requeridos"}), 400
+
+           # Crear un nuevo item en el carrito
+           new_cart_item = CartItem(
+               customer_cart_id=customer_cart_id,
+               product_id=product_id,
+               quantity=quantity,
+               price=price,
+               subtotal=Decimal(price) * Decimal(quantity),  # Calculado
+               total_price=Decimal(price) * Decimal(quantity)  # Calculado
+           )
+
+           db.session.add(new_cart_item)
+           db.session.commit()
+
+           return jsonify(new_cart_item.serialize()), 201
+       except Exception as e:
+           db.session.rollback()
+           print(f"Error al añadir al carrito: {str(e)}")  # Para inspeccionar errores
+           return jsonify({"error": str(e)}), 500
+       
+@api.route('/cart/<int:product_id>', methods=['DELETE'])
+def remove_cart_item(product_id):
+    try:
+       
+        cart_item = CartItem.query.filter_by(product_id=product_id).first()
+        if cart_item is None:
+            return jsonify({"msg": "Item no encontrado"}), 404
+
+        db.session.delete(cart_item)
+        db.session.commit()
+        return jsonify({"msg": "Item eliminado del carrito"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/customers_cart', methods=['POST'])
+def save_cart():
+    try:
+        data = request.get_json()
+        user_id = data.get('customer_cart_id')  # ID del cliente
+        items = data.get('items')  # Ítems del carrito
+
+        if not user_id or not items:
+            return jsonify({"msg": "Faltan datos requeridos"}), 400
+
+        # Crear un nuevo carrito con estado 'finalizado'
+        new_cart = CustomerCart(
+            user_id=user_id,
+            total_price=sum(item['price'] * item['quantity'] for item in items),
+            status='finalizado'
+        )
+
+        db.session.add(new_cart)
+        db.session.commit()
+
+        # Guardar los ítems en el carrito
+        for item in items:
+            new_cart_item = CartItem(
+                customer_cart_id=new_cart.id,  # ID del carrito recién creado
+                product_id=item['product_id'],  # ID del producto
+                quantity=item['quantity'],  # Cantidad
+                price=item['price'],  # Precio unitario
+                subtotal=Decimal(item['price']) * Decimal(item['quantity']),
+                total_price=Decimal(item['price']) * Decimal(item['quantity'])
+            )
+            db.session.add(new_cart_item)
+
+        db.session.commit()
+
+        return jsonify({"msg": "Carrito guardado exitosamente!"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/customers_cart/<int:user_id>', methods=['GET'])
+def get_customer_carts(user_id):
+    try:
+        carts = CustomerCart.query.filter_by(user_id=user_id).all()  # Filtra carritos por user_id
+        return jsonify([cart.serialize() for cart in carts]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/cart_item/<int:user_id>', methods=['DELETE'])
+def clear_cart(user_id):
+    try:
+        # Filtrar y eliminar los elementos del carrito asociados al usuario
+        CartItem.query.filter_by(customer_cart_id=user_id).delete()
+        db.session.commit()
+
+        return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+    except Exception as e:
+        # Manejo de errores y rollback
+        db.session.rollback()
+        return jsonify({"message": f"Error al vaciar el carrito: {str(e)}"}), 500
+# @api.route('/cart/<int:user_id>', methods=['DELETE'])
+# def clear_cart(user_id):
+#     CartItem.query.filter_by(customer_cart_id=user_id).delete()
+#     db.session.commit()
+#     return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+    
 
     # body = request.get_json()
 
@@ -604,5 +737,5 @@ def update_categorie(categorie_id):
     
     # db.session.commit()
 
-    return jsonify({"msg": f"La categoría {categorie_id} ha sido actualizada"}), 200
+    # return jsonify({"msg": f"La categoría {categorie_id} ha sido actualizada"}), 200
 
