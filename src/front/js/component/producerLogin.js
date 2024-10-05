@@ -3,7 +3,6 @@ import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-
 export const ProducerLogin = () => {
     const {  actions } = useContext(Context);
     const [ email, setEmail ] = useState("");
@@ -11,7 +10,7 @@ export const ProducerLogin = () => {
     const [ showEmptyInputs, setShowEmptyInputs ] = useState(false);
     const [ showAt, setShowAt ] = useState(false);
     const [ showExists, setShowExists] = useState(false);
-    const [ loggingIn, setLogginIn ] = useState(false)
+    const [ logingIn, setLoginIn ] = useState(false)
     const navigate = useNavigate()
 
     // At = @
@@ -39,21 +38,19 @@ export const ProducerLogin = () => {
             return;
         } else console.log("Everything looks fine");
 
-        actions.checkProducerExists(email).then(producerExists => {
+        actions.checkProducerExists(email, password).then(producerExists => {
             if (!producerExists) {
                 console.log(producerExists)
                 setShowExists(true);
                 return;
             }
-
+            setLoginIn(true)
             actions.producerLogin(email, password).then(data => {
-                console.log("data from producerlogin", data);
-                console.log("Navigating to producer view");
+                // console.log("data from producerlogin", data);
+                // console.log("Navigating to producer view");
                 if (data.isVerify) {
-                    setLogginIn(true)
-                    setTimeout(() => {
-                        navigate(`/producer/dashboard/${data.producerId}`)
-                    }, "2000");
+                    setLoginIn(false)
+                    navigate(`/producer/dashboard/${data.producerId}`)
                     
                 } else {
                     navigate(`/producer/form/${data.producerId}`)
@@ -114,8 +111,8 @@ export const ProducerLogin = () => {
                 </Link>
             </div>
             <button type="submit" onClick={handleLogin} className="signup btn btn-primary mb-2">Login</button>
-        {loggingIn &&
-        <div className="alert alert-success mt-5">Parece que ha salido todo bien! 
+        {logingIn &&
+        <div className="alert alert-success mt-5">Parece que ha salido todo bien! Cargando perfil  
             <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
             <span className="visually-hidden" role="status">Espera, que cargo tu perfil!</span>
         </div>
