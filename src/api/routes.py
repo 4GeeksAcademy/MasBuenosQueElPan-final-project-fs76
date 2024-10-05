@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories, Product, CartItem, CartProduct
+from api.models import db, User, Producer, ProductCategories, Product, CartItem, CartProduct, CustomerCart
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from decimal import Decimal
@@ -436,33 +436,59 @@ def remove_cart_item(product_id):
 def save_cart():
     try:
         data = request.get_json()
-        customer_cart_id = data.get('customer_cart_id')
-        items = data.get('items')
+        user_id = data.get('customer_cart_id')  # ID del cliente
+        items = data.get('items')  # Ítems del carrito
 
-        # Guarda cada ítem en la tabla de customers_cart
+        if not user_id or not items:
+            return jsonify({"msg": "Faltan datos requeridos"}), 400
+
+        # Crear un nuevo carrito con estado 'finalizado'
+        new_cart = CustomerCart(
+            user_id=user_id,
+            total_price=sum(item['price'] * item['quantity'] for item in items),
+            status='finalizado'
+        )
+
+        db.session.add(new_cart)
+        db.session.commit()
+
+        # Guardar los ítems en el carrito
         for item in items:
-            new_cart_item = CustomersCart(
-                customer_cart_id=customer_cart_id,
-                product_id=item['product_id'],
-                quantity=item['quantity'],
-                price=item['price']
+            new_cart_item = CartItem(
+                customer_cart_id=new_cart.id,  # ID del carrito recién creado
+                product_id=item['product_id'],  # ID del producto
+                quantity=item['quantity'],  # Cantidad
+                price=item['price'],  # Precio unitario
+                subtotal=Decimal(item['price']) * Decimal(item['quantity']),
+                total_price=Decimal(item['price']) * Decimal(item['quantity'])
             )
             db.session.add(new_cart_item)
 
         db.session.commit()
+
         return jsonify({"msg": "Carrito guardado exitosamente!"}), 201
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
     
-@api.route('/customers_cart/<int:customer_cart_id>', methods=['GET'])
-def get_customer_cart_items(customer_cart_id):
-       try:
-           cart_items = CustomersCart.query.filter_by(customer_cart_id=customer_cart_id).all()
-           return jsonify([item.serialize() for item in cart_items]), 200
-       except Exception as e:
-           return jsonify({"error": str(e)}), 500
+@api.route('/customers_cart/<int:user_id>', methods=['GET'])
+def get_customer_carts(user_id):
+    try:
+        carts = CustomerCart.query.filter_by(user_id=user_id).all()  # Filtra carritos por user_id
+        return jsonify([cart.serialize() for cart in carts]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/api/cart/<int:user_id>', methods=['DELETE'])
+def clear_cart(user_id):
+    # Lógica para eliminar todos los elementos del carrito de un usuario
+    # Supongamos que tienes un modelo CartItem que puede ser consultado
+    # para borrar elementos asociados con el ID del cliente.
+    CartItem.query.filter_by(customer_cart_id=user_id).delete()
+    db.session.commit()
+    return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+    
 
     # body = request.get_json()
 

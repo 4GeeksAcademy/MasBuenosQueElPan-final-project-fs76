@@ -18,19 +18,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 			producers: [],
 			categories: [],
 			cart_items: [],
+			customer_carts: [],  // Inicializado como un arreglo vacío
 			user: {
-				id: "123",
+				id: "123",  // Cambia esto al ID del usuario real
 				name: "Usuario Test"
 			},
-
 		},
 		actions: {
-			// Use getActions to call a function within a function
+			// Ejemplo de una función que cambia el color
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
 
-			// Estos son productos
+			// Manejo de productos
 			getProducts: () => {
 				const requestOptions = { method: "GET" };
 				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
@@ -81,7 +81,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 			},
 
-			// Estos son categorías
+			// Manejo de categorías
 			getCategories: () => {
 				const requestOptions = { method: "GET" };
 				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
@@ -110,7 +110,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				fetch(process.env.BACKEND_URL + "/api/categories", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ "category": newCategoryName })
+					body: JSON.stringify({ "categorie": newCategoryName })
 				})
 					.then((response) => response.json())
 					.then(() => getActions().getCategories())
@@ -121,7 +121,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
 					method: "PUT",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ category: newName })
+					body: JSON.stringify({ categorie: newName })
 				})
 					.then((response) => response.json())
 					.then(() => {
@@ -134,7 +134,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 			},
 
-			// Estos son productores
+			// Manejo de productores
 			producerSignup: (email, password) => {
 				const store = getStore();
 				const requestOptions = {
@@ -158,7 +158,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ "email": email, "password": password })
 				};
-				fetch(process.env.BACKEND_URL + "/api/producer", requestOptions)
+				fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
 					.then((response) => {
 						if (response.status === 200) {
 							return response.json();
@@ -231,6 +231,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 				});
 				setStore({ demo });
 			},
+
+			// Manejo del carrito
 			getCartItems: () => {
 				const requestOptions = { method: "GET" };
 				fetch(process.env.BACKEND_URL + "/api/cart", requestOptions)
@@ -245,6 +247,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error("Error fetching cart items:", error));
 			},
+
 			addToCart: (product, quantity) => {
 				const store = getStore();
 
@@ -267,21 +270,22 @@ const getState = ({ getStore, getActions, setStore }) => {
 						return response.json();
 					})
 					.then(data => {
-						setStore({ cart_items: [...store.cart_items, { ...newCartItem, id: data.id }] });
+						// setStore({ cart_items: [...store.cart_items, { ...newCartItem, id: data.id }] });
 						alert("Producto añadido al carrito!");
+						getActions().getCartItems()
 					})
 					.catch(error => {
 						console.error('Error añadiendo al carrito:', error);
 						alert(`No se pudo añadir el producto al carrito: ${error.message}`);
 					});
 			},
+
 			removeCartItem: (product_id) => {
 				const requestOptions = {
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
 				};
 
-				// Llama a tu API para eliminar el producto del carrito
 				fetch(`${process.env.BACKEND_URL}/api/cart/${product_id}`, requestOptions)
 					.then(response => {
 						if (!response.ok) {
@@ -290,7 +294,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						return response.json(); // Suponiendo que la respuesta devuelva algún dato
 					})
 					.then(data => {
-						// Actualizar el store para eliminar el item del cart_items
 						const currentStore = getStore();
 						const updatedCartItems = currentStore.cart_items.filter(item => item.product_id !== product_id);
 						setStore({ cart_items: updatedCartItems });
@@ -301,6 +304,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						alert(`No se pudo eliminar el producto del carrito: ${error.message}`);
 					});
 			},
+
 			saveCart: () => {
 				const store = getStore();
 				const cartItems = store.cart_items;
@@ -312,8 +316,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 						quantity: item.quantity,
 						price: item.price
 					}))
-				};
 
+				};
+				// getActions().getCustomerCarts()
 				fetch(`${process.env.BACKEND_URL}/api/customers_cart`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -327,14 +332,52 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.then(data => {
 						alert("Compra guardada exitosamente!");
-						// Opcionalmente, podrías limpiar el carrito después de guardar la compra
-						// setStore({ cart_items: [] });
+						// Vaciar el carrito después de guardar
+						getActions().getCustomerCarts()
+						setStore({ cart_items: [] });
 					})
 					.catch(error => {
 						console.error("Error al guardar el carrito:", error);
 						alert(`No se pudo guardar la compra: ${error.message}`);
 					});
 			},
+
+			getCustomerCarts: () => {
+				const store = getStore();
+				const requestOptions = { method: "GET" };
+				fetch(`${process.env.BACKEND_URL}/api/customers_cart/${store.user.id}`, requestOptions)
+					.then((response) => response.json())
+					.then((data) => {
+						setStore({ customer_carts: data });
+					})
+					.catch((error) => console.error("Error fetching customer carts:", error));
+			},
+			clearCart: () => {
+				const store = getStore();
+				const requestOptions = {
+					method: "DELETE",
+					headers: { "Content-Type": "application/json" },
+				};
+
+
+				fetch(`${process.env.BACKEND_URL}/api/cart/${store.user.id}`, requestOptions)
+					.then(response => {
+						if (!response.ok) {
+							throw new Error(`Error al vaciar el carrito: ${response.statusText}`);
+						}
+						return response.json(); // Suponiendo que recibes una respuesta en JSON
+					})
+					.then(data => {
+						console.log("Carrito vaciado en la base de datos:", data);
+						// Ahora vaciamos el carrito en el estado del cliente
+						setStore({ cart_items: [] });
+						alert("El carrito ha sido vaciado.");
+					})
+					.catch(error => {
+						console.error("Error al vaciar el carrito:", error);
+						alert(`No se pudo vaciar el carrito: ${error.message}`);
+					});
+			}
 		}
 	};
 };
