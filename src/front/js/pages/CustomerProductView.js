@@ -33,9 +33,13 @@ export const CustomerProductView = () => {
     }, [params.product_id]);
 
     const handleAddToCart = () => {
-        actions.addToCart(product.id, parseInt(quantity));
+        if (quantity <= 0) {
+            alert("La cantidad debe ser al menos 1.");
+            return;
+        }
+        actions.addToCart(product, parseInt(quantity));
         alert(`Añadido ${quantity} ${product.name} al carrito!`);
-        setQuantity(1);
+        setQuantity(1); // Resetear la cantidad a 1
     };
 
     return (

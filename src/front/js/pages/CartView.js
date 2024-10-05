@@ -2,11 +2,9 @@ import React, { useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
 
-
 export const CartItems = () => {
     const { store, actions } = useContext(Context);
 
-    // Cargar los elementos del carrito cuando se monta el componente
     useEffect(() => {
         const loadCartItems = async () => {
             await actions.getCartItems();
@@ -14,14 +12,23 @@ export const CartItems = () => {
         loadCartItems();
     }, [actions]);
 
+    // Calcular el total
+    const calculateTotal = () => {
+        return store.cart_items.reduce((total, item) => {
+            return total + (item.price * item.quantity);
+        }, 0);
+    };
+
+    const total = calculateTotal();
+
     return (
         <div className="container">
             <h1>Elementos del Carrito</h1>
-            {store.cart_items && store.cart_items.length > 0 ? (
+            {store.cart_items.length > 0 ? (
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th scope="col">Producto</th>
+                            <th scope="col">Id Producto</th>
                             <th scope="col">Cantidad</th>
                             <th scope="col">Precio</th>
                             <th scope="col">Subtotal</th>
@@ -33,18 +40,24 @@ export const CartItems = () => {
                             <tr key={index}>
                                 <td>{item.product_id}</td>
                                 <td>{item.quantity}</td>
-                                <td>{item.price.toFixed(2)}€</td>
+                                <td>{(item.price).toFixed(2)}€</td>
                                 <td>{(item.price * item.quantity).toFixed(2)}€</td>
                                 <td>
                                     <button
                                         className="btn btn-danger"
-                                        onClick={() => actions.removeCartItem(item.id)} // Acción de eliminar
+                                        onClick={() => actions.removeCartItem(item.product_id)} // Asegúrate de usar product_id
                                     >
                                         Eliminar
                                     </button>
                                 </td>
                             </tr>
                         ))}
+                        {/* Agregar una fila para el total */}
+                        <tr>
+                            <td colSpan="3" style={{ textAlign: 'right' }}><strong>Total:</strong></td>
+                            <td><strong>{total.toFixed(2)}€</strong></td>
+                            <td></td>
+                        </tr>
                     </tbody>
                 </table>
             ) : (

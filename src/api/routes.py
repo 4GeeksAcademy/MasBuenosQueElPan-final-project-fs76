@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories, Product, Cart_Items, Cart_Products
+from api.models import db, User, Producer, ProductCategories, Product, CartItem, CartProduct
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from decimal import Decimal
@@ -379,11 +379,58 @@ def update_categorie(categorie_id):
 #####GET CART ITEMS#####
 @api.route('/cart', methods=['GET'])
 def get_cart_items():
-    all_cart_items = Cart_Items.query.all()    
+    all_cart_items = CartItem.query.all()    
     results = list(map(lambda cart_item: cart_item.serialize(), all_cart_items)) 
     return jsonify(results), 200
 
+@api.route('/cart', methods=['POST'])
+def add_cart_item():
+       try:
+           data = request.get_json()
+           if not data:
+               return jsonify({"msg": "No se han proporcionado datos"}), 400
 
+           customer_cart_id = data.get('customer_cart_id')
+           product_id = data.get('product_id')
+           quantity = data.get('quantity')
+           price = data.get('price')
+
+           if not customer_cart_id or not product_id or not quantity or not price:
+               return jsonify({"msg": "Faltan datos requeridos"}), 400
+
+           # Crear un nuevo item en el carrito
+           new_cart_item = CartItem(
+               customer_cart_id=customer_cart_id,
+               product_id=product_id,
+               quantity=quantity,
+               price=price,
+               subtotal=Decimal(price) * Decimal(quantity),  # Calculado
+               total_price=Decimal(price) * Decimal(quantity)  # Calculado
+           )
+
+           db.session.add(new_cart_item)
+           db.session.commit()
+
+           return jsonify(new_cart_item.serialize()), 201
+       except Exception as e:
+           db.session.rollback()
+           print(f"Error al añadir al carrito: {str(e)}")  # Para inspeccionar errores
+           return jsonify({"error": str(e)}), 500
+       
+@api.route('/cart/<int:product_id>', methods=['DELETE'])
+def remove_cart_item(product_id):
+    try:
+       
+        cart_item = CartItem.query.filter_by(product_id=product_id).first()
+        if cart_item is None:
+            return jsonify({"msg": "Item no encontrado"}), 404
+
+        db.session.delete(cart_item)
+        db.session.commit()
+        return jsonify({"msg": "Item eliminado del carrito"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
     # body = request.get_json()

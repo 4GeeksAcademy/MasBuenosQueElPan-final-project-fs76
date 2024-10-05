@@ -17,7 +17,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 			],
 			producers: [],
 			categories: [],
-			cart_items: []
+			cart_items: [],
+			user: {
+				id: "123",
+				name: "Usuario Test"
+			},
+
 		},
 		actions: {
 			// Use getActions to call a function within a function
@@ -80,9 +85,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 			getCategories: () => {
 				const requestOptions = { method: "GET" };
 				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
-					.then((response) => response.json())
+					.then((response) => {
+						if (!response.ok) {
+							throw new Error(`HTTP error! status: ${response.status}`);
+						}
+						return response.json();
+					})
 					.then((result) => setStore({ categories: result }))
-					.catch((error) => console.error(error));
+					.catch((error) => console.error("Error fetching categories:", error));
 			},
 
 			deleteCategory: (categoryId) => {
@@ -230,23 +240,66 @@ const getState = ({ getStore, getActions, setStore }) => {
 						}
 						return response.json();
 					})
-					.then((data) => setStore({ cart_items: data }))
+					.then((data) => {
+						setStore({ cart_items: data });
+					})
 					.catch((error) => console.error("Error fetching cart items:", error));
 			},
-			addToCart: (productId, quantity) => {
+			addToCart: (product, quantity) => {
 				const store = getStore();
-				const newCartItem = { productId, quantity };
-				const existingItemIndex = store.cart_items.findIndex(item => item.productId === productId);
 
-				if (existingItemIndex > -1) {
-					// Actualiza la cantidad si el producto ya está en el carrito
-					const updatedItems = [...store.cart_items];
-					updatedItems[existingItemIndex].quantity += quantity;
-					setStore({ cart_items: updatedItems });
-				} else {
-					// Agrega un nuevo producto al carrito
-					setStore({ cart_items: [...store.cart_items, newCartItem] });
-				}
+				const newCartItem = {
+					customer_cart_id: parseInt(store.user.id),  // Asegúrate de que este ID sea un número
+					product_id: product.id,
+					quantity: quantity,
+					price: product.price,
+				};
+
+				fetch(`${process.env.BACKEND_URL}/api/cart`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(newCartItem),
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error(`Error al añadir al carrito: ${response.status} ${response.statusText}`);
+						}
+						return response.json();
+					})
+					.then(data => {
+						setStore({ cart_items: [...store.cart_items, { ...newCartItem, id: data.id }] });
+						alert("Producto añadido al carrito!");
+					})
+					.catch(error => {
+						console.error('Error añadiendo al carrito:', error);
+						alert(`No se pudo añadir el producto al carrito: ${error.message}`);
+					});
+			},
+			removeCartItem: (product_id) => {
+				const requestOptions = {
+					method: "DELETE",
+					headers: { "Content-Type": "application/json" },
+				};
+
+				// Llama a tu API para eliminar el producto del carrito
+				fetch(`${process.env.BACKEND_URL}/api/cart/${product_id}`, requestOptions)
+					.then(response => {
+						if (!response.ok) {
+							throw new Error(`Error al eliminar: ${response.status} ${response.statusText}`);
+						}
+						return response.json(); // Suponiendo que la respuesta devuelva algún dato
+					})
+					.then(data => {
+						// Actualizar el store para eliminar el item del cart_items
+						const currentStore = getStore();
+						const updatedCartItems = currentStore.cart_items.filter(item => item.product_id !== product_id);
+						setStore({ cart_items: updatedCartItems });
+						alert("Producto eliminado del carrito!");
+					})
+					.catch(error => {
+						console.error('Error eliminando del carrito:', error);
+						alert(`No se pudo eliminar el producto del carrito: ${error.message}`);
+					});
 			},
 		}
 	};
