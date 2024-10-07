@@ -17,19 +17,18 @@ import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
+import { CustomerProductList } from "./pages/CustomerProductList";
+import { CustomerProductView } from "./pages/CustomerProductView"; // Importa el componente de vista del producto
+import { CartItems } from "./pages/CartView";
 import { Product } from "./pages/ViewProducts";
 import { CustomerLoginUp } from "./pages/customerLogin";
-import {CustomerSignUp} from "./pages/customerSingUp";
-import {HomeCustView} from "./pages/homeCustView"
+import { CustomerSignUp } from "./pages/customerSingUp";
+import { HomeCustView } from "./pages/homeCustView"
 
-
-//create your first component
 const Layout = () => {
-    //the basename is used when your project is published in a subdirectory and not in the root of the domain
-    // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
 
-    if(!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL/ >;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL === "") return <BackendURL />;
 
     return (
         <div>
@@ -43,11 +42,14 @@ const Layout = () => {
                         <Route element={<EditProducer />} path="/producer/edit/:producerId" />
                         <Route element={<ProducerSignup />} path="/producer/signup" />
                         <Route element={<ProducerView />} path="/producer/dashboard/:producerId" />
-                        <Route element={<ProducerInfoForm/>} path="/producer/form/:producerId" />
+                        <Route element={<ProducerInfoForm />} path="/producer/form/:producerId" />
                         <Route element={<AddProduct />} path="/producer/dashboard/:producerId/newproduct" />
                         <Route element={<Categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />
-                        <Route element = {<Product />} path="/product" />
+                        <Route element={<CustomerProductList />} path="/productlist" />
+                        <Route element={<CustomerProductView />} path="/product/:product_id" />
+                        <Route element={<CartItems />} path="/cart" />
+                        <Route element={<Product />} path="/product" />
                         <Route element={<CustomerLoginUp />} path="/customer/Login" />
                         <Route element={< CustomerSignUp />} path="/customer/singUp" />
                         <Route element={<HomeCustView />} path="/customer/home" />

@@ -1,5 +1,6 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Numeric
+from sqlalchemy import Numeric, DateTime, Integer, String, Boolean
 
 db = SQLAlchemy()
 
@@ -84,27 +85,25 @@ class Customer(db.Model):
 
 
 
-##PRODUCT##
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=False, nullable=False)
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=False)
     origin = db.Column(db.String(120), unique=False, nullable=False)
-    #Representación básica
+
     def __repr__(self):
         return f'<Product {self.name}>'
-    #Representación completa
+
     def serialize(self):
         return {
             "id": self.id,
             "name": self.name,
-            "price": self.price,
+            "price": float(self.price),  # Asegúrate de convertir a float
             "description": self.description,
             "origin": self.origin,
         }
 
-##PRODUCER##
 class Producer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(300), unique=True, nullable=False)
@@ -115,12 +114,13 @@ class Producer(db.Model):
     cif = db.Column(db.String(120), unique=True, nullable=True)
     address = db.Column(db.String(300), unique=False, nullable=True)
     province = db.Column(db.String(120), unique=False, nullable=True)
-    zip_code = db.Column(db.Integer, unique=False, nullable=True)
-    phone = db.Column(db.Integer, unique=True, nullable=True)
+    zip_code = db.Column(db.String(10), unique=False, nullable=True)  # Usar String para códigos postales
+    phone = db.Column(db.String(15), unique=True, nullable=True)  # Usar String para números de teléfono
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-    #Representación básico
+
     def __repr__(self):
         return f'<Producer {self.email}>'
+
     #Representación completa
     def serialize(self):
         return {
@@ -134,24 +134,83 @@ class Producer(db.Model):
             "province": self.province,
             "zip_code": self.zip_code,
             "phone": self.phone,
-            # do not serialize the password, its a security breach
         }
 
-##PRODUCT CATEGORIES##
-class ProductCategories (db.Model):
+class ProductCategories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    categorie = db.Column(db.String(40), unique=True, nullable=False)
-    #Representación básica
+    category = db.Column(db.String(40), unique=True, nullable=False)
+
     def __repr__(self):
-        return f'<Categorie {self.categorie}>'
-    #Representación completa
+        return f'<Category {self.category}>'
+
     def serialize(self):
         return {
-            "categorie": self.categorie,
             "id": self.id,
-            # do not serialize the password, its a security breach
+            "category": self.category,
         }
-    
+
+class CartProduct(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cart_id = db.Column(Integer, unique=False, nullable=False)
+    product_id = db.Column(Integer, unique=False, nullable=False)
+
+    def __repr__(self):
+        return f'<CartProduct {self.product_id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "cart_id": self.cart_id,
+            "product_id": self.product_id
+        }
+
+class CartItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_cart_id = db.Column(Integer, unique=False, nullable=False)
+    product_id = db.Column(Integer, unique=False, nullable=False)
+    quantity = db.Column(Integer, unique=False, nullable=False)  # Cambiar a Integer
+    price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+    subtotal = db.Column(Numeric(10, 2), unique=False, nullable=False)
+    total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)  # Fecha de creación
+    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)  # Fecha de actualización
+
+    def __repr__(self):
+        return f'<CartItem {self.product_id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "customer_cart_id": self.customer_cart_id,
+            "product_id": self.product_id,
+            "quantity": self.quantity,
+            "price": float(self.price),
+            "subtotal": float(self.subtotal),
+            "total_price": float(self.total_price)
+        }
+
+class CustomerCart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(Integer, unique=False, nullable=False)
+    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+    status = db.Column(String(50), unique=False, nullable=False)
+
+    def __repr__(self):
+        return f'<CustomerCart {self.user_id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "created_at": self.created_at.isoformat(),  # Formato ISO para serialización
+            "updated_at": self.updated_at.isoformat(),  # Formato ISO para serialización
+            "total_price": float(self.total_price),
+            "status": self.status
+        }
+           
+            
 
   
 
