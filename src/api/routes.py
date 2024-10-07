@@ -54,13 +54,11 @@ def create_customer():
         data = request.get_json()
         if not data:
             return jsonify({"msg": "No se han proporcionado datos"}), 400
-        
         # Validar campos obligatorios
         required_fields = ['name', 'last_name', 'email', 'password', 'address', 'province', 'zipcode', 'phone', 'country']
         for field in required_fields:
             if not data.get(field):
                 return jsonify({"msg": f"Falta el campo {field}"}), 400
-
         # Asigno los datos
         name = data.get('name')
         last_name = data.get('last_name')
@@ -71,7 +69,6 @@ def create_customer():
         zipcode = data.get('zipcode')
         phone = data.get('phone')
         country = data.get('country')
-
         # Hashear la contraseña antes de almacenar
         hashed_password = generate_password_hash(password)
         # Añadir el nuevo cliente
@@ -86,13 +83,10 @@ def create_customer():
             phone=phone,
             country=country
         )
-
         # Actualizar la base de datos
         db.session.add(new_customer)
         db.session.commit()
-
         return jsonify(new_customer.serialize()), 201
-
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -118,7 +112,6 @@ def edit_customer(id):
         zipcode = data.get ('zipcode')
         phone = data.get ('phone')
         country = data.get('country')
-
         #Actualizamos la bade de datos
         if name:
             customer.name = name
@@ -138,17 +131,13 @@ def edit_customer(id):
             customer.phone = phone
         if country:
             customer.country = country
-
         #Guardamos los datos en la base de datos
         db.session.commit()
-
         return jsonify(customer.serialize()), 200
     except Exception as e:
         db.sessions.rollback()
         return jsonify({"error": str(e)}), 500
     
-
-
 #####DELETE Customer#####
 @api.route('/customer/<int:id>', methods=['DELETE'])
 def delete_customer(id):
@@ -158,13 +147,10 @@ def delete_customer(id):
 
         if not customer:
             return jsonify({"msg": "Producto no encontrado"}), 404
-        
         #Eliminamos el producto
         db.session.delete(customer)
         db.session.commit()
-
         return jsonify({"msg":"se ha eliminado el usuario"}), 200
-        
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -215,7 +201,6 @@ def view_producer_products():
         all_products = Product.query.filter_by(producer_id=producer_id).all()  # Filtrar productos por producer_id
     else:
         return {"msg": "No existen datos"}  # Obtener todos los productos si no se proporciona producer_id
-
     result = list(map(lambda product: product.serialize(), all_products))
     if not result:
         response_body = {
@@ -231,27 +216,22 @@ def add_product():
     try:
         data = request.get_json()
         if not data:
-            return jsonify({"msg":"No se han proporcionado datos"}), 400
-        
+            return jsonify({"msg":"No se han proporcionado datos"}), 400 
         ##Body Obtener respuesta
         name = data.get('name')
         price = data.get('price')
         description = data.get('description')
         origin = data.get('origin')
-
         #Validación de la respuesta
         if not name or not price or not description or not origin:
             return jsonify({"msg": "Faltan datos"}), 400
-        
         #Hago verificación de que el precio sea número
-
         try:
             price = float(price)
             if price <0:
                 return jsonify({"msg":"El número debe ser positivo"}), 400
         except ValueError:
             return jsonify({"msg":"El precio debe ser un número"}), 400
-
         #Añadir nuevo producto
         new_product = Product(
             name=name,
@@ -259,7 +239,6 @@ def add_product():
             description=description,
             origin=origin 
         )
-
         #Actualizar la base de datos
         db.session.add(new_product)
         db.session.commit()
@@ -279,17 +258,14 @@ def edit_product(id):
         product = Product.query.get(id)
         if not product:
             return jsonify({"msg":"Product no encontrado"}), 404
-
         #Traemos la respuesta
         data = request.get_json()
         if not data:
             return jsonify({"msg":"No se han proporcionado datos"}), 400
-        
         name = data.get("name")
         price = data.get("price")
         description = data.get("description")
         origin = data.get("origin")
-
         #Actualizamos la base de datos
         if name:
             product.name = name
@@ -303,12 +279,9 @@ def edit_product(id):
             product.description = description
         if origin:
             product.origin = origin
-        
         #Guardamos los datos en la base de datos
         db.session.commit()
-
         return jsonify(product.serialize()),200
-
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -321,17 +294,12 @@ def delete_product(id):
     try:
         #Seleccionamos el producto que queremos eliminar
         product = Product.query.get(id)
-
         if not product:
             return jsonify({"msg": "Producto no encontrado"}), 404
-        
         #Eliminamos el producto
         db.session.delete(product)
         db.session.commit()
-
         return jsonify({"msg":"se ha eliminado el producto"}), 200
-        
-
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -351,7 +319,6 @@ def handle_signup():
     # zip_code = request.json["zip_code"]
     # phone = request.json["phone"]
     print(email,password)
-
     new_producer = Producer(
         email=email,
         password=password,
@@ -365,31 +332,25 @@ def handle_signup():
         # phone=phone,
         is_active=True
         )
-    
     if email:
         existing_producer = Producer.query.filter_by(email=email).first()
         if existing_producer:
             return jsonify(exists=True, message="Email already exists"), 400
     print("New producer", new_producer)
-
     db.session.add(new_producer)
     db.session.commit()
-
     return jsonify(new_producer.serialize()), 201
 
 ####CHECK IF PRODUCER EXIST####
 @api.route('/checkProducer', methods=['POST'])
 def check_PRODUCER_exists():
     email = request.json.get('email')
-
     if not email:
         return jsonify(message="Email is required"), 400
-
     if email:
         existing_user = Producer.query.filter_by(email=email).first()
         if existing_user:
             return jsonify(exists=True, message="Email already exists"), 200
-
     return jsonify(exists=False), 200
 
 ####GET PRODUCERS####
@@ -400,17 +361,15 @@ def get_producers():
 
     return jsonify(result), 200
 
-
+#####GET USERS####
 @api.route('/user', methods=['GET'])
 def view_users():
     all_users= User.query.all()
     results = list(map(lambda usuario: usuario.serialize(), all_users))
     print(results)
-
     response_body = {
         "msg": "Hello, this is your GET /user response "
     }
-
     return jsonify(results), 200
 
 
@@ -420,14 +379,12 @@ def handle_login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
     producer = Producer.query.filter_by(email=email).first()
-
     if producer is None:
         print("email does not exist")
         return jsonify({"msg": "Incorrect email or email does not exist"}), 401
     if producer.email != email or producer.password != password:
         print("incorrect password or email")
         return jsonify({"msg": "Password or email incorrect"}), 401
-    
     access_token = create_access_token(identity=email)
     if producer.brand_name is None:
         return jsonify(access_token=access_token, is_verify=False, producer_id=producer.id)
@@ -455,11 +412,9 @@ def get_producer(producer_id):
 ##### DELETE ONE PRODUCER####
 @api.route('/producer/<int:producer_id>', methods=['DELETE'])
 def delete_producer(producer_id):
-
     producer = Producer.query.filter_by(id=producer_id).first()
     if producer is None:
         return jsonify("ERROR: Could not delete the account. Maybe it doesn't exist"), 404
-
     db.session.delete(producer)
     db.session.commit()
 
@@ -471,7 +426,6 @@ def edit_producer(producer_id):
     producer_data = request.get_json()
     print(producer_data)
     producer = Producer.query.filter_by(id=producer_id).first()
-
     if producer is None:
         return ("error","producer not found")
     producer.email= producer_data.get("email", producer.email)
@@ -484,10 +438,7 @@ def edit_producer(producer_id):
     producer.province= producer_data.get("province", producer.province)
     producer.zip_code= producer_data.get("zip_code", producer.zip_code)
     producer.phone= producer_data.get("phone", producer.phone)
-    
-
     db.session.commit()
-
     return jsonify(producer.serialize()), 200
 
 @api.route('/producer/<int:producer_id>', methods=['PUT'])
@@ -495,7 +446,6 @@ def add_producer_info(producer_id):
     producer_data = request.get_json()
     print(producer_data)
     producer = Producer.query.filter_by(id=producer_id).first()
-
     if producer is None:
         return ("error","producer not found")
     producer.email= producer_data.get("email", producer.email)
@@ -508,10 +458,7 @@ def add_producer_info(producer_id):
     producer.province= producer_data.get("province", producer.province)
     producer.zip_code= producer_data.get("zip_code", producer.zip_code)
     producer.phone= producer_data.get("phone", producer.phone)
-    
-
     db.session.commit()
-
     return jsonify(producer.serialize()), 200
 
 #####GET CATEGORIES#####
@@ -519,7 +466,6 @@ def add_producer_info(producer_id):
 def get_categories():
     all_categories= ProductCategories.query.all()    
     results = list (map(lambda categorie: categorie.serialize (), all_categories)) 
-    
     return jsonify(results), 200
 
 
@@ -542,7 +488,6 @@ def delete_categorie(categorie_id):
         return jsonify({"error": "Espabila!! , que esta categoría no la hemos creado"}), 404
     db.session.delete(categorie)
     db.session.commit()
-    
     return jsonify({'message': f' Has  borrado la categoría {categorie_id}'}), 200
 
 
@@ -551,17 +496,14 @@ def delete_categorie(categorie_id):
 def add_categorie():
     body = request.get_json()
     print (body)
-    
     if 'categorie' not in body:
         return jsonify ('Indica el nombre de la categoria'), 400
     if body['categorie'] == '':
         return jsonify ('El nombre es obligatorio'), 400
-
     categorie = ProductCategories( **body)
     print (categorie)
     db.session.add(categorie)
     db.session.commit()
-
     response_body ={
         "msg":"Se ha añadido la categoría"
     }
@@ -575,16 +517,12 @@ def update_categorie(categorie_id):
     categorie_data = request.get_json()
     print(categorie_data)
     categorie = ProductCategories.query.filter_by(id=categorie_id).first()
-
     if categorie is None:
         return jsonify({"error":"La categoría no existe"})
     if categorie_data['categorie'] == '':
         return jsonify({"error": "El nombre de la categoría es obligatorio"}), 400
-    
     categorie.categorie= categorie_data.get("categorie", categorie.categorie)
-
     db.session.commit()
-
     return jsonify(categorie.serialize()), 200
 
 
