@@ -63,8 +63,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					headers: {
 						"Content-type": "application/json",
 					}
-				};
-
+				}; 
 				fetch(process.env.BACKEND_URL + "/api/customers", requestOptions)
 					.then((response) => response.json())
 					.then((result) =>
@@ -98,17 +97,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"name": newProductInfo.name,
 					"origin": newProductInfo.origin,
 					"price": newProductInfo.price
-				});
-
-				const requestOptions = {
+				  });
+				  const requestOptions = {
 					method: "PUT",
 					headers: {
 						"Content-type": "application/json",
 					},
 					body: raw,
-
-				};
-
+				  };
 				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
 					.then((response) => response.json())
 					.then((data) =>
@@ -128,23 +124,27 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error(error));
 			},
-			addProducts: (newProduct) => {
-				const store = setStore()
-				const requestOptions = {
+			addProducts:(newProduct) => {
+				const raw = JSON.stringify({
+					"origin": newProduct.origin,
+					"description": newProduct.description,
+					"name": newProduct.name,
+					"price": newProduct.price
+				  });
+				  
+				  const requestOptions = {
 					method: "POST",
-					body: JSON.stringify({ "product": newProduct }),
+					body: raw,
 					headers: {
 						"Content-type": "application/json",
 					}
-				};
-				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
+				  };
+				  
+				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
 					.then((response) => response.json())
-					.then((result) => {
-						{
-							console.log(result),
-								setStore({ products: [...store.products, newProduct] })
-						};
-					})
+					.then((result) => 
+						getActions().getProducts()
+					)
 					.catch((error) => console.error(error));
 			},
 			// addProducts:(newProduct) => {
@@ -182,10 +182,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const store = getStore()
 				const requestOptions = {
 					method: "GET",
-
-				};
-
-				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
+				  };
+				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
 					.then((response) => response.json())
 					.then((result) => {
 						console.log(result),
@@ -194,31 +192,27 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 
 			},
-
 			deleteCategory: (categoryId) => {
 				console.log(categoryId);
-
-				fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
-					method: "DELETE",
-					headers: { "Content-Type": "application/json" },
-				})
-					.then((response) => {
-						console.log(response.status);
-
-						response.json()
-					})
-					.then((result) => {
-						console.log(result);
-						const store = getStore();
-						// Filtra las categorías eliminando la que fue borrada
-						const updatedCategories = store.categories.filter(category => category.id !== categoryId);
-						console.log(updatedCategories);
-
-						setStore({ categories: updatedCategories });
-					})
-					.catch((error) => console.error(error));
-			},
-
+                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+                    method: "DELETE",
+					headers: {"Content-Type": "application/json"},
+                })
+                .then((response) => {
+					console.log(response.status);
+					
+					response.json()})
+                .then((result) => {
+                    console.log(result);
+                    const store = getStore();
+                    // Filtra las categorías eliminando la que fue borrada
+                    const updatedCategories = store.categories.filter(category => category.id !== categoryId);
+					console.log(updatedCategories);
+					
+					setStore({ categories: updatedCategories });
+                })
+                .catch((error) => console.error(error));
+            },
 			addCategory: (newCategoryName) => {
 				const store = setStore()
 				fetch(process.env.BACKEND_URL + "/api/categories", {
@@ -418,7 +412,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
 						);
 						console.log(updatedProducerInfo);
-
 						setStore({ producers: updatedProducerInfo });
 					})
 					.catch((error) => console.error("Error al editar la información del productor", error));
