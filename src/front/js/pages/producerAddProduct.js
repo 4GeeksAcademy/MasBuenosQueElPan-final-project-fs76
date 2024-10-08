@@ -1,24 +1,34 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { Cloudinary } from "@cloudinary/url-gen/index";
 
 
 export const AddProduct = () => {
     const { actions, store } = useContext(Context)
     const { producerId } = useParams()
 	const  navigate  = useNavigate()
-    // console.log(producerId);
-    
 	const [newCategoryName, setNewCategoryName] = useState ("");
 	const [displayAddCategorie, setDisplayAddCategorie] = useState (false);
-	// console.log (store.categories)
+	// const [selectedCategory, setSelectedCategory] = useState("");
+	// const [images, setImages] = useState([]);
+
+	// const cld = new Cloudinary({ cloud: { cloudName: 'dw5sqtvsd' } });
 
 	useEffect(() => {
-		const loadCategories = async () => {
-			await actions.getCategories();
-		};
-		loadCategories();
+
+		actions.getCategorieImg()
+
+		// const loadCategories = async () => {
+		// 	await actions.getCategories();
+		// };
+		// loadCategories();
 	}, []);
+
+	// const handleCategoryChange = (event) => {
+    // 	const category = event.target.value;
+	// 	setSelectedCategory(category);
+	// };
 
 	const handleAddCategory = () => {
 		if (newCategoryName.trim() === "") {
@@ -34,14 +44,14 @@ export const AddProduct = () => {
 		e.preventDefault();
 	
 		const newProduct = {
-			name: document.getElementById("product").value,
+			name: document.getElementById("name").value,
 			origin: document.getElementById("origin").value,
 			price: document.getElementById("price").value,
 			description: document.getElementById("description").value,
 			weight: document.getElementById("weight").value,
 			volume: document.getElementById("volume").value,
 			minimum: document.getElementById("minimum").value,
-			categorie: newCategoryName // Asegúrate de que esto sea correcto
+			categorie: newCategoryName
 		};
 		actions.addProducts(newProduct);
 		navigate(`/producer/dashboard/${producerId}`)
@@ -53,12 +63,12 @@ export const AddProduct = () => {
         <form>
             <div className="mb-3">
                 <label htmlFor="categorie" className="form-label">CATEGORÍA</label>
-				<select className="form-select" id="categorie" aria-label="Default select example">
+				<select className="form-select"  id="categorie" aria-label="Default select example">
 					<option disabled defaultValue>Escoge una categoría</option>
                     {store.categories.length > 0 ? (
 						store.categories.map((item, id)=>{
 							return(
-								<option key={id} value={newCategoryName}>{item.categorie}</option>
+								<option key={id} value={item.categorie}>{item.categorie}</option>
 							)
 						})
 					) : (
@@ -101,9 +111,23 @@ export const AddProduct = () => {
 					}
 					
             <div className="mb-3">
-                <label htmlFor="product" className="form-label">PRODUCTO</label>
-                <input type="text" className="form-control" id="product" aria-describedby="emailHelp"/>
+                <label htmlFor="name" className="form-label">PRODUCTO</label>
+                <input type="text" className="form-control" id="name" aria-describedby="emailHelp"/>
             </div>
+			<div className="mb-3">
+				<label htmlFor="name" className="form-label">IMAGEN</label>
+				{store.images.length > 0 ? (
+					store.images.map((image, url) => (
+						<img key={image.public_id} src={image.url} className="img-fluid" alt="Imagen de producto" />
+					))
+				) : (
+					<p>No hay imágenes disponibles.</p>
+				)}
+			</div>
+						{/* <div className="mb-3">
+                <label htmlFor="name" className="form-label">IMAGEN</label>
+                <img src="..." class="img-fluid" alt="Imagen de producto"/>
+            </div> */}
 			<div className="mb-3">
                 <label htmlFor="origin" className="form-label">ORIGEN</label>
                 <input type="text" className="form-control" id="origin" aria-describedby="emailHelp"/>

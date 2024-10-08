@@ -2,9 +2,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
-			products: [
-				
-			],
+			products: [],
 			token: null,
 			demo: [
 				{
@@ -18,14 +16,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
-			producers: [
-
-			],
+			producers: [],
 			isFirstLogin: true,
 			isLogedIn: false,
-			categories: [
-				
-			]
+			categories: ["Pan", "Lácteos", "Verduras", "Carne"],
+            categoriesWithUrls: [],
+			images: []
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -120,53 +116,58 @@ const getState = ({ getStore, getActions, setStore }) => {
 						getActions().getProducts()})
 					.catch((error) => console.error(error));
 			},
-			addProducts: (newProduct) => {
-				const store = setStore()
-				const requestOptions = {
-                    method: "POST",
-                    body: JSON.stringify({ "product": newProduct }),
-                    headers: {
-                        "Content-type": "application/json",
-                    }
-                  };
-				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
-				.then((response) => response.json())
-				.then((result) => {
-					{console.log (result),
-						setStore({products: [...store.products, newProduct]})};
-				})
-				.catch((error) => console.error(error));
-			},
-			// addProducts:(newProduct) => {
-			// 	const store = setStore();
-            //     const raw = JSON.stringify(newProduct)
-            //     // const raw = JSON.stringify({
-            //     //     "origin": newProduct.origin,
-            //     //     "description": newProduct.description,
-            //     //     "name": newProduct.name,
-            //     //     "price": newProduct.price
-            //     //   });
-
-            //       const requestOptions = {
+			// addProducts: (newProduct) => {
+			// 	const store = getStore()
+			// 	const requestOptions = {
             //         method: "POST",
-            //         body: raw,
+            //         body: JSON.stringify({ product: newProduct }),
             //         headers: {
             //             "Content-type": "application/json",
             //         }
             //       };
+			// 	fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+			// 	.then((response) => response.json())
+			// 	.then((result) => {
+			// 		{console.log (result),
+			// 			setStore({products: [...store.products, result]})
+			// 			// setStore({categories: [...store.categories, newCategoryName]})
+			// 		};
+			// 	})
+			// 	.catch((error) => console.error(error));
+			// },
+			addProducts:(newProduct) => {
+				console.log(newProduct);
+				
+				const store = setStore();
+                const raw = JSON.stringify(newProduct)
+                // const raw = JSON.stringify({
+                //     "origin": newProduct.origin,
+                //     "description": newProduct.description,
+                //     "name": newProduct.name,
+                //     "price": newProduct.price
+                //   });
 
-            //       fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
-            //         .then((response) => response.json())
-            //         .then((result) => {
-			// 			console.log(result);
-			// 			setStore({products: [...store.products, newProduct]});
-			// 			console.log("data from flux Signup",result);
-			// 			console.log("id from flux Signup",result.id);
-			// 			// return result.id;
-            //             // getActions().getProducts()
-			// 		})
-            //         .catch((error) => console.error(error));
-            // },
+                  const requestOptions = {
+                    method: "POST",
+                    body: raw,
+                    headers: {
+                        "Content-type": "application/json",
+                    }
+                  };
+
+                  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+                    .then((response) => response.json())
+                    .then((result) => {
+						console.log(result);
+						setStore({ products: [...store.products, newProduct] });
+						// setStore({products: [...store.products, newProduct]});
+						console.log("data from flux Signup",newProduct);
+						console.log("id from flux Signup",newProduct.id);
+						// return result.id;
+                        getActions().getProducts()
+					})
+                    .catch((error) => console.error(error));
+            },
 			//Estos son categorías!!
 			getCategories: ()=>
 			{	const store = getStore()
@@ -182,6 +183,83 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 				
 			},
+			initCategoriesWithUrls: () => {
+				const store = getStore();
+				const categories = store.categories;
+			
+				// Crear un array de objetos { name: 'Pan', url: '' } basado en los nombres de las categorías
+				const categoriesWithUrls = categories.map(categoryName => ({
+					name: categoryName,
+					url: '' // Inicialmente vacío
+				}));
+			
+				// Actualiza el store con la nueva variable
+				setStore({ categoriesWithUrls });
+			},
+			updateCategoriesWithUrls: (images) => {
+				const store = getStore();
+				const categoriesWithUrls = [...store.categoriesWithUrls]; // Copia del array actual
+			
+				// Iterar sobre las imágenes y asignar las URLs correspondientes
+				images.forEach(image => {
+					const categoryName = image.public_id.toLowerCase();
+			
+					// Buscar el objeto que tiene el mismo nombre que el public_id de la imagen
+					const category = categoriesWithUrls.find(cat => categoryName.includes(cat.name.toLowerCase()));
+			
+					if (category) {
+						// Asignar la URL de la imagen a la categoría correspondiente
+						category.url = image.url;
+					}
+				});
+			
+				// Actualiza el store con las URLs asignadas
+				setStore({ categoriesWithUrls });
+			},
+			getCategorieImg: () => {
+				const requestOptions = {
+					method: "GET"
+				};
+			
+				// Inicializa las categorías con URLs vacías
+				getActions().initCategoriesWithUrls();
+			
+				fetch(process.env.BACKEND_URL + "/api/images", requestOptions)
+					.then((response) => {
+						if (response.status === 200) {
+							return response.json();
+						} else {
+							throw new Error("Problem while getting the Cloudinary image");
+						}
+					})
+					.then((result) => {
+						console.log(result); // Ver las imágenes obtenidas
+						getActions().updateCategoriesWithUrls(result); // Asigna las URLs a las categorías
+					})
+					.catch((error) => console.error(error));
+			},
+			// getCategorieImg: () => {
+			// 		const requestOptions = {
+			// 			method: "GET",
+			// 			// mode: "no-cors",
+			// 		  };
+			// 		  fetch(process.env.BACKEND_URL + "/api/images", requestOptions)
+			// 			.then((response) => {
+			// 				console.log(response.status)
+			// 				if (response.status === 200) {
+			// 					return response.json();
+			// 				} else {
+			// 					return "problem while getting the cloudinary image"
+			// 				}
+			// 			})
+			// 			.then((result) => {
+			// 				console.log(result);
+						
+							
+			// 			})
+			// 			.catch((error) => console.error(error));
+			// 	},
+				
 			
 			deleteCategory: (categoryId) => {
 				console.log(categoryId);
@@ -304,11 +382,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return response.json()
 				})
 				.then((data) => {
-					console.log("loginData from flux",data);
+					// console.log("loginData from flux",data);
 					localStorage.setItem("producerId", data.producer_id)
 					localStorage.setItem("token", data.access_token)
 					localStorage.setItem("verified", data.is_verify)
-					return {isVerify:data.is_verify, producerId:data.producer_id}
+					localStorage.setItem("is_fill", data.is_fill)
+					return {isVerify:data.is_verify, producerId:data.producer_id, is_fill:data.is_fill}
 				})
 				.catch((error) => console.error("error while login in", error)
 				)
@@ -320,14 +399,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const store = getStore();
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producer_id}`)
 					.then((response) => {
-						console.log(response.status);
+						// console.log(response.status);
 						if (response.status === 400) {
 							throw new Error("No se ha podido obtener la información del Productor");
 						}
 						return response.json();
 					})
 					.then((data) => {
-						console.log("single producer data from flux", data);
+						// console.log("single producer data from flux", data);
 						setStore({ producers: [data] }); 
 					})
 					.catch((error) => console.error("there was an error in the process", error));

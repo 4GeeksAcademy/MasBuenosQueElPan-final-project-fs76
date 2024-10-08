@@ -2,13 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import "../../styles/home.css";
 import { Link } from "react-router-dom";
-import rigoImageUrl from "../../img/rigo-baby.jpg";
+import { Cloudinary } from "@cloudinary/url-gen/index";
 
 export const Product = () => {
 	const { store, actions } = useContext(Context);
-    // useEffect( () => {
-    //     actions.getProducts()
-    // }, [])
+
+     const cld = new Cloudinary({ cloud: { cloudName: 'dw5sqtvsd' } });
+
 
     const [name, setName] = useState("")
     const [price, setPrice] = useState("")
@@ -85,85 +85,60 @@ export const Product = () => {
         <>
         <h2>Tus productos</h2>
             <div className="container d-inline-flex">
-            {store.products.length > 0 ? (
-                    store.products.map((product, index) => (
-                    <div className="card" key={index} style={{"width": "18rem"}}>
-                        <img src={rigoImageUrl} className="card-img-top" alt="..."/>
-                        <div className="card-body">
-                            <h5 className="card-title" >{product.name}</h5>
-                            <p className="card-text">{product.price}€</p>
-                            <p className="card-text">{product.description}</p>
-                            <p className="card-text">{product.weight} Aquí el peso</p>
-                            <p className="card-text">{product.category} Aquí la categoría</p>
-                            <button className="btn btn-info" onClick={() => openModal(product.id)}>Editar</button>
-                            <button className="btn btn-danger"
+                <div className="card-group gap-2">
+                {store.products.length > 0 ? (
+                    store.products
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((product, index) => 
+                        // (
+                        {
+                        return(
+                        <div className="card col-4" key={index} style={{"width": "18rem"}}>
+                        {/* <img src={rigoImageUrl} className="card-img-top" alt="..."/> */}
+                        {store.categoriesWithUrls.map((category, index) => (
+                            <li key={index}>
+                                <img 
+                                    src={category.url || "placeholder.jpg"}  // Si no hay URL, puedes mostrar una imagen de placeholder
+                                    alt={category.name}
+                                    style={{ width: '50px', height: '50px' }}
+                                />
+                                {category.name}  {/* Muestra el nombre de la categoría */}
+                            </li>
+                        ))}
+                            <div className="card-body">
+                                <h5 className="card-title" >{product.name}</h5>
+                                <p className="card-text">{product.price}€</p>
+                                <p className="card-text">{product.description}</p>
+                                <p className="card-text">{product.weight} Aquí el peso</p>
+                                <p className="card-text">Aquí la categoría</p>
+                                <button className="btn btn-info"
+                                type="button"
+                                onClick={() => openModal(product.id)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                    </svg>
+                                </button>
+                                <button className="btn btn-danger"
+                                type="button"
                                 data-bs-toggle="modal"
                                 onClick={()=> actions.deleteProduct(product.id)}
                                 data-bs-target="#deleteProductModal">
-                                Borrar
-                            </button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3" viewBox="0 0 16 16">
+                                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                </svg>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-            ))
+                        )
+                    }
+                )
             ) : (
-                <p>Añade nuevos productos</p>
+            <p>Añade nuevos productos</p>
             )}
             </div>
+            </div>
 
-        
-
-
-        {/* // <div className="container">
-		// 	<ul className="list-group">
-        //     {store.products.length >0 ? ( */}
-		{/* // 		store.products.map((productos, index) => {
-		// 			return (
-		// 				<li
-		// 					key={index}
-		// 					className="list-group-item d-flex justify-content-between align-items-center ">
-        //                         <div> */}
-        {/* //                             <h4>{productos.name}</h4>
-        //                             <span className="d-block"><strong>El origen del producto es:</strong> {productos.origin}</span>
-        //                             <span className="d-block"><strong>El precio del producto es de:</strong> {productos.price} €/Kg</span>
-        //                             <span className="d-block"><strong>Descripción:</strong> {productos.description}</span>
-        //                         </div> */}
-        {/* //                         <div className="d-flex flex-column">
-        //                             <button type="button" className="btn btn-success m-2" onClick={()=> actions.deleteProduct(productos.id)}>Eliminar</button>
-        //                             <button type="button" className="btn btn-success m-20" onClick={() => openModal(productos.id)}>Editar</button>
-        //                         </div>
-		// 				</li>
-		// 			); */}
-		{/* // 		})
-        //     ) : <li>Todavía no existe ningún producto</li> }
-		// 	</ul> */}
-		{/* // 	<br />
-        //     <hr/> */}
-            {/* <div className="container ">
-                <form onSubmit={DataSend}>
-                    <div className="mb-3">
-                        <label form="nameinput" className="form-label">Nombre Producto</label>
-                        <input type="name" className="form-control" id="nameinput" placeholder="Tomate..."  value={name} onChange={(event)=>setName(event.target.value)}/>
-                    </div>
-                    <div className="mb-3">
-                        <label form="origininput" className="form-label">Origen</label>
-                        <input type="text" className="form-control" id="origininput" placeholder="Valencia..."  value={origin} onChange={(event)=>setOrigin(event.target.value)} />
-                    </div>
-                    <div className="mb-3">
-                        <label form="priceinput" className="form-label">Price</label>
-                        <input type="number" className="form-control" id="priceinput" placeholder="3,12..."  value={price} onChange={(event)=>setPrice(event.target.value)} />
-                    </div>
-                    <div className="mb-3">
-                        <label form="descriptioninput" className="form-label">description</label>
-                        <input type="text" className="form-control" id="descriptioninput" placeholder="En un mundo lleno de margaritas..."  value={description} onChange={(event)=>setDescription(event.target.value)} />
-                    </div>
-                    
-                    <button type="submit" className="btn btn-primary">Add New Product</button>
-                    <Link to="/" className="mx-2">
-						<button className="btn btn-primary">Back Home</button>
-					</Link>
-
-                </form>
-            </div> */}
             {showModal && (
                 <div className="modal fade show d-block" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div className="modal-dialog">

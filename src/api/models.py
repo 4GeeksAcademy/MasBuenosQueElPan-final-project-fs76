@@ -141,6 +141,8 @@ class Producer(db.Model):
 class ProductCategories (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     categorie = db.Column(db.String(40), unique=True, nullable=False)
+    imageUrl = db.Column(db.String(255), nullable=True)
+    
     #Representación básica
     def __repr__(self):
         return f'<Categorie {self.categorie}>'
@@ -149,6 +151,7 @@ class ProductCategories (db.Model):
         return {
             "categorie": self.categorie,
             "id": self.id,
+            "imageUrl": self.imageUrl,
             # do not serialize the password, its a security breach
         }
     
