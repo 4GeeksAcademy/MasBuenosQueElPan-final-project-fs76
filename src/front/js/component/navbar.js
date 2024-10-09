@@ -41,13 +41,22 @@ export const Navbar = () => {
 					</Link>
 				</div>
 				<div className="ml-auto">
+					<Link to="/cart">
+						<button className="btn btn-primary">Carrito</button>
+					</Link>
+				</div>
+				<div className="ml-auto">
 					<Link to="/demo">
 						<button className="btn btn-primary">Check the Context in action</button>
 					</Link>
 					<Link to="/product" className="mx-2">
 						<button className="btn btn-primary">View Products</button>
 					</Link>
+					<Link to="/productlist" className="mx-2">
+						<button className="btn btn-primary">Product List</button>
+					</Link>
 				</div>
+
 				<div>
 					<Link to="/customer/Login" className="mx-2">
 						<button className="btn btn-primary">SignUp</button>
@@ -64,6 +73,16 @@ export const Navbar = () => {
 				</>
 				 : ""		
 				}
+				<div className="dropdown">
+				<button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+					Profile
+				</button>
+				<ul className="dropdown-menu">
+					<li><a className="dropdown-item" href="#">Action</a></li>
+					<li><a className="dropdown-item" href="#">Another action</a></li>
+					<li><a className="dropdown-item" href="#">Something else here</a></li>
+				</ul>
+				</div>
 				
 			</div>
 		</nav>
