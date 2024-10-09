@@ -73,17 +73,92 @@ export const Navbar = () => {
 				</>
 				 : ""		
 				}
-				<div className="dropdown">
-				<button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Profile
-				</button>
-				<ul className="dropdown-menu">
-					<li><a className="dropdown-item" href="#">Action</a></li>
-					<li><a className="dropdown-item" href="#">Another action</a></li>
-					<li><a className="dropdown-item" href="#">Something else here</a></li>
-				</ul>
-				</div>
-				
+				<div className="dropdown" style={{ position: "relative", display: "inline-block" }}>
+					{/* {store.token ? (
+						<> */}
+							<button 
+								className="btn dropdown-toggle" 
+								type="button" 
+								data-bs-toggle="dropdown" 
+								aria-expanded="false"
+								style={{
+									backgroundColor: "#007bff", 
+									color: "#fff", 
+									borderRadius: "10px", 
+									padding: "10px 20px", 
+									border: "none", 
+									boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+									fontWeight: "bold"
+								}}
+							>
+								Profile
+							</button>
+							<ul 
+								className="dropdown-menu" 
+								style={{
+									backgroundColor: "#fff", 
+									borderRadius: "10px", 
+									padding: "10px 0", 
+									boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)", 
+									border: "none",
+									marginTop: "5px"
+								}}
+							>
+								<li>
+									<a 
+										className="dropdown-item" 
+										href="#" 
+										style={{ 
+											padding: "10px 20px", 
+											color: "#333", 
+											fontSize: "14px" 
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										Perfíl
+									</a>
+								</li>
+								<li>
+									<Link 
+										to="/producer/cart" 
+										className="dropdown-item" 
+										style={{ 
+											padding: "10px 20px", 
+											color: "#333", 
+											fontSize: "14px", 
+											textDecoration: "none"  // Elimina el subrayado del texto
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										Carrito
+									</Link>
+								</li>
+								<hr/>
+								<li>
+									<a 
+										className="dropdown-item" 
+										href="#" 
+										style={{ 
+											padding: "5px 20px", 
+											color: "#ff0000", 
+											fontSize: "14px" 
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										LogOut
+									</a>
+								</li>
+							</ul>
+						{/* </>)
+					:
+					<>
+						<button>Hola nuevos weys</button>
+					</>
+					} */}
+				</div>					
 			</div>
 		</nav>
 	);

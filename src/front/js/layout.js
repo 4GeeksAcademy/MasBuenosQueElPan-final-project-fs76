@@ -14,6 +14,8 @@ import { ProducerInfoForm } from "./pages/producerInfoForm";
 import { ProducerView } from "./pages/producerView";
 import { AddProduct } from "./pages/producerAddProduct";
 import injectContext from "./store/appContext";
+import {ProducerCartView} from "./pages/producerCartView";
+import {ProducerCartDescriptio} from "./pages/producerCartDescription"
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -53,6 +55,8 @@ const Layout = () => {
                         <Route element={<CustomerLoginUp />} path="/customer/Login" />
                         <Route element={< CustomerSignUp />} path="/customer/singUp" />
                         <Route element={<HomeCustView />} path="/customer/home" />
+                        <Route element={<ProducerCartView />} path="/producer/cart" />
+                        <Route element = {<ProducerCartDescriptio />} path="/producer/cart/description/:customer_id" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

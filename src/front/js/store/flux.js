@@ -19,6 +19,34 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			],
 			producers: [],
+			producerCart:[
+				{
+					usuario: "Marcos",
+					creado: "18/07/2024",
+					Precio: 240,
+					Estado: "Recibido"
+				},
+				{
+					usuario: "Alicia",
+					creado: "18/10/2024",
+					Precio: 3800,
+					Estado: "Recibido"
+				},
+				{
+					usuario: "David",
+					creado: "30/10/2024",
+					Precio: 800,
+					Estado: "Recibido"
+				}
+
+			],
+			producerCartInfo: [
+				{
+					usuario: "Marcos",
+					Productos:"Manzana, Pochas, Albaricoques",
+					Precio: "20, 500, 700",
+				}
+			],
 			isLogedIn: false,
 			// categories: ["Cereales", "Frutas", "Lácteos", "Verduras", "Carne", "Productos del mar", "Frutos secos", "Hierbas", "Especias", "Alcoholes destilados", "Alcoholes fermentados"],
 			// categories: {Cereales:"url", Frutas, Lácteos, Verduras, Carne, Productos_del_mar, Frutos_secos, Hierbas, Especias, Alcoholes_destilados, Alcoholes_fermentados},
@@ -69,6 +97,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 			logOut: () => {
 				setStore({ token: null })
 			},
+			updateProducerCart: (updatedCart) => {
+                const store = getStore();
+                setStore({
+                    ...store,
+                    producerCart: updatedCart 
+                });
+            },
 			createCustomer: (newCustomer) => {
 				const raw = JSON.stringify({
 					"name": newCustomer.name,
@@ -95,7 +130,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						console.log(result)
 					)
 					.catch((error) => console.error(error));
-
 			},
 			//Estos son productos!! fetch(process.env.BACKEND_URL + "/api/producers")
 			getProducts: () => {
@@ -140,7 +174,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const requestOptions = {
 					method: "DELETE",
 				};
-
 				fetch(`${process.env.BACKEND_URL}/api/product/${id}`, requestOptions)
 					.then((response) => response.text())
 					.then((result) => {
@@ -156,7 +189,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"name": newProduct.name,
 					"price": newProduct.price
 				  });
-				  
 				  const requestOptions = {
 					method: "POST",
 					body: raw,
@@ -164,7 +196,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						"Content-type": "application/json",
 					}
 				  };
-				  
 				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
 					.then((response) => response.json())
 					.then((result) => 
@@ -298,7 +329,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 })
                 .then((response) => {
 					console.log(response.status);
-					
 					response.json()})
                 .then((result) => {
                     console.log(result);
@@ -306,7 +336,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     // Filtra las categorías eliminando la que fue borrada
                     const updatedCategories = store.categories.filter(category => category.id !== categoryId);
 					console.log(updatedCategories);
-					
 					setStore({ categories: updatedCategories });
                 })
                 .catch((error) => console.error(error));
@@ -351,7 +380,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error(error));
 			},
-
 			//Estos son productores!!
 			producerSignup: (email, password) => {
 				const store = getStore();
@@ -392,7 +420,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.then(response => response.json())
 					.then(data => data.exists);
 			},
-
 			producerLogin: (email, password) => {
 				const store = getStore();
 				const requestOptions = {
@@ -450,13 +477,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.error("Producer not found");
 					return;
 				}
-
 				const requestOptions = {
 					method: "PUT",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
 				};
-
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
 					.then((response) => {
 						console.log(response.status);
@@ -479,7 +504,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 				setStore({ isLogedIn: false })
 				localStorage.removeItem("token");
 			},
-
 			addProducerInfo: (producerId, updatedInfo) => {
 				const store = getStore();
 				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
@@ -512,8 +536,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error("Error al editar la información del productor", error));
 			},
-
-
 			deleteProducer: (producerId) => {
 				const requestOptions = {
 					method: "DELETE",
@@ -534,7 +556,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.log("No se pudo eliminar el productor", error)
 					)
 			},
-
 			getProducers: () => {
 				const store = getStore()
 				fetch(process.env.BACKEND_URL + "/api/producers")
@@ -567,7 +588,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error("Error fetching cart items:", error));
 			},
-
 			//AÑADIR PRODUCTOS AL CARRITO//
 			addToCart: (product, quantity) => {
 				const store = getStore();
@@ -578,7 +598,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					quantity: quantity,
 					price: product.price,
 				};
-
 				fetch(`${process.env.BACKEND_URL}/api/cart`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -606,7 +625,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
 				};
-
 				fetch(`${process.env.BACKEND_URL}/api/cart/${product_id}`, requestOptions)
 					.then(response => {
 						if (!response.ok) {
@@ -625,12 +643,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 						alert(`No se pudo eliminar el producto del carrito: ${error.message}`);
 					});
 			},
-
 			//SAVE CART/
 			saveCart: () => {
 				const store = getStore();
 				const cartItems = store.cart_items;
-
 				const cartData = {
 					customer_cart_id: store.user.id, // El ID del cliente
 					items: cartItems.map(item => ({
@@ -638,7 +654,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						quantity: item.quantity,
 						price: item.price
 					}))
-
 				};
 				// getActions().getCustomerCarts()
 				fetch(`${process.env.BACKEND_URL}/api/customers_cart`, {
@@ -674,7 +689,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error("Error fetching customer carts:", error));
 			},
-
 			// LIMPIAR CARRITO
 			clearCart: () => {
 				const store = getStore();
@@ -682,7 +696,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
 				};
-
 				fetch(`${process.env.BACKEND_URL}/api/cart_item/${store.user.id}`, requestOptions)
 					.then(response => {
 						console.log(response.status);
@@ -701,8 +714,15 @@ const getState = ({ getStore, getActions, setStore }) => {
 						console.error("Error al vaciar el carrito:", error);
 						alert(`No se pudo vaciar el carrito: ${error.message}`);
 					});
-			}
+			},
+			getProducerCart: ()=>{
+				const requestOptions = {
+					method: "GET",
+				}
+				fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
+				.then((response) => response.json())
 
+			}
 			// getMessage: async () => {
 			// 	try{
 			// 		// fetching data from the backend
@@ -756,5 +776,4 @@ const getState = ({ getStore, getActions, setStore }) => {
 		}
 	};
 };
-
 export default getState;
