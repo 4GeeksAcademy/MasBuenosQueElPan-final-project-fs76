@@ -4,6 +4,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			message: null,
 			products: [],
 			token: null,
+			tokenProducer: null,
 			demo: [
 				{
 					title: "FIRST",
@@ -17,10 +18,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			],
 			producers: [],
-			isFirstLogin: true,
 			isLogedIn: false,
-			categories: ["Pan", "Lácteos", "Verduras", "Carne"],
-            categoriesWithUrls: [],
+			// categories: ["Cereales", "Frutas", "Lácteos", "Verduras", "Carne", "Productos del mar", "Frutos secos", "Hierbas", "Especias", "Alcoholes destilados", "Alcoholes fermentados"],
+			// categories: {Cereales:"url", Frutas, Lácteos, Verduras, Carne, Productos_del_mar, Frutos_secos, Hierbas, Especias, Alcoholes_destilados, Alcoholes_fermentados},
+			categoriesWithUrls: [],
 			images: []
 		},
 		actions: {
@@ -30,6 +31,29 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// },
 			setToken: (token) =>{
 				setStore({token:token})
+			},
+			setTokenProducer: (token) =>{
+				setStore({tokenProducer:token})
+			},
+			checkToken: () => {
+				return new Promise((resolve, reject) => {
+					const token = localStorage.getItem("token");
+			
+					if (token) {
+						getActions().setToken(token); // Guarda el token en el store
+						setStore({ isLogedIn: true });
+						resolve(true); // Resuelve la promesa cuando se establece el token
+					} else {
+						setStore({ isLogedIn: false });
+						resolve(false); // Resuelve la promesa si no hay token
+					}
+				});
+			},
+			initializeSession: () => {
+				const token = localStorage.getItem("token");
+				if (token) {
+					setStore({ token: token, isLogedIn: true });
+				}
 			},
 			logOut: () => {
 				setStore({token: null})
@@ -173,22 +197,20 @@ const getState = ({ getStore, getActions, setStore }) => {
 			{	const store = getStore()
 				const requestOptions = {
 					method: "GET",
-					
 				  };
-				  
 				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
 					.then((response) => response.json())
-					.then((result) => {console.log (result),
-						setStore({categories: result})}) 
+					.then((result) => {console.log (result)
+						setStore({categoriesWithUrls: result});
+					}) 
 					.catch((error) => console.error(error));
-				
 			},
 			initCategoriesWithUrls: () => {
 				const store = getStore();
 				const categories = store.categories;
 			
 				// Crear un array de objetos { name: 'Pan', url: '' } basado en los nombres de las categorías
-				const categoriesWithUrls = categories.map(categoryName => ({
+				const categoriesWithUrls = categories?.map(categoryName => ({
 					name: categoryName,
 					url: '' // Inicialmente vacío
 				}));
@@ -391,9 +413,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 				})
 				.catch((error) => console.error("error while login in", error)
 				)
-			},
-			changeFirstLogStatus: () => {
-				setStore ({isFirstLogin: false})
 			},
 			getProducer: (producer_id) => {
 				const store = getStore();

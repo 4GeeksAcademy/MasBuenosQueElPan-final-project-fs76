@@ -11,16 +11,26 @@ export const ProducerView = () => {
     const navigate = useNavigate();
     const [ cautionDeleting, setCautionDeleting ] = useState(false);
     const autenticate = store.isLogedIn;
+    const [ isLoading, setIsLoading ] = useState(true)
     
-    if (!autenticate){
-        return <Navigate to="/producer/login" />
-    }
-
     useEffect(() => {
+        actions.checkToken().then(() => {
+            setIsLoading(false)
+            
+        });
+        actions.getCategorieImg();
         actions.getProducer(producerId);
         actions.getProducts();
         actions.getCategories();
     }, [producerId]);
+    if (isLoading) {
+        // Muestra un mensaje o un spinner de carga mientras se verifica la autenticación
+        return <div>Cargando...</div>;
+    }
+
+    if (!autenticate){
+        return <Navigate to="/producer/login" />
+    }
     
     const handleCautionDelete = () => {
         setCautionDeleting(true) 

@@ -7,8 +7,17 @@ import { Cloudinary } from "@cloudinary/url-gen/index";
 export const Product = () => {
 	const { store, actions } = useContext(Context);
 
-     const cld = new Cloudinary({ cloud: { cloudName: 'dw5sqtvsd' } });
+    const cld = new Cloudinary({ cloud: {
+        cloudName: 'dw5sqtvsd',
+        apiKey: "214752669141281", 
+        apiSecret: "WPEPv_-AdZNmjbMCkv9k7opE3V8", 
+        secure:true        
+    },
+        });
 
+    console.log(cld.image("Cesta-de-verdura-ecologica_wzxave").toURL());
+    
+    // new Cloudinary()
 
     const [name, setName] = useState("")
     const [price, setPrice] = useState("")
@@ -22,6 +31,11 @@ export const Product = () => {
     const [originModal, setOriginModal] = useState("")
     const [descriptionModal, setDescriptionModal] = useState("")
     const [priceModal, setPriceModal] = useState("")
+
+    useEffect(() => {
+        actions.checkToken();
+    }, [])
+
 
     const openModal = (id) => {
         setShowModal(true);
@@ -95,10 +109,10 @@ export const Product = () => {
                         return(
                         <div className="card col-4" key={index} style={{"width": "18rem"}}>
                         {/* <img src={rigoImageUrl} className="card-img-top" alt="..."/> */}
-                        {store.categoriesWithUrls.map((category, index) => (
+                        {store.categoriesWithUrls?.map((category, index) => (
                             <li key={index}>
                                 <img 
-                                    src={category.url || "placeholder.jpg"}  // Si no hay URL, puedes mostrar una imagen de placeholder
+                                    src={category.url || "Imagen de producto.jpg"}  // Si no hay URL, puedes mostrar una imagen de placeholder
                                     alt={category.name}
                                     style={{ width: '50px', height: '50px' }}
                                 />

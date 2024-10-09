@@ -582,39 +582,39 @@ def delete_categorie(categorie_id):
 
 
 ##### POST CETEGORIES#####
-@api.route('/images', methods=['GET'])
-def get_images():
-    try:
-        resources = cloudinary.api.resources(type="upload", max_results=30)
-        print("devolución resources cloudinary", resources)
-        images = [{'url': resource['secure_url'], 'public_id': resource['public_id']} for resource in resources['resources']]
-        return jsonify(images), 200
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'error': str(e)}), 500
+# @api.route('/images', methods=['GET'])
+# def get_images():
+#     try:
+#         resources = cloudinary.api.resources(type="upload", max_results=30)
+#         print("devolución resources cloudinary", resources)
+#         images = [{'url': resource['secure_url'], 'public_id': resource['public_id']} for resource in resources['resources']]
+#         return jsonify(images), 200
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return jsonify({'error': str(e)}), 500
     
-# @api.route('/categories', methods=['POST'])
-# def add_categories():
-#     categories = [
-#         ProductCategories(categorie='Cereales', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/beneficios-cereales-integrales-para-ninos_ae7vap'),
-#         ProductCategories(categorie='Verduras', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/Cesta-de-verdura-ecologica_wzxave'),
-#         ProductCategories(categorie='Frutas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutas-de-temporada_rkivoj'),
-#         ProductCategories(categorie='Frutos secos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutos_secos_31-blog-rrss-fb_rp9ggm'),
-#         ProductCategories(categorie='Carnes', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/carne_plgsnd'),
-#         ProductCategories(categorie='Productos del mar', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/mar_ntg96i'),
-#         ProductCategories(categorie='Productos lácteos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/lácteos_chisrm'),
-#         ProductCategories(categorie='Hierbas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/hierbas_gcgf3v'),
-#         ProductCategories(categorie='Especias', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/especias-y-el-mundo-de-la-gastronomia_fezicb'),
-#         ProductCategories(categorie='Vinos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/VINO-TUMBADAS_uqiaxc')
-#     ]
-#     for category in categories:
-#         if not ProductCategories.query.filter_by(categorie=category.categorie).first():
-#             db.session.add(category)
-#     serialized_categories = [{'categorie': cat.categorie, 'imageUrl': cat.imageUrl} for cat in categories]
+@api.route('/categories', methods=['POST'])
+def create_categories():
+    categories = [
+        ProductCategories(categorie='Cereales', imageUrl= "beneficios-cereales-integrales-para-ninos_ae7vap"),
+        ProductCategories(categorie='Verduras', imageUrl='Cesta-de-verdura-ecologica_wzxave'),
+        # ProductCategories(categorie='Frutas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutas-de-temporada_rkivoj'),
+        # ProductCategories(categorie='Frutos secos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutos_secos_31-blog-rrss-fb_rp9ggm'),
+        # ProductCategories(categorie='Carnes', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/carne_plgsnd'),
+        # ProductCategories(categorie='Productos del mar', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/mar_ntg96i'),
+        # ProductCategories(categorie='Productos lácteos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/lácteos_chisrm'),
+        # ProductCategories(categorie='Hierbas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/hierbas_gcgf3v'),
+        # ProductCategories(categorie='Especias', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/especias-y-el-mundo-de-la-gastronomia_fezicb'),
+        # ProductCategories(categorie='Vinos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/VINO-TUMBADAS_uqiaxc')
+    ]
+    for category in categories:
+        if not ProductCategories.query.filter_by(categorie=category.categorie).first():
+            db.session.add(category)
+    serialized_categories = [{'categorie': cat.categorie, 'imageUrl': cat.imageUrl} for cat in categories]
 
-#     db.session.commit()
+    db.session.commit()
 
-#     return jsonify("Categorías creadas exitosamente.", serialized_categories), 200
+    return jsonify("Categorías creadas exitosamente.", serialized_categories), 200
 
 # @api.route('/categories', methods=['POST'])
 # def add_categorie():

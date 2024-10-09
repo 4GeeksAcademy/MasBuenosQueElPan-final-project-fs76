@@ -10,25 +10,29 @@ export const AddProduct = () => {
 	const  navigate  = useNavigate()
 	const [newCategoryName, setNewCategoryName] = useState ("");
 	const [displayAddCategorie, setDisplayAddCategorie] = useState (false);
-	// const [selectedCategory, setSelectedCategory] = useState("");
-	// const [images, setImages] = useState([]);
+	const [selectedCategory, setSelectedCategory] = useState ("");
 
-	// const cld = new Cloudinary({ cloud: { cloudName: 'dw5sqtvsd' } });
+
+	const cld = new Cloudinary({ cloud: {
+        cloudName: 'dw5sqtvsd',
+        apiKey: "214752669141281", 
+        apiSecret: "WPEPv_-AdZNmjbMCkv9k7opE3V8", 
+        secure:true        
+    },
+        });
+
+	cld.image("Cesta-de-verdura-ecologica_wzxave").toURL();
+
 
 	useEffect(() => {
-
-		actions.getCategorieImg()
-
-		// const loadCategories = async () => {
-		// 	await actions.getCategories();
-		// };
-		// loadCategories();
+		actions.checkToken();
+		actions.getCategorieImg();
+		actions.getCategories();
 	}, []);
-
-	// const handleCategoryChange = (event) => {
-    // 	const category = event.target.value;
-	// 	setSelectedCategory(category);
-	// };
+	
+	useEffect(() => {
+		console.log("Categorías actualizadas en el store:", store.categories); // Verificar si las categorías están en el store
+	}, [store.categories]);
 
 	const handleAddCategory = () => {
 		if (newCategoryName.trim() === "") {
@@ -38,7 +42,6 @@ export const AddProduct = () => {
 		actions.addCategory(newCategoryName);
 		setNewCategoryName("");
 	};
-
 
 	const handleAddProduct = (e) => {
 		e.preventDefault();
@@ -63,18 +66,19 @@ export const AddProduct = () => {
         <form>
             <div className="mb-3">
                 <label htmlFor="categorie" className="form-label">CATEGORÍA</label>
-				<select className="form-select"  id="categorie" aria-label="Default select example">
+				<select className="form-select" id="categorie" aria-label="Default select example">
 					<option disabled defaultValue>Escoge una categoría</option>
-                    {store.categories.length > 0 ? (
-						store.categories.map((item, id)=>{
-							return(
-								<option key={id} value={item.categorie}>{item.categorie}</option>
+					{store.categoriesWithUrls?.length > 0 ? (
+						store.categoriesWithUrls?.map((item, id) => {
+							return (
+								<option key={id} value={item.categorie} onChange={()=>{setSelectedCategory(item.imageUrl);console.log(selectedCategory);
+								}}>{item.categorie}</option>  
 							)
 						})
 					) : (
 						<option>Añade una nueva categoría</option>
 					)}
-                </select>
+				</select>
             </div> 
 				
 								
@@ -116,10 +120,8 @@ export const AddProduct = () => {
             </div>
 			<div className="mb-3">
 				<label htmlFor="name" className="form-label">IMAGEN</label>
-				{store.images.length > 0 ? (
-					store.images.map((image, url) => (
-						<img key={image.public_id} src={image.url} className="img-fluid" alt="Imagen de producto" />
-					))
+				{selectedCategory !== "" ? (
+					<img src={cld.image(selectedCategory).toURL()} alt="hello bitch" />
 				) : (
 					<p>No hay imágenes disponibles.</p>
 				)}
