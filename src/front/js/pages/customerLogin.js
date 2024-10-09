@@ -41,9 +41,9 @@ export const CustomerLoginUp = () => {
 			console.error("Error:", error);
 			alert("Ocurrió un problema con la solicitud");
 		})
-		.finally(() => {
-			setLoading(false); 
-		});
+		// .finally(() => {
+		// 	setLoading(false); 
+		// });
 	
 	}
 

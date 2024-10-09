@@ -12,6 +12,7 @@ export const ProducerInfoForm = () => {
     const [ showSuccessMessage, setShowSuccessMessage ] = useState(false)
 
     useEffect(()=>{
+        actions.checkToken()
         const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId))
         // console.log("currentProducer in form", currentProducer)
         if (currentProducer) {

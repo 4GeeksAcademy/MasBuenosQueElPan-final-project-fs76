@@ -13,6 +13,34 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from werkzeug.security import check_password_hash , generate_password_hash
 
+from cloudinary import CloudinaryImage
+from cloudinary.api import resources
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
+
+
+# Configuration       
+cloudinary.config( 
+    cloud_name = "dw5sqtvsd", 
+    api_key = "214752669141281", 
+    api_secret = "WPEPv_-AdZNmjbMCkv9k7opE3V8", # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
+
+# Upload an image
+upload_result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
+                                           public_id="shoes")
+print(upload_result["secure_url"])
+
+# Optimize delivery by resizing and applying auto-format and auto-quality
+optimize_url, _ = cloudinary_url("shoes", fetch_format="auto", quality="auto")
+print(optimize_url)
+
+# Transform the image: auto-crop to square aspect_ratio
+autocrop_url, _ = cloudinary_url("shoes", width=500, height=500, crop="auto", gravity="auto")
+print(autocrop_url)
 
 api = Blueprint('api', __name__)
 
@@ -390,17 +418,23 @@ def view_users():
 def handle_login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
+    # brand_name = request.json.get("brand_name", None)
+    # print(brand_name)
     producer = Producer.query.filter_by(email=email).first()
     if producer is None:
         print("email does not exist")
         return jsonify({"msg": "Incorrect email or email does not exist"}), 401
-    if producer.email != email or producer.password != password:
-        print("incorrect password or email")
+    if producer.email != email:
+        print("incorrect email")
+        return jsonify({"msg": "Password or email incorrect"}), 401
+    if producer.password != password:
+        print("incorrect password")
         return jsonify({"msg": "Password or email incorrect"}), 401
     access_token = create_access_token(identity=email)
-    if producer.brand_name is None:
-        return jsonify(access_token=access_token, is_verify=False, producer_id=producer.id)
-    return jsonify(access_token=access_token, is_verify=True, producer_id=producer.id)
+    is_fill = producer.brand_name is not None and producer.brand_name != ""
+    # if producer.brand_name is None:
+    return jsonify(access_token=access_token, is_verify=True, is_fill=is_fill, producer_id=producer.id, brand_name=producer.brand_name)
+    # return jsonify(access_token=access_token, is_verify=True, is_fill=True, producer_id=producer.id, brand_name=producer.brand_name)
 
 # Protect a route with jwt_required, which will kick out requests
 # without a valid JWT present.
@@ -433,7 +467,7 @@ def delete_producer(producer_id):
     return jsonify(producer.serialize()), 200
 
 #####EDIT ONE PRODUCER#####
-@api.route('/producer/<int:producer_id>', methods=['PUT'])
+@api.route('/producerInfo/<int:producer_id>', methods=['PUT'])
 def edit_producer(producer_id):
     producer_data = request.get_json()
     print(producer_data)
@@ -502,25 +536,76 @@ def delete_categorie(categorie_id):
     db.session.commit()
     return jsonify({'message': f' Has  borrado la categoría {categorie_id}'}), 200
 
-
-##### POST CATEGORIES#####
+#### POST CETEGORIES#####
+@api.route('/images', methods=['GET'])
+def get_images():
+    try:
+        resources = cloudinary.api.resources(type="upload", max_results=30)
+        print("devolución resources cloudinary", resources)
+        images = [{'url': resource['secure_url'], 'public_id': resource['public_id']} for resource in resources['resources']]
+        return jsonify(images), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
+    
 @api.route('/categories', methods=['POST'])
-def add_categorie():
-    body = request.get_json()
-    print (body)
-    if 'categorie' not in body:
-        return jsonify ('Indica el nombre de la categoria'), 400
-    if body['categorie'] == '':
-        return jsonify ('El nombre es obligatorio'), 400
-    categorie = ProductCategories( **body)
-    print (categorie)
-    db.session.add(categorie)
+def create_categories():
+    categories = [
+        ProductCategories(categorie='Cereales', imageUrl= "beneficios-cereales-integrales-para-ninos_ae7vap"),
+        ProductCategories(categorie='Verduras', imageUrl='Cesta-de-verdura-ecologica_wzxave'),
+        # ProductCategories(categorie='Frutas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutas-de-temporada_rkivoj'),
+        # ProductCategories(categorie='Frutos secos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutos_secos_31-blog-rrss-fb_rp9ggm'),
+        # ProductCategories(categorie='Carnes', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/carne_plgsnd'),
+        # ProductCategories(categorie='Productos del mar', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/mar_ntg96i'),
+        # ProductCategories(categorie='Productos lácteos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/lácteos_chisrm'),
+        # ProductCategories(categorie='Hierbas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/hierbas_gcgf3v'),
+        # ProductCategories(categorie='Especias', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/especias-y-el-mundo-de-la-gastronomia_fezicb'),
+        # ProductCategories(categorie='Vinos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/VINO-TUMBADAS_uqiaxc')
+    ]
+    for category in categories:
+        if not ProductCategories.query.filter_by(categorie=category.categorie).first():
+            db.session.add(category)
+    serialized_categories = [{'categorie': cat.categorie, 'imageUrl': cat.imageUrl} for cat in categories]
+
     db.session.commit()
-    response_body ={
-        "msg":"Se ha añadido la categoría"
-    }
-     
-    return jsonify(response_body), 200
+
+    return jsonify("Categorías creadas exitosamente.", serialized_categories), 200
+
+# @api.route('/categories', methods=['POST'])
+# def add_categorie():
+#     body = request.get_json()
+#     print (body)
+    
+#     if 'categorie' not in body:
+#         return jsonify ('Indica el nombre de la categoria'), 400
+#     if body['categorie'] == '':
+#         return jsonify ('El nombre es obligatorio'), 400
+
+#     categorie = ProductCategories( **body)
+#     print (categorie)
+#     db.session.add(categorie)
+#     db.session.commit()
+
+#     response_body ={
+#         "msg":"Se ha añadido la categoría"
+#     }
+##### POST CATEGORIES#####
+# @api.route('/categories', methods=['POST'])
+# def add_categorie():
+#     body = request.get_json()
+#     print (body)
+#     if 'categorie' not in body:
+#         return jsonify ('Indica el nombre de la categoria'), 400
+#     if body['categorie'] == '':
+#         return jsonify ('El nombre es obligatorio'), 400
+#     categorie = ProductCategories( **body)
+#     print (categorie)
+#     db.session.add(categorie)
+#     db.session.commit()
+#     response_body ={
+#         "msg":"Se ha añadido la categoría"
+#     }
+#     return jsonify(response_body), 200
 
 
 ##### PUT CATEGORIES#####

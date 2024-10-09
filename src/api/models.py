@@ -138,14 +138,17 @@ class Producer(db.Model):
 
 class ProductCategories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(40), unique=True, nullable=False)
-
+    categorie = db.Column(db.String(40), unique=True, nullable=False)
+    imageUrl = db.Column(db.String(255), nullable=True)
+    
+    #Representación básica
     def __repr__(self):
         return f'<Category {self.category}>'
 
     def serialize(self):
         return {
             "id": self.id,
+            "imageUrl": self.imageUrl,
             "category": self.category,
         }
 
