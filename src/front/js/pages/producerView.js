@@ -22,16 +22,31 @@ export const ProducerView = () => {
     const [editDescription, setEditDescription] = useState("");
     
     const autenticate = store.isLogedIn;
+    const [ isLoading, setIsLoading ] = useState(true)
+    
+    useEffect(() => {
+        actions.checkToken().then(() => {
+            setIsLoading(false)
+        });
+        // actions.getCategorieImg();
+        actions.getProducer(producerId);
+        actions.getProducts();
+        // actions.getCategories();
+    }, [producerId]);
+    if (isLoading) {
+        return <div>Cargando...</div>;
+    }
 
     if (!autenticate) {
         return <Navigate to="/producer/login" />;
     }
-
-    useEffect(() => {
-        actions.getProducer(producerId);
-        actions.getProducts();
-        actions.getCategories()
-    }, [producerId]);
+    
+    const handleCautionDelete = () => {
+        setCautionDeleting(true) 
+    }
+    const handleGoToAddProduct = () => {
+        navigate(`/producer/dashboard/${producerId}/newproduct`)
+    }
 
     const openModal = () => {
         setShowModal(true);
@@ -103,6 +118,29 @@ export const ProducerView = () => {
     const handleDelete = (id) => {
         actions.deleteProduct(id);
     };
+
+    // return (
+    //     <>
+    //     <h1 className="my-3">This is the producer view</h1>
+    //     {/* <div>
+    //         <img src={imageUrls[currentIndex]} alt="Descripción de la imagen" style={{ maxWidth: '100%', height: 'auto' }} />
+    //         <button onClick={changeImage}>Cambiar Imagen</button>
+    //     </div> */}
+    //     {store.producers.map((producer, index) => 
+    //     <div key={index}>
+    //         <h3>Nombre de la compañía: {producer.brand_name || "no brand_name"}</h3>
+    //         <h1>Hola, {producer.user_name || "no username"} {producer.user_last_name || "no user_last_name"}!</h1>
+    //         <Link to={"/producer/form/" + producer.id}>
+    //             <button type="button" className="edit btn btn-warning">Edita tu información o de la empresa aquí</button>
+    //         </Link>
+
+    //         {store.products.length > 0 ? (
+    //             <Product />
+    //         ) : (
+    //             <button className="btn btn-primary" onClick={()=>handleGoToAddProduct()}>Añade nuevos productos</button>
+    //         )}
+
+
 
     return (
         <>
@@ -188,7 +226,7 @@ export const ProducerView = () => {
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
                                         <select className="form-select" aria-label="Default select example" value={categoria} onChange={()=>setcategoria()}>
-                                            <option selected>Selecciona la categoría del producto: </option>
+                                            <option defaultValue>Selecciona la categoría del producto: </option>
                                             <option value="1">Frutas</option>
                                             <option value="2">Verduras</option>
                                             <option value="3">Ábrol</option>

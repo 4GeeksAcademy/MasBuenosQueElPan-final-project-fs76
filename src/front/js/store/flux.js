@@ -3,10 +3,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
-			products: [
-
-			],
+			products: [],
 			token: null,
+			tokenProducer: null,
 			demo: [
 				{
 					title: "FIRST",
@@ -48,16 +47,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 					Precio: "20, 500, 700",
 				}
 			],
+			isLogedIn: false,
+			// categories: ["Cereales", "Frutas", "Lácteos", "Verduras", "Carne", "Productos del mar", "Frutos secos", "Hierbas", "Especias", "Alcoholes destilados", "Alcoholes fermentados"],
+			// categories: {Cereales:"url", Frutas, Lácteos, Verduras, Carne, Productos_del_mar, Frutos_secos, Hierbas, Especias, Alcoholes_destilados, Alcoholes_fermentados},
+			categoriesWithUrls: [],
+			images: [],
 			categories: [],
 			cart_items: [],
-			customer_carts: [],  // Inicializado como un arreglo vacío
+			customer_carts: [],
 			user: {
-				id: "123",  // Cambia esto al ID del usuario real
+				id: "123",
 				name: "Usuario Test"
 			},
-			producers: [
-
-			],
+			producers: [],
 			isFirstLogin: true,
 			isLogedIn: false,
 		},
@@ -68,6 +70,29 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// },
 			setToken: (token) => {
 				setStore({ token: token })
+			},
+			setTokenProducer: (token) =>{
+				setStore({tokenProducer:token})
+			},
+			checkToken: () => {
+				return new Promise((resolve, reject) => {
+					const token = localStorage.getItem("token");
+			
+					if (token) {
+						getActions().setToken(token); // Guarda el token en el store
+						setStore({ isLogedIn: true });
+						resolve(true); // Resuelve la promesa cuando se establece el token
+					} else {
+						setStore({ isLogedIn: false });
+						resolve(false); // Resuelve la promesa si no hay token
+					}
+				});
+			},
+			initializeSession: () => {
+				const token = localStorage.getItem("token");
+				if (token) {
+					setStore({ token: token, isLogedIn: true });
+				}
 			},
 			logOut: () => {
 				setStore({ token: null })
@@ -216,12 +241,86 @@ const getState = ({ getStore, getActions, setStore }) => {
 				  };
 				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
 					.then((response) => response.json())
+					.then((result) => {console.log (result)
+						setStore({categoriesWithUrls: result});
+					}) 
+					.catch((error) => console.error(error));
+			},
+			initCategoriesWithUrls: () => {
+				const store = getStore();
+				const categories = store.categories;
+			
+				// Crear un array de objetos { name: 'Pan', url: '' } basado en los nombres de las categorías
+				const categoriesWithUrls = categories?.map(categoryName => ({
+					name: categoryName,
+					url: '' // Inicialmente vacío
+				}));
+			
+				// Actualiza el store con la nueva variable
+				setStore({ categoriesWithUrls });
+			},
+			updateCategoriesWithUrls: (images) => {
+				const store = getStore();
+				const categoriesWithUrls = [...store.categoriesWithUrls]; // Copia del array actual
+			
+				// Iterar sobre las imágenes y asignar las URLs correspondientes
+				images.forEach(image => {
+					const categoryName = image.public_id.toLowerCase();
+			
+					// Buscar el objeto que tiene el mismo nombre que el public_id de la imagen
+					const category = categoriesWithUrls.find(cat => categoryName.includes(cat.name.toLowerCase()));
+			
+					if (category) {
+						// Asignar la URL de la imagen a la categoría correspondiente
+						category.url = image.url;
+					}
+				});
+			
+				// Actualiza el store con las URLs asignadas
+				setStore({ categoriesWithUrls });
+			},
+			getCategorieImg: () => {
+				const requestOptions = {
+					method: "GET"
+				};
+				getActions().initCategoriesWithUrls();
+				fetch(process.env.BACKEND_URL + "/api/images", requestOptions)
+					.then((response) => {
+						if (response.status === 200) {
+							return response.json();
+						} else {
+							throw new Error("Problem while getting the Cloudinary image");
+						}
+					})
 					.then((result) => {
-						console.log(result),
-							setStore({ categories: result })
+						console.log(result); // Ver las imágenes obtenidas
+						getActions().updateCategoriesWithUrls(result); // Asigna las URLs a las categorías
 					})
 					.catch((error) => console.error(error));
 			},
+			// getCategorieImg: () => {
+			// 		const requestOptions = {
+			// 			method: "GET",
+			// 			// mode: "no-cors",
+			// 		  };
+			// 		  fetch(process.env.BACKEND_URL + "/api/images", requestOptions)
+			// 			.then((response) => {
+			// 				console.log(response.status)
+			// 				if (response.status === 200) {
+			// 					return response.json();
+			// 				} else {
+			// 					return "problem while getting the cloudinary image"
+			// 				}
+			// 			})
+			// 			.then((result) => {
+			// 				console.log(result);
+						
+							
+			// 			})
+			// 			.catch((error) => console.error(error));
+			// 	},
+				
+			
 			deleteCategory: (categoryId) => {
 				console.log(categoryId);
                 fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
@@ -332,39 +431,37 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}),
 				};
 				return fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
-					.then((response) => {
-						console.log(response.status);
-						if (response.status === 200) {
-							setStore({ isLogedIn: true })
-						} else return "Email o contraseña erróneas"
-						return response.json()
-					})
-					.then((data) => {
-						console.log("loginData from flux", data);
-						localStorage.setItem("producerId", data.producer_id)
-						localStorage.setItem("token", data.access_token)
-						localStorage.setItem("verified", data.is_verify)
-						return { isVerify: data.is_verify, producerId: data.producer_id }
-					})
-					.catch((error) => console.error("error while login in", error)
-					)
-			},
-			changeFirstLogStatus: () => {
-				setStore({ isFirstLogin: false })
+				.then((response) => {
+					console.log(response.status);
+					if (response.status === 200) {
+						setStore ({ isLogedIn: true})
+					} else return "Email o contraseña erróneas"
+					return response.json()
+				})
+				.then((data) => {
+					// console.log("loginData from flux",data);
+					localStorage.setItem("producerId", data.producer_id)
+					localStorage.setItem("token", data.access_token)
+					localStorage.setItem("verified", data.is_verify)
+					localStorage.setItem("is_fill", data.is_fill)
+					return {isVerify:data.is_verify, producerId:data.producer_id, is_fill:data.is_fill}
+				})
+				.catch((error) => console.error("error while login in", error)
+				)
 			},
 			getProducer: (producer_id) => {
 				const store = getStore();
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producer_id}`)
 					.then((response) => {
-						console.log(response.status);
+						// console.log(response.status);
 						if (response.status === 400) {
 							throw new Error("No se ha podido obtener la información del Productor");
 						}
 						return response.json();
 					})
 					.then((data) => {
-						console.log("single producer data from flux", data);
-						setStore({ producers: [data] });
+						// console.log("single producer data from flux", data);
+						setStore({ producers: [data] }); 
 					})
 					.catch((error) => console.error("there was an error in the process", error));
 			},

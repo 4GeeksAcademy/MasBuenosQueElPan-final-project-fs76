@@ -1,24 +1,38 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { Cloudinary } from "@cloudinary/url-gen/index";
 
 
 export const AddProduct = () => {
     const { actions, store } = useContext(Context)
     const { producerId } = useParams()
 	const  navigate  = useNavigate()
-    // console.log(producerId);
-    
 	const [newCategoryName, setNewCategoryName] = useState ("");
 	const [displayAddCategorie, setDisplayAddCategorie] = useState (false);
-	// console.log (store.categories)
+	const [selectedCategory, setSelectedCategory] = useState ("");
+
+
+	const cld = new Cloudinary({ cloud: {
+        cloudName: 'dw5sqtvsd',
+        apiKey: "214752669141281", 
+        apiSecret: "WPEPv_-AdZNmjbMCkv9k7opE3V8", 
+        secure:true        
+    },
+        });
+
+	cld.image("Cesta-de-verdura-ecologica_wzxave").toURL();
+
 
 	useEffect(() => {
-		const loadCategories = async () => {
-			await actions.getCategories();
-		};
-		loadCategories();
+		actions.checkToken();
+		actions.getCategorieImg();
+		actions.getCategories();
 	}, []);
+	
+	useEffect(() => {
+		console.log("Categorías actualizadas en el store:", store.categories); // Verificar si las categorías están en el store
+	}, [store.categories]);
 
 	const handleAddCategory = () => {
 		if (newCategoryName.trim() === "") {
@@ -29,19 +43,18 @@ export const AddProduct = () => {
 		setNewCategoryName("");
 	};
 
-
 	const handleAddProduct = (e) => {
 		e.preventDefault();
 	
 		const newProduct = {
-			name: document.getElementById("product").value,
+			name: document.getElementById("name").value,
 			origin: document.getElementById("origin").value,
 			price: document.getElementById("price").value,
 			description: document.getElementById("description").value,
 			weight: document.getElementById("weight").value,
 			volume: document.getElementById("volume").value,
 			minimum: document.getElementById("minimum").value,
-			categorie: newCategoryName // Asegúrate de que esto sea correcto
+			categorie: newCategoryName
 		};
 		actions.addProducts(newProduct);
 		navigate(`/producer/dashboard/${producerId}`)
@@ -55,16 +68,17 @@ export const AddProduct = () => {
                 <label htmlFor="categorie" className="form-label">CATEGORÍA</label>
 				<select className="form-select" id="categorie" aria-label="Default select example">
 					<option disabled defaultValue>Escoge una categoría</option>
-                    {store.categories.length > 0 ? (
-						store.categories.map((item, id)=>{
-							return(
-								<option key={id} value={newCategoryName}>{item.categorie}</option>
+					{store.categoriesWithUrls?.length > 0 ? (
+						store.categoriesWithUrls?.map((item, id) => {
+							return (
+								<option key={id} value={item.categorie} onChange={()=>{setSelectedCategory(item.imageUrl);console.log(selectedCategory);
+								}}>{item.categorie}</option>  
 							)
 						})
 					) : (
 						<option>Añade una nueva categoría</option>
 					)}
-                </select>
+				</select>
             </div> 
 				
 								
@@ -101,9 +115,21 @@ export const AddProduct = () => {
 					}
 					
             <div className="mb-3">
-                <label htmlFor="product" className="form-label">PRODUCTO</label>
-                <input type="text" className="form-control" id="product" aria-describedby="emailHelp"/>
+                <label htmlFor="name" className="form-label">PRODUCTO</label>
+                <input type="text" className="form-control" id="name" aria-describedby="emailHelp"/>
             </div>
+			<div className="mb-3">
+				<label htmlFor="name" className="form-label">IMAGEN</label>
+				{selectedCategory !== "" ? (
+					<img src={cld.image(selectedCategory).toURL()} alt="hello bitch" />
+				) : (
+					<p>No hay imágenes disponibles.</p>
+				)}
+			</div>
+						{/* <div className="mb-3">
+                <label htmlFor="name" className="form-label">IMAGEN</label>
+                <img src="..." class="img-fluid" alt="Imagen de producto"/>
+            </div> */}
 			<div className="mb-3">
                 <label htmlFor="origin" className="form-label">ORIGEN</label>
                 <input type="text" className="form-control" id="origin" aria-describedby="emailHelp"/>

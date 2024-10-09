@@ -4,13 +4,14 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 export const ProducerLogin = () => {
-    const {  actions } = useContext(Context);
+    const { store, actions } = useContext(Context);
     const [ email, setEmail ] = useState("");
     const [ password, setPassword ] = useState("");
     const [ showEmptyInputs, setShowEmptyInputs ] = useState(false);
     const [ showAt, setShowAt ] = useState(false);
     const [ showExists, setShowExists] = useState(false);
-    const [ logingIn, setLoginIn ] = useState(false)
+    const [ logingIn, setLoginIn ] = useState(false);
+    const [ incorrectLogin, setIncorrectLogin ] = useState(false);
     const navigate = useNavigate()
 
     // At = @
@@ -23,7 +24,7 @@ export const ProducerLogin = () => {
             }, 3000); // 
         }
         return () => clearTimeout(timer); 
-    }, [showExists])
+    }, [showExists, actions])
 
     const handleLogin = (event) => {
         event.preventDefault()
@@ -44,20 +45,33 @@ export const ProducerLogin = () => {
                 setShowExists(true);
                 return;
             }
-            setLoginIn(true)
+            
             actions.producerLogin(email, password).then(data => {
-                // console.log("data from producerlogin", data);
-                // console.log("Navigating to producer view");
+                console.log("data from producerlogin", data);
+                console.log("Navigating to producer view");
+                if (data.access_token) {
+                    localStorage.setItem("token", data.access_token);
+                    setLoginIn(true)
+                }
                 if (data.isVerify) {
-                    setLoginIn(false)
-                    navigate(`/producer/dashboard/${data.producerId}`)
-                    
+                    if (!data.is_fill) {
+                        console.log(data);
+                        console.log(data.is_fill);
+                        setLoginIn(true)
+                        console.log("i should be navigating to form");
+                        navigate(`/producer/form/${data.producerId}`)
+                    } else {
+                        setLoginIn(true)
+                        console.log("i should be navigating to dashboard");
+                        navigate(`/producer/dashboard/${data.producerId}`)
+                    }
                 } else {
-                    navigate(`/producer/form/${data.producerId}`)
+                    setIncorrectLogin(true)
                 }
             return data
             })
             .catch(error => {
+                setLoginIn(false)
                 console.error("Error during login:", error);
                 alert(error.message);
             });
@@ -74,10 +88,13 @@ export const ProducerLogin = () => {
                 <button type="button" onClick={()=>setShowEmptyInputs(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             }
-            {showExists &&
+            {(showExists || incorrectLogin) && 
             <div className="alert alert-danger alert-dismissible fade show text-center" role="alert">
                 Ups! Parece que no has escrito bien el email o la contraseña!.
-                <button type="button" onClick={()=>setShowExists(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" onClick={() => {
+                    setShowExists(false);
+                    incorrectLogin(false);
+                }} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             }
             {showAt &&
