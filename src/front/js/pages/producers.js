@@ -7,12 +7,9 @@ import { ProducerSignup } from "../component/producerSignup";
 export const Producers = () => {
     const { store, actions } = useContext(Context);
     const [ showSignup, setShowSignup ] = useState(false)
-
     useEffect(()=>{
         actions.getProducers();
      },[])
-
-
     return (
         <>
             <div>
