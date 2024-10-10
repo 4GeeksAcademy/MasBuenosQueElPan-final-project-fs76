@@ -20,18 +20,19 @@ export const ProducerView = () => {
     const [editPrice, setEditPrice] = useState("");
     const [editOrigin, setEditOrigin] = useState("");
     const [editDescription, setEditDescription] = useState("");
-    
-    const autenticate = store.isLogedIn;
-    const [ isLoading, setIsLoading ] = useState(true)
-    
+    const [editCategorie, setEditCategorie] = useState("");
+
+    const autenticate = store.producerIsLogedIn;
+    const [isLoading, setIsLoading] = useState(true)
+
     useEffect(() => {
         actions.checkToken().then(() => {
             setIsLoading(false)
         });
-        // actions.getCategorieImg();
+        // actions.getcategorieImg();
         actions.getProducer(producerId);
         actions.getProducts();
-        // actions.getCategories();
+        // actions.getcategories();
     }, [producerId]);
     if (isLoading) {
         return <div>Cargando...</div>;
@@ -40,9 +41,9 @@ export const ProducerView = () => {
     if (!autenticate) {
         return <Navigate to="/producer/login" />;
     }
-    
+
     const handleCautionDelete = () => {
-        setCautionDeleting(true) 
+        setCautionDeleting(true)
     }
     const handleGoToAddProduct = () => {
         navigate(`/producer/dashboard/${producerId}/newproduct`)
@@ -59,6 +60,7 @@ export const ProducerView = () => {
             price: parsePrice,
             origin: origin,
             description: description,
+            categorie: categorie,
         };
         for (let field in newProduct) {
             if (!newProduct[field]) {
@@ -79,12 +81,13 @@ export const ProducerView = () => {
     };
 
     // Abre el modal de edición con los datos del producto seleccionado
-    const handleEditProduct = (producto) => {
-        setEditProductId(producto.id);
-        setEditName(producto.name);
-        setEditPrice(producto.price);
-        setEditOrigin(producto.origin);
-        setEditDescription(producto.description);
+    const handleEditProduct = (product) => {
+        setEditProductId(product.id);
+        setEditName(product.name);
+        setEditPrice(product.price);
+        setEditOrigin(product.origin);
+        setEditDescription(product.description);
+        setEditCategorie(product.categorie);
         setShowEditModal(true);
     };
 
@@ -96,6 +99,7 @@ export const ProducerView = () => {
             price: parsePrice,
             origin: editOrigin,
             description: editDescription,
+            categorie: editCategorie,
         };
         for (let field in updatedProduct) {
             if (!updatedProduct[field]) {
@@ -149,41 +153,31 @@ export const ProducerView = () => {
                     <h1 className="my-3">Bienvenido a tu panel! Tus productos son los siguientes:</h1>
                     <br />
                     <hr />
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems:"center" }}>
-                        {store.products.length > 0 && store.products.map((producto, index) => (
-                            <div key={index} className="card" style={{ 
-                                width: "24rem", 
-                                borderRadius: "15px", 
-                                boxShadow: "0 4px 8px rgba(0,0,0,0.2)", 
-                                overflow: "hidden" 
-                            }}>
-                                <img src={rigoImageUrl} className="card-img-top" alt="..." style={{ height: "200px", objectFit: "cover" }} />
-                                <div className="card-body" style={{ padding: "20px" }}>
-                                    <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>Producto: {producto.name}</h5>
-                                    <p className="card-text" style={{color:"#777", fontSize: "14px"}}>Categoría: {categoria}</p>
-                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {producto.price} €/kg</p>
-                                    <p style={{ color: "#555" }}>El origen del producto es: {producto.origin}</p>
-                                    <p style={{ color: "#555" }}>Descripción del producto: {producto.description}</p>
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-danger" 
-                                        style={{ borderRadius: "10px", backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", transition: "background-color 0.3s ease" }} 
-                                        onClick={() => handleDelete(producto.id)}
-                                    >
-                                        Eliminar producto
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-warning" 
-                                        style={{ borderRadius: "10px", backgroundColor: "#ffc107", borderColor: "#ffc107", transition: "background-color 0.3s ease", marginLeft: "10px" }}
-                                        onClick={() => handleEditProduct(producto)}
-                                    >
-                                        Editar
-                                    </button>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "center" }}>
+                        {store.products.length > 0 && store.products.map((product, index) => {
+                            // Busca la categoría correspondiente
+                            const categorie = store.categories.find(categorie => categorie.categorie === product.categorie);
+                            const imageUrl = categorie ? categorie.imageUrl : "Imagen de producto.jpg"; // Imagen por defecto si no hay categoría
+
+                            return (
+                                <div key={index} className="card" style={{ width: "24rem", borderRadius: "15px", boxShadow: "0 4px 8px rgba(0,0,0,0.2)", overflow: "hidden" }}>
+                                    <img
+                                        src={imageUrl}
+                                        alt="imagen de producto"
+                                    />
+                                    <div className="card-body" style={{ padding: "20px" }}>
+                                        <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>Producto: {product.name}</h5>
+                                        <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Categoría: {product.categorie_categorie}</p>
+                                        <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {product.price} €/kg</p>
+                                        <p style={{ color: "#555" }}>El origen del producto es: {product.origin}</p>
+                                        <p style={{ color: "#555" }}>Descripción del producto: {product.description}</p>
+                                        <button type="button" className="btn btn-danger" onClick={() => handleDelete(product.id)}>Eliminar producto</button>
+                                        <button type="button" className="btn btn-warning" onClick={() => handleEditProduct(product)}>Editar</button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                        
+                            );
+                        })}
+
                         {/* Botón para añadir una nueva tarjeta */}
                         <button
                             className="add-card-button "
@@ -208,7 +202,7 @@ export const ProducerView = () => {
                         </button>
                     </div>
                 </div>
-                
+
                 {/* Modal para añadir productos */}
                 {showModal && (
                     <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
@@ -225,7 +219,7 @@ export const ProducerView = () => {
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={()=>setcategoria()}>
+                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={() => setcategoria()}>
                                             <option defaultValue>Selecciona la categoría del producto: </option>
                                             <option value="1">Frutas</option>
                                             <option value="2">Verduras</option>
@@ -270,7 +264,7 @@ export const ProducerView = () => {
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={()=>setcategoria()}>
+                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={() => setcategoria()}>
                                             <option selected>Selecciona la categoría del producto: </option>
                                             <option value="1">Frutas</option>
                                             <option value="2">Verduras</option>
@@ -284,6 +278,10 @@ export const ProducerView = () => {
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
                                         <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setEditDescription(e.target.value)} value={editDescription} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
+                                        <input type="text" className="form-control" placeholder="De categoría..." onChange={(e) => setEditCategorie(e.target.value)} value={editCategorie} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
@@ -306,7 +304,7 @@ export const ProducerView = () => {
     );
 };
 
- {/* <button type="button" className="btn btn-danger" onClick={()=> actions.producerLogout()}>Log out</button>
+{/* <button type="button" className="btn btn-danger" onClick={()=> actions.producerLogout()}>Log out</button>
                 {store.producers.map((producer, index) => 
                 <div key={index}>
                     <h3>Nombre de la compañía: {producer.brand_name || "no brand_name"}</h3>
@@ -323,4 +321,3 @@ export const ProducerView = () => {
                     </div>
 
                 )}  */}
-        

@@ -89,8 +89,14 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=False, nullable=False)
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    description = db.Column(db.String(200), unique=False, nullable=False)
+    description = db.Column(db.String(500), unique=False, nullable=False)
     origin = db.Column(db.String(120), unique=False, nullable=False)
+    brief_description = db.Column(db.String(200), unique=False, nullable=False)
+    categorie_id = db.Column(db.Integer, db.ForeignKey('product_categories.id'), nullable=False)
+    producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)
+
+    categorie = db.relationship('ProductCategories', backref='products')
+    producer = db.relationship('Producer', backref='products')
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -102,6 +108,10 @@ class Product(db.Model):
             "price": float(self.price),  # Asegúrate de convertir a float
             "description": self.description,
             "origin": self.origin,
+            "brief_description": self.brief_description,
+            "categorie_id": self.categorie_id,
+            "producer_id": self.producer_id,
+            "categorie_categorie": self.categorie.categorie,
         }
 
 class Producer(db.Model):
@@ -143,13 +153,13 @@ class ProductCategories(db.Model):
     
     #Representación básica
     def __repr__(self):
-        return f'<Category {self.category}>'
+        return f'<Categorie {self.categorie}>'
 
     def serialize(self):
         return {
             "id": self.id,
             "imageUrl": self.imageUrl,
-            "category": self.category,
+            "categorie": self.categorie,
         }
 
 class CartProduct(db.Model):

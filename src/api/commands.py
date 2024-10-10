@@ -1,6 +1,6 @@
 
 import click
-from api.models import db, User
+from api.models import db, User, ProductCategories
 
 """
 In this file, you can add as many commands as you want using the @app.cli.command decorator
@@ -32,3 +32,31 @@ def setup_commands(app):
     @app.cli.command("insert-test-data")
     def insert_test_data():
         pass
+
+    @app.cli.command("fill-db-with-categorie-images")
+    def fill_db_with_categorie_images():
+        """ Este comando rellenará la base de datos con datos de ejemplo. """
+        db.drop_all()
+        db.create_all()
+        categorie = ProductCategories
+        try:
+            categorie = [
+                categorie(categorie = "Cereales", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/cereals"),
+                categorie(categorie = "Frutas", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/fruits"),
+                categorie(categorie = "Verduras", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/vegetables"),
+                categorie(categorie = "Frutos secos", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/dried_fruits"),
+                categorie(categorie = "Alcoholes fermentados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/alcohol_fermentado"),
+                categorie(categorie = "Leche y derivados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/milk_and_related"),
+                categorie(categorie = "Carnes", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/meat"),
+                categorie(categorie = "Especias", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/spices"),
+                categorie(categorie = "Hierbas", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/herbs"),
+                categorie(categorie = "Productos del mar", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/seafood"),
+                categorie(categorie = "Alcoholes destilados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/alcohol_destilado"),
+                # categorie(categorie = "Error", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/error"),
+            ]
+            db.session.add_all(categorie)
+            db.session.commit()
+            print("database has been correctly populated")
+        except Exception as e:
+            db.session.rollback()
+            print(f"error while populating the database: {e}")

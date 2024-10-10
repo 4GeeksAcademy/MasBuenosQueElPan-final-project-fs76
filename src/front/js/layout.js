@@ -4,7 +4,7 @@ import ScrollToTop from "./component/scrollToTop";
 import { BackendURL } from "./component/backendURL";
 
 import { Home } from "./pages/home";
-import { Categories } from "./pages/categories";
+import { categories } from "./pages/categories";
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import { Producers } from "./pages/producers";
@@ -14,8 +14,8 @@ import { ProducerInfoForm } from "./pages/producerInfoForm";
 import { ProducerView } from "./pages/producerView";
 import { AddProduct } from "./pages/producerAddProduct";
 import injectContext from "./store/appContext";
-import {ProducerCartView} from "./pages/producerCartView";
-import {ProducerCartDescriptio} from "./pages/producerCartDescription"
+import { ProducerCartView } from "./pages/producerCartView";
+import { ProducerCartDescriptio } from "./pages/producerCartDescription"
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -46,17 +46,17 @@ const Layout = () => {
                         <Route element={<ProducerView />} path="/producer/dashboard/:producerId" />
                         <Route element={<ProducerInfoForm />} path="/producer/form/:producerId" />
                         <Route element={<AddProduct />} path="/producer/dashboard/:producerId/newproduct" />
-                        <Route element={<Categories />} path="/categories" />
+                        <Route element={<categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<CustomerProductList />} path="/productlist" />
                         <Route element={<CustomerProductView />} path="/product/:product_id" />
                         <Route element={<CartItems />} path="/cart" />
-                        <Route element={<Product />} path="/product" />
+                        {/* <Route element={<Product />} path="/product" /> */}
                         <Route element={<CustomerLoginUp />} path="/customer/Login" />
                         <Route element={< CustomerSignUp />} path="/customer/singUp" />
                         <Route element={<HomeCustView />} path="/customer/home" />
                         <Route element={<ProducerCartView />} path="/producer/cart" />
-                        <Route element = {<ProducerCartDescriptio />} path="/producer/cart/description/:customer_id" />
+                        <Route element={<ProducerCartDescriptio />} path="/producer/cart/description/:customer_id" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

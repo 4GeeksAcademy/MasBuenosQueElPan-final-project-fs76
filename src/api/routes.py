@@ -13,34 +13,6 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from werkzeug.security import check_password_hash , generate_password_hash
 
-from cloudinary import CloudinaryImage
-from cloudinary.api import resources
-import cloudinary
-import cloudinary.uploader
-from cloudinary.utils import cloudinary_url
-
-
-
-# Configuration       
-cloudinary.config( 
-    cloud_name = "dw5sqtvsd", 
-    api_key = "214752669141281", 
-    api_secret = "WPEPv_-AdZNmjbMCkv9k7opE3V8", # Click 'View API Keys' above to copy your API secret
-    secure=True
-)
-
-# Upload an image
-upload_result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
-                                           public_id="shoes")
-print(upload_result["secure_url"])
-
-# Optimize delivery by resizing and applying auto-format and auto-quality
-optimize_url, _ = cloudinary_url("shoes", fetch_format="auto", quality="auto")
-print(optimize_url)
-
-# Transform the image: auto-crop to square aspect_ratio
-autocrop_url, _ = cloudinary_url("shoes", width=500, height=500, crop="auto", gravity="auto")
-print(autocrop_url)
 
 api = Blueprint('api', __name__)
 
@@ -507,7 +479,7 @@ def add_producer_info(producer_id):
     db.session.commit()
     return jsonify(producer.serialize()), 200
 
-#####GET CATEGORIES#####
+#####GET categorieS#####
 @api.route('/categories', methods=['GET'])
 def get_categories():
     all_categories= ProductCategories.query.all()    
@@ -515,17 +487,17 @@ def get_categories():
     return jsonify(results), 200
 
 
-####GET ONE CATEGORIE#####
+####GET ONE categorie#####
 @api.route('/categories/<int:categorie_id>', methods=['GET'])
 def get_categorie(categorie_id):
-    print(f"Fetching category with ID: {categorie_id}")
+    print(f"Fetching categorie with ID: {categorie_id}")
     categorie = ProductCategories.query.filter_by(id=categorie_id).first()
-    print(f"Category fetched: {categorie}")
+    print(f"categorie fetched: {categorie}")
     if categorie is None:
-        return jsonify({"msg": "Category not found"}), 404
+        return jsonify({"msg": "categorie not found"}), 404
     return jsonify(categorie.serialize()), 200
 
-#####DELETE ONE CATEGORIE####
+#####DELETE ONE categorie####
 @api.route('/categories/<int:categorie_id>', methods=['DELETE'])
 def delete_categorie(categorie_id):
     print(categorie_id)
@@ -536,40 +508,52 @@ def delete_categorie(categorie_id):
     db.session.commit()
     return jsonify({'message': f' Has  borrado la categoría {categorie_id}'}), 200
 
-#### POST CETEGORIES#####
+#### GET categorieS#####
 @api.route('/images', methods=['GET'])
 def get_images():
     try:
-        resources = cloudinary.api.resources(type="upload", max_results=30)
-        print("devolución resources cloudinary", resources)
-        images = [{'url': resource['secure_url'], 'public_id': resource['public_id']} for resource in resources['resources']]
+        categories = ProductCategories.query.all()
+        images = [{'url': categorie.imageUrl, 'categorie': categorie.categorie} for categorie in categories]
         return jsonify(images), 200
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'error': str(e)}), 500
+#### GET categorie#####  
+@api.route('/images/<int:categorie_id>', methods=['GET'])
+def get_image_by_categorie(categorie_id):
+    try:
+        categorie = ProductCategories.query.get(categorie_id)
+        if categorie:
+            image = {'imageUrl': categorie.imageUrl, 'categorie': categorie.categorie}
+            return jsonify(image), 200
+        else:
+            return jsonify({'error': 'Categoría no encontrada'}), 404
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
     
-@api.route('/categories', methods=['POST'])
-def create_categories():
-    categories = [
-        ProductCategories(categorie='Cereales', imageUrl= "beneficios-cereales-integrales-para-ninos_ae7vap"),
-        ProductCategories(categorie='Verduras', imageUrl='Cesta-de-verdura-ecologica_wzxave'),
-        # ProductCategories(categorie='Frutas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutas-de-temporada_rkivoj'),
-        # ProductCategories(categorie='Frutos secos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutos_secos_31-blog-rrss-fb_rp9ggm'),
-        # ProductCategories(categorie='Carnes', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/carne_plgsnd'),
-        # ProductCategories(categorie='Productos del mar', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/mar_ntg96i'),
-        # ProductCategories(categorie='Productos lácteos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/lácteos_chisrm'),
-        # ProductCategories(categorie='Hierbas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/hierbas_gcgf3v'),
-        # ProductCategories(categorie='Especias', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/especias-y-el-mundo-de-la-gastronomia_fezicb'),
-        # ProductCategories(categorie='Vinos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/VINO-TUMBADAS_uqiaxc')
-    ]
-    for category in categories:
-        if not ProductCategories.query.filter_by(categorie=category.categorie).first():
-            db.session.add(category)
-    serialized_categories = [{'categorie': cat.categorie, 'imageUrl': cat.imageUrl} for cat in categories]
+# @api.route('/categories', methods=['POST'])
+# def create_categories():
+#     categories = [
+#         ProductCategories(categorie='Cereales', imageUrl= "beneficios-cereales-integrales-para-ninos_ae7vap"),
+#         ProductCategories(categorie='Verduras', imageUrl='Cesta-de-verdura-ecologica_wzxave'),
+#         # ProductCategories(categorie='Frutas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutas-de-temporada_rkivoj'),
+#         # ProductCategories(categorie='Frutos secos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutos_secos_31-blog-rrss-fb_rp9ggm'),
+#         # ProductCategories(categorie='Carnes', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/carne_plgsnd'),
+#         # ProductCategories(categorie='Productos del mar', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/mar_ntg96i'),
+#         # ProductCategories(categorie='Productos lácteos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/lácteos_chisrm'),
+#         # ProductCategories(categorie='Hierbas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/hierbas_gcgf3v'),
+#         # ProductCategories(categorie='Especias', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/especias-y-el-mundo-de-la-gastronomia_fezicb'),
+#         # ProductCategories(categorie='Vinos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/VINO-TUMBADAS_uqiaxc')
+#     ]
+#     for categorie in categories:
+#         if not ProductCategories.query.filter_by(categorie=categorie.categorie).first():
+#             db.session.add(categorie)
+#     serialized_categories = [{'categorie': cat.categorie, 'imageUrl': cat.imageUrl} for cat in categories]
 
-    db.session.commit()
+#     db.session.commit()
 
-    return jsonify("Categorías creadas exitosamente.", serialized_categories), 200
+#     return jsonify("Categorías creadas exitosamente.", serialized_categories), 200
 
 # @api.route('/categories', methods=['POST'])
 # def add_categorie():
@@ -589,7 +573,7 @@ def create_categories():
 #     response_body ={
 #         "msg":"Se ha añadido la categoría"
 #     }
-##### POST CATEGORIES#####
+##### POST categorieS#####
 # @api.route('/categories', methods=['POST'])
 # def add_categorie():
 #     body = request.get_json()
@@ -608,7 +592,7 @@ def create_categories():
 #     return jsonify(response_body), 200
 
 
-##### PUT CATEGORIES#####
+##### PUT categorieS#####
 @api.route('/categories/<int:categorie_id>', methods=['PUT'])
 def update_categorie(categorie_id):
     categorie_data = request.get_json()
@@ -738,27 +722,59 @@ def clear_cart(user_id):
         # Manejo de errores y rollback
         db.session.rollback()
         return jsonify({"message": f"Error al vaciar el carrito: {str(e)}"}), 500
-# @api.route('/cart/<int:user_id>', methods=['DELETE'])
-# def clear_cart(user_id):
-#     CartItem.query.filter_by(customer_cart_id=user_id).delete()
-#     db.session.commit()
-#     return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+
+# @api.route('/upload-image', methods=['POST'])
+# @jwt_required()
+# def upload_image():
+#     # Obtener el archivo subido
+#     file = request.files.get('file')
     
+#     if not file:
+#         return jsonify({"ERROR": "No se proporcionó un archivo."}), 400
 
-    # body = request.get_json()
-
-    # categorie = ProductCategories.query.get(categorie_id)
-    # if categorie is None:
-    #     return jsonify({"error": "La categoría no existe"}), 404
-
-    # if 'categorie' not in body:
-    #     return jsonify({"error": "Indica el nombre de la categoría"}), 400
-    # if body['categorie'] == '':
-    #     return jsonify({"error": "El nombre de la categoría es obligatorio"}), 400
-
-    # categorie.name = body['categorie']
+#     # Verificar si el archivo es una imagen
+#     if not file.filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
+#         return jsonify({"ERROR": "Solo se permiten archivos de imagen"}), 400
     
-    # db.session.commit()
+#     # Verificar el tamaño del archivo
+#     file.seek(0, 2)  # Mover el cursor al final del archivo para obtener el tamaño
+#     if file.tell() > 1024 * 1024 * 5:  # 5MB
+#         return jsonify({"ERROR": "El archivo es demasiado grande"}), 400
+#     file.seek(0)  # Volver al inicio del archivo
 
-    # return jsonify({"msg": f"La categoría {categorie_id} ha sido actualizada"}), 200
+#     try:
+#         # DEBUG: Imprimir el archivo recibido
+#         print(f"Archivo recibido: {file.filename}")
+
+#         # Subir la imagen a Cloudinary
+#         upload_result = cloudinary.uploader.upload(file)
+        
+#         # Obtener el ID del usuario que está subiendo la imagen
+#         producer_id = get_jwt_identity()
+#         producer = Producer.query.get(producer_id)
+
+#         # Verificar cuántas imágenes ya tiene el usuario
+#         if Imagenes.query.filter_by(usuario_id=usuario_id).count() >= 5:
+#             return jsonify({"ERROR": "No se pueden subir más de 5 imágenes por usuario."}), 400
+
+#         # Crear una nueva entrada de imagen
+#         nueva_imagen = Imagenes(
+#             url=upload_result['secure_url'],  # Almacenar la URL de la imagen
+#             public_id=upload_result['public_id'],  # Almacenar el public_id
+#             usuario_id=usuario_id
+#         )
+#         db.session.add(nueva_imagen)
+#         db.session.commit()
+        
+#         # DEBUG: Imprimir la URL de la imagen subida
+#         print(f"Imagen subida con éxito: {upload_result['secure_url']}")
+
+#         # Devolver la URL de la imagen subida
+#         return jsonify({
+#             "message": "Imagen subida con éxito",
+#             "url": upload_result['secure_url']
+#         }), 201
+#     except Exception as e:
+#         print(f"Error al subir imagen: {e}")  # Loggear el error exacto
+#         return jsonify({"error": str(e)}), 500
 

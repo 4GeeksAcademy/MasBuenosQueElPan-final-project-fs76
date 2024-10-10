@@ -1,4 +1,3 @@
-
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -19,7 +18,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			],
 			producers: [],
-			producerCart:[
+			producerCart: [
 				{
 					usuario: "Marcos",
 					creado: "18/07/2024",
@@ -43,16 +42,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 			producerCartInfo: [
 				{
 					usuario: "Marcos",
-					Productos:"Manzana, Pochas, Albaricoques",
+					Productos: "Manzana, Pochas, Albaricoques",
 					Precio: "20, 500, 700",
 				}
 			],
-			isLogedIn: false,
-			// categories: ["Cereales", "Frutas", "Lácteos", "Verduras", "Carne", "Productos del mar", "Frutos secos", "Hierbas", "Especias", "Alcoholes destilados", "Alcoholes fermentados"],
-			// categories: {Cereales:"url", Frutas, Lácteos, Verduras, Carne, Productos_del_mar, Frutos_secos, Hierbas, Especias, Alcoholes_destilados, Alcoholes_fermentados},
-			categoriesWithUrls: [],
-			images: [],
+			producerIsLogedIn: false,
+			customerIsLogedIn: false,
 			categories: [],
+			// images: [],
 			cart_items: [],
 			customer_carts: [],
 			user: {
@@ -60,8 +57,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 				name: "Usuario Test"
 			},
 			producers: [],
-			isFirstLogin: true,
-			isLogedIn: false,
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -71,19 +66,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 			setToken: (token) => {
 				setStore({ token: token })
 			},
-			setTokenProducer: (token) =>{
-				setStore({tokenProducer:token})
+			setTokenProducer: (token) => {
+				setStore({ tokenProducer: token })
 			},
 			checkToken: () => {
 				return new Promise((resolve, reject) => {
 					const token = localStorage.getItem("token");
-			
+
 					if (token) {
 						getActions().setToken(token); // Guarda el token en el store
-						setStore({ isLogedIn: true });
+						setStore({ producerIsLogedIn: true });
 						resolve(true); // Resuelve la promesa cuando se establece el token
 					} else {
-						setStore({ isLogedIn: false });
+						setStore({ producerIsLogedIn: false });
 						resolve(false); // Resuelve la promesa si no hay token
 					}
 				});
@@ -91,19 +86,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 			initializeSession: () => {
 				const token = localStorage.getItem("token");
 				if (token) {
-					setStore({ token: token, isLogedIn: true });
+					setStore({ token: token, producerIsLogedIn: true });
 				}
 			},
 			logOut: () => {
 				setStore({ token: null })
 			},
 			updateProducerCart: (updatedCart) => {
-                const store = getStore();
-                setStore({
-                    ...store,
-                    producerCart: updatedCart 
-                });
-            },
+				const store = getStore();
+				setStore({
+					...store,
+					producerCart: updatedCart
+				});
+			},
 			createCustomer: (newCustomer) => {
 				const raw = JSON.stringify({
 					"name": newCustomer.name,
@@ -123,7 +118,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					headers: {
 						"Content-type": "application/json",
 					}
-				}; 
+				};
 				fetch(process.env.BACKEND_URL + "/api/customers", requestOptions)
 					.then((response) => response.json())
 					.then((result) =>
@@ -139,7 +134,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 				};
 				fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
 					.then((response) => response.json())
-					.then((data) => setStore({ products: data }))
+					.then((data) => {
+						console.log("getting products", data);
+						
+						setStore({ products: data })
+					})
 			},
 			// getProduct:(producerId) => {   //Para cuando podamos obtener los productos que haya añadido cada productor, revisar función
 			// 	const requestOptions = {
@@ -156,14 +155,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"name": newProductInfo.name,
 					"origin": newProductInfo.origin,
 					"price": newProductInfo.price
-				  });
-				  const requestOptions = {
+				});
+				const requestOptions = {
 					method: "PUT",
 					headers: {
 						"Content-type": "application/json",
 					},
 					body: raw,
-				  };
+				};
 				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
 					.then((response) => response.json())
 					.then((data) =>
@@ -182,24 +181,31 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error(error));
 			},
-			addProducts:(newProduct) => {
+			addProducts: (newProduct) => {
 				const raw = JSON.stringify({
 					"origin": newProduct.origin,
 					"description": newProduct.description,
 					"name": newProduct.name,
-					"price": newProduct.price
-				  });
-				  const requestOptions = {
+					"price": newProduct.price,
+					"weight": newProduct.weight,
+					"volume": newProduct.volume,
+					"minimum": newProduct.minimum,
+					"imageUrl": newProduct.imageUrl,
+					"categorie": newProduct.categorie
+				});
+				const requestOptions = {
 					method: "POST",
 					body: raw,
 					headers: {
 						"Content-type": "application/json",
 					}
-				  };
-				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+				};
+				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
 					.then((response) => response.json())
-					.then((result) => 
-						getActions().getProducts()
+					.then((result) => {
+						console.log((result));
+						// getActions().getProducts()
+					}
 					)
 					.catch((error) => console.error(error));
 			},
@@ -234,134 +240,62 @@ const getState = ({ getStore, getActions, setStore }) => {
 			//         .catch((error) => console.error(error));
 			// },
 			//Estos son categorías!!
-			getCategories: () => {
+			getcategories: () => {
 				const store = getStore()
 				const requestOptions = {
 					method: "GET",
-				  };
-				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
+				};
+				fetch(process.env.BACKEND_URL + "/api/images", requestOptions)
 					.then((response) => response.json())
-					.then((result) => {console.log (result)
-						setStore({categoriesWithUrls: result});
-					}) 
+					.then((result) => {
+						console.log(result)
+						setStore({ categories: result });
+					})
 					.catch((error) => console.error(error));
 			},
-			initCategoriesWithUrls: () => {
-				const store = getStore();
-				const categories = store.categories;
-			
-				// Crear un array de objetos { name: 'Pan', url: '' } basado en los nombres de las categorías
-				const categoriesWithUrls = categories?.map(categoryName => ({
-					name: categoryName,
-					url: '' // Inicialmente vacío
-				}));
-			
-				// Actualiza el store con la nueva variable
-				setStore({ categoriesWithUrls });
-			},
-			updateCategoriesWithUrls: (images) => {
-				const store = getStore();
-				const categoriesWithUrls = [...store.categoriesWithUrls]; // Copia del array actual
-			
-				// Iterar sobre las imágenes y asignar las URLs correspondientes
-				images.forEach(image => {
-					const categoryName = image.public_id.toLowerCase();
-			
-					// Buscar el objeto que tiene el mismo nombre que el public_id de la imagen
-					const category = categoriesWithUrls.find(cat => categoryName.includes(cat.name.toLowerCase()));
-			
-					if (category) {
-						// Asignar la URL de la imagen a la categoría correspondiente
-						category.url = image.url;
-					}
-				});
-			
-				// Actualiza el store con las URLs asignadas
-				setStore({ categoriesWithUrls });
-			},
-			getCategorieImg: () => {
-				const requestOptions = {
-					method: "GET"
-				};
-				getActions().initCategoriesWithUrls();
-				fetch(process.env.BACKEND_URL + "/api/images", requestOptions)
+
+			deletecategorie: (categorieId) => {
+				console.log(categorieId);
+				fetch(`${process.env.BACKEND_URL}/api/categories/${categorieId}`, {
+					method: "DELETE",
+					headers: { "Content-Type": "application/json" },
+				})
 					.then((response) => {
-						if (response.status === 200) {
-							return response.json();
-						} else {
-							throw new Error("Problem while getting the Cloudinary image");
-						}
+						console.log(response.status);
+						response.json()
 					})
 					.then((result) => {
-						console.log(result); // Ver las imágenes obtenidas
-						getActions().updateCategoriesWithUrls(result); // Asigna las URLs a las categorías
+						console.log(result);
+						const store = getStore();
+						// Filtra las categorías eliminando la que fue borrada
+						const updatedcategories = store.categories.filter(categorie => categorie.id !== categorieId);
+						console.log(updatedcategories);
+						setStore({ categories: updatedcategories });
 					})
 					.catch((error) => console.error(error));
 			},
-			// getCategorieImg: () => {
-			// 		const requestOptions = {
-			// 			method: "GET",
-			// 			// mode: "no-cors",
-			// 		  };
-			// 		  fetch(process.env.BACKEND_URL + "/api/images", requestOptions)
-			// 			.then((response) => {
-			// 				console.log(response.status)
-			// 				if (response.status === 200) {
-			// 					return response.json();
-			// 				} else {
-			// 					return "problem while getting the cloudinary image"
-			// 				}
-			// 			})
-			// 			.then((result) => {
-			// 				console.log(result);
-						
-							
-			// 			})
-			// 			.catch((error) => console.error(error));
-			// 	},
-				
-			
-			deleteCategory: (categoryId) => {
-				console.log(categoryId);
-                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
-                    method: "DELETE",
-					headers: {"Content-Type": "application/json"},
-                })
-                .then((response) => {
-					console.log(response.status);
-					response.json()})
-                .then((result) => {
-                    console.log(result);
-                    const store = getStore();
-                    // Filtra las categorías eliminando la que fue borrada
-                    const updatedCategories = store.categories.filter(category => category.id !== categoryId);
-					console.log(updatedCategories);
-					setStore({ categories: updatedCategories });
-                })
-                .catch((error) => console.error(error));
-            },
-			addCategory: (newCategoryName) => {
+			addcategorie: (newcategorieName) => {
 				const store = setStore()
 				fetch(process.env.BACKEND_URL + "/api/categories", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json"
 					},
-					body: JSON.stringify({ "categorie": newCategoryName })
+					body: JSON.stringify({ "categorie": newcategorieName })
 				})
 					.then((response) => response.json())
 					.then((result) => {
 						{
 							console.log(result),
-								setStore({ categories: [...store.categories, newCategoryName] })
+								setStore({ categories: [...store.categories, newcategorieName] })
 						};
 					})
 					.catch((error) => console.error(error));
 			},
-			updateCategory: (categoryId, newName) => {
-				// console.log(categoryId);
-				// (categoryId)
-				fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+			updatecategorie: (categorieId, newName) => {
+				// console.log(categorieId);
+				// (categorieId)
+				fetch(`${process.env.BACKEND_URL}/api/categories/${categorieId}`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json"
@@ -373,10 +307,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 						// console.log("Respuesta de la edición", result);
 						const store = getStore();
 						// Actualiza el estado local con la nueva información de la categoría
-						const updatedCategories = store.categories.map(category =>
-							category.id === categoryId ? { ...category, categorie: newName } : category
+						const updatedcategories = store.categories.map(categorie =>
+							categorie.id === categorieId ? { ...categorie, categorie: newName } : categorie
 						);
-						setStore({ categories: updatedCategories });
+						setStore({ categories: updatedcategories });
 					})
 					.catch((error) => console.error(error));
 			},
@@ -431,23 +365,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}),
 				};
 				return fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
-				.then((response) => {
-					console.log(response.status);
-					if (response.status === 200) {
-						setStore ({ isLogedIn: true})
-					} else return "Email o contraseña erróneas"
-					return response.json()
-				})
-				.then((data) => {
-					// console.log("loginData from flux",data);
-					localStorage.setItem("producerId", data.producer_id)
-					localStorage.setItem("token", data.access_token)
-					localStorage.setItem("verified", data.is_verify)
-					localStorage.setItem("is_fill", data.is_fill)
-					return {isVerify:data.is_verify, producerId:data.producer_id, is_fill:data.is_fill}
-				})
-				.catch((error) => console.error("error while login in", error)
-				)
+					.then((response) => {
+						console.log(response.status);
+						if (response.status === 200) {
+							setStore({ producerIsLogedIn: true })
+						} else return "Email o contraseña erróneas"
+						return response.json()
+					})
+					.then((data) => {
+						// console.log("loginData from flux",data);
+						localStorage.setItem("producerId", data.producer_id)
+						localStorage.setItem("token", data.access_token)
+						localStorage.setItem("verified", data.is_verify)
+						localStorage.setItem("is_fill", data.is_fill)
+						return { isVerify: data.is_verify, producerId: data.producer_id, is_fill: data.is_fill }
+					})
+					.catch((error) => console.error("error while login in", error)
+					)
 			},
 			getProducer: (producer_id) => {
 				const store = getStore();
@@ -461,7 +395,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.then((data) => {
 						// console.log("single producer data from flux", data);
-						setStore({ producers: [data] }); 
+						setStore({ producers: [data] });
 					})
 					.catch((error) => console.error("there was an error in the process", error));
 			},
@@ -501,7 +435,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			producerLogout: () => {
-				setStore({ isLogedIn: false })
+				setStore({ producerIsLogedIn: false })
 				localStorage.removeItem("token");
 			},
 			addProducerInfo: (producerId, updatedInfo) => {
@@ -715,12 +649,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 						alert(`No se pudo vaciar el carrito: ${error.message}`);
 					});
 			},
-			getProducerCart: ()=>{
+			getProducerCart: () => {
 				const requestOptions = {
 					method: "GET",
 				}
 				fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
-				.then((response) => response.json())
+					.then((response) => response.json())
 
 			}
 			// getMessage: async () => {
@@ -736,10 +670,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// 		console.log("Error loading message from backend", error)
 			// 	}
 			// },
-			// updateCategory: (categoryId, newName) => {
-			// 	console.log(categoryId);
-			// 	(categoryId)
-			//     fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+			// updatecategorie: (categorieId, newName) => {
+			// 	console.log(categorieId);
+			// 	(categorieId)
+			//     fetch(`${process.env.BACKEND_URL}/api/categories/${categorieId}`, {
 			//         method: "PUT",
 			//         headers: {
 			//             "Content-Type": "application/json"
@@ -751,10 +685,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 			//         console.log(result);
 			//         const store = getStore();
 			//         // Actualiza el estado local con la nueva información de la categoría
-			//         const updatedCategories = store.categories.map(category => 
-			//             category.id === categoryId ? { ...category, categorie: newName } : category
+			//         const updatedcategories = store.categories.map(categorie => 
+			//             categorie.id === categorieId ? { ...categorie, categorie: newName } : categorie
 			//         );
-			//         setStore({ categories: updatedCategories });
+			//         setStore({ categories: updatedcategories });
 			//     })
 			//     .catch((error) => console.error(error));
 			// },

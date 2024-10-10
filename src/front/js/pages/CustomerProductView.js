@@ -43,7 +43,9 @@ export const CustomerProductView = () => {
     };
 
     return (
-        <div className="jumbotron m-3">
+        <>
+        {product.length > 0 && product ? (
+            <div className="jumbotron m-3">
             <hr className="my-4" />
             <div className="d-flex justify-content-left">
                 <div className="d-flex m-5">
@@ -84,5 +86,55 @@ export const CustomerProductView = () => {
                 </span>
             </Link>
         </div>
+        ) : (
+            <p>De momento no hay productos</p>
+        )}
+        
+
+
+
+{/* 
+        <div className="jumbotron m-3">
+            <hr className="my-4" />
+            <div className="d-flex justify-content-left">
+                <div className="d-flex m-5">
+                    {product.name ? (
+                        <img src={rigoImageUrl} />
+                    ) : (
+                        <p>Cargando imagen...</p>
+                    )}
+                </div>
+                <div className="d-flex align-items-start flex-column m-5">
+                    <p><span>Nombre:</span> <strong style={{ color: 'black' }}>{product.name || "Cargando..."}</strong></p>
+                    <p>
+                        <span>Precio:</span>
+                        <strong style={{ color: 'black' }}>
+                            {(product.price && !isNaN(product.price)) ? Number(product.price).toFixed(2) : "0.00"}€
+                        </strong>
+                    </p>
+                    <p><span>Descripción:</span> <strong style={{ color: 'black' }}>{product.description || "Cargando..."}</strong></p>
+                    <p><span>Origen:</span> <strong style={{ color: 'black' }}>{product.origin || "Cargando..."}</strong></p>
+
+                    <div className="d-flex align-items-center">
+                        <input
+                            type="number"
+                            min="1"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            style={{ width: '80px', marginRight: '10px' }}
+                        />
+                        <button className="btn btn-primary" onClick={handleAddToCart}>
+                            Añadir al Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <Link className="d-flex justify-content-center flex-end" to="/">
+                <span className="btn btn-dark btn-lg d-flex justify-content-center flex-end" role="button">
+                    Inicio
+                </span>
+            </Link>
+        </div> */}
+        </>
     );
 };
