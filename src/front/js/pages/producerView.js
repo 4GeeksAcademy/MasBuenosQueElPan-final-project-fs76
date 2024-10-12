@@ -27,12 +27,16 @@ export const ProducerView = () => {
     useEffect(() => {
         actions.checkToken().then(() => {
             setIsLoading(false)
+            
         });
         // actions.getCategorieImg();
+        actions.get_Producers_Products(producerId)
         actions.getProducer(producerId);
-        actions.getProducts();
+        // actions.getProducts();
         // actions.getCategories();
-    }, [producerId]);
+        
+    }, []);
+    // producerId
     if (isLoading) {
         return <div>Cargando...</div>;
     }
@@ -59,6 +63,7 @@ export const ProducerView = () => {
             price: parsePrice,
             origin: origin,
             description: description,
+            producer_id: producerId
         };
         for (let field in newProduct) {
             if (!newProduct[field]) {
@@ -73,7 +78,7 @@ export const ProducerView = () => {
         setPrice("");
         closeModal();
     };
-
+    console
     const closeModal = () => {
         setShowModal(false);
     };
@@ -96,6 +101,7 @@ export const ProducerView = () => {
             price: parsePrice,
             origin: editOrigin,
             description: editDescription,
+            producer_id: producerId
         };
         for (let field in updatedProduct) {
             if (!updatedProduct[field]) {
@@ -118,7 +124,8 @@ export const ProducerView = () => {
     const handleDelete = (id) => {
         actions.deleteProduct(id);
     };
-
+    console.log(store.producersInfo.user_name)
+    console.log(producerId)
     // return (
     //     <>
     //     <h1 className="my-3">This is the producer view</h1>
@@ -139,170 +146,220 @@ export const ProducerView = () => {
     //         ) : (
     //             <button className="btn btn-primary" onClick={()=>handleGoToAddProduct()}>Añade nuevos productos</button>
     //         )}
-
-
-
     return (
         <>
-            <div className="container">
-                <div className="row">
-                    <h1 className="my-3">Bienvenido a tu panel! Tus productos son los siguientes:</h1>
-                    <br />
-                    <hr />
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems:"center" }}>
-                        {store.products.length > 0 && store.products.map((producto, index) => (
-                            <div key={index} className="card" style={{ 
-                                width: "24rem", 
-                                borderRadius: "15px", 
-                                boxShadow: "0 4px 8px rgba(0,0,0,0.2)", 
-                                overflow: "hidden" 
-                            }}>
-                                <img src={rigoImageUrl} className="card-img-top" alt="..." style={{ height: "200px", objectFit: "cover" }} />
-                                <div className="card-body" style={{ padding: "20px" }}>
-                                    <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>Producto: {producto.name}</h5>
-                                    <p className="card-text" style={{color:"#777", fontSize: "14px"}}>Categoría: {categoria}</p>
-                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {producto.price} €/kg</p>
-                                    <p style={{ color: "#555" }}>El origen del producto es: {producto.origin}</p>
-                                    <p style={{ color: "#555" }}>Descripción del producto: {producto.description}</p>
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-danger" 
-                                        style={{ borderRadius: "10px", backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", transition: "background-color 0.3s ease" }} 
-                                        onClick={() => handleDelete(producto.id)}
-                                    >
-                                        Eliminar producto
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-warning" 
-                                        style={{ borderRadius: "10px", backgroundColor: "#ffc107", borderColor: "#ffc107", transition: "background-color 0.3s ease", marginLeft: "10px" }}
-                                        onClick={() => handleEditProduct(producto)}
-                                    >
-                                        Editar
-                                    </button>
-                                </div>
+    <div className="container">
+        <div className="row">
+            <h1 className="my-3 text-center" style={{ fontSize: "32px", fontWeight: "bold", color: "#007bff", letterSpacing: "1px" }}>
+                Bienvenido a tu panel, <span>{store.producersInfo.user_name}</span> ! Tus productos son los siguientes:
+            </h1>
+            <br />
+            <hr />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "center", justifyContent: "center" }}>
+                {store.producerProducts.length > 0 && store.producerProducts.map((producto, index) => (
+                    <div key={index} className="card" style={{
+                        width: "300px",
+                        borderRadius: "12px",
+                        boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
+                        overflow: "hidden",
+                        transition: "transform 0.3s ease-in-out",
+                        cursor: "pointer",
+                    }} onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                        onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}>
+                        <img src={rigoImageUrl} className="card-img-top" alt="..." style={{ height: "180px", objectFit: "cover" }} />
+                        <div className="card-body" style={{ padding: "15px" }}>
+                            <h5 className="card-title" style={{ fontWeight: "600", color: "#333" }}>{producto.name}</h5>
+                            <p className="card-text" style={{ color: "#555", fontSize: "14px" }}>Categoría: {categoria}</p>
+                            <p className="card-text" style={{ color: "#555", fontSize: "14px" }}>Precio: {producto.price} €/kg</p>
+                            <p style={{ color: "#777" }}>Origen: {producto.origin}</p>
+                            <p style={{ color: "#777" }}>Descripción: {producto.description}</p>
+                            <div className="d-flex justify-content-between mt-3">
+                                <button className="btn btn-danger" style={{
+                                    borderRadius: "8px",
+                                    backgroundColor: "#ff6b6b",
+                                    border: "none",
+                                    padding: "10px 20px",
+                                    fontSize: "14px",
+                                    transition: "background-color 0.3s ease"
+                                }} onClick={() => handleDelete(producto.id)}>
+                                    Eliminar
+                                </button>
+                                <button className="btn btn-warning" style={{
+                                    borderRadius: "8px",
+                                    backgroundColor: "#ffc107",
+                                    border: "none",
+                                    padding: "10px 20px",
+                                    fontSize: "14px",
+                                    marginLeft: "10px",
+                                    transition: "background-color 0.3s ease"
+                                }} onClick={() => handleEditProduct(producto)}>
+                                    Editar
+                                </button>
                             </div>
-                        ))}
-                        
-                        {/* Botón para añadir una nueva tarjeta */}
-                        <button
-                            className="add-card-button "
-                            style={{
-                                width: "40px",
-                                height: "40px",
-                                borderRadius: "50%",
-                                backgroundColor: "#007bff",
-                                color: "#fff",
+                        </div>
+                    </div>
+                ))}
+
+                {/* Botón para añadir una nueva tarjeta */}
+                <button className="add-card-button"
+                    style={{
+                        width: "50px",
+                        height: "50px",
+                        borderRadius: "50%",
+                        backgroundColor: "#007bff",
+                        color: "#fff",
+                        fontSize: "30px",
+                        border: "none",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s ease",
+                        marginTop: "15px"
+                    }}
+                    onClick={() => openModal()}>
+                    +
+                </button>
+            </div>
+        </div>
+
+        {/* Modal para añadir productos */}
+        {showModal && (
+            <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+                <div className="modal-dialog modal-lg" style={{ margin: "100px auto" }}>
+                    <div className="modal-content" style={{
+                        borderRadius: "12px",
+                        padding: "20px",
+                        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)"
+                    }}>
+                        <div className="modal-header" style={{ borderBottom: "none", paddingBottom: "10px" }}>
+                            <h1 className="modal-title fs-5" id="exampleModalLabel" style={{
                                 fontSize: "24px",
-                                border: "none",
-                                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                cursor: "pointer",
-                                transition: "background-color 0.3s ease"
-                            }}
-                            onClick={() => openModal()} // Abre el modal para añadir una nueva tarjeta
-                        >
-                            +
-                        </button>
+                                fontWeight: "600",
+                                color: "#007bff"
+                            }}>Añadir Producto</h1>
+                            <button type="button" className="btn-close" onClick={() => closeModal()} aria-label="Close" style={{
+                                fontSize: "20px",
+                                cursor: "pointer"
+                            }}></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Nombre Producto</label>
+                                <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setName(e.target.value)} value={name} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Categoría</label>
+                                <select className="form-select" value={categoria} onChange={() => setcategoria()}>
+                                    <option defaultValue>Selecciona la categoría del producto:</option>
+                                    <option value="1">Frutas</option>
+                                    <option value="2">Verduras</option>
+                                    <option value="3">Árbol</option>
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Origen</label>
+                                <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setOrigin(e.target.value)} value={origin} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Descripción</label>
+                                <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setDescription(e.target.value)} value={description} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Precio</label>
+                                <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setPrice(e.target.value)} value={price} />
+                            </div>
+                        </div>
+                        <div className="modal-footer" style={{ borderTop: "none" }}>
+                            <button type="button" className="btn btn-secondary" onClick={() => closeModal()} style={{
+                                borderRadius: "10px",
+                                padding: "10px 20px",
+                                backgroundColor: "#6c757d",
+                                borderColor: "#6c757d"
+                            }}>Cerrar</button>
+                            <button type="button" className="btn btn-primary" onClick={() => handleSaveProduct()} style={{
+                                borderRadius: "10px",
+                                padding: "10px 20px",
+                                backgroundColor: "#007bff",
+                                borderColor: "#007bff"
+                            }}>Guardar</button>
+                        </div>
                     </div>
                 </div>
-                
-                {/* Modal para añadir productos */}
-                {showModal && (
-                    <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-                        <div className="modal-dialog" style={{ maxWidth: "600px", margin: "100px auto" }}>
-                            <div className="modal-content" style={{ borderRadius: "15px", padding: "20px", boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)" }}>
-                                <div className="modal-header" style={{ borderBottom: "none", paddingBottom: "10px" }}>
-                                    <h1 className="modal-title fs-5" id="exampleModalLabel" style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>Añadir Producto</h1>
-                                    <button type="button" className="btn-close" onClick={() => closeModal()} aria-label="Close" style={{ fontSize: "20px", cursor: "pointer" }}></button>
-                                </div>
-                                <div className="modal-body" style={{ paddingTop: "10px" }}>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Nombre Producto </span>
-                                        <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setName(e.target.value)} value={name} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={()=>setcategoria()}>
-                                            <option defaultValue>Selecciona la categoría del producto: </option>
-                                            <option value="1">Frutas</option>
-                                            <option value="2">Verduras</option>
-                                            <option value="3">Ábrol</option>
-                                        </select>
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
-                                        <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setOrigin(e.target.value)} value={origin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
-                                        <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setDescription(e.target.value)} value={description} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
-                                        <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setPrice(e.target.value)} value={price} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                </div>
-                                <div className="modal-footer" style={{ borderTop: "none", paddingTop: "10px" }}>
-                                    <button type="button" className="btn btn-secondary" onClick={() => closeModal()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#6c757d", borderColor: "#6c757d" }}>Cerrar</button>
-                                    <button type="button" className="btn btn-primary" onClick={() => handleSaveProduct()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#007bff", borderColor: "#007bff" }}>Guardar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Modal para editar productos */}
-                {showEditModal && (
-                    <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="editModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-                        <div className="modal-dialog" style={{ maxWidth: "600px", margin: "100px auto" }}>
-                            <div className="modal-content" style={{ borderRadius: "15px", padding: "20px", boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)" }}>
-                                <div className="modal-header" style={{ borderBottom: "none", paddingBottom: "10px" }}>
-                                    <h1 className="modal-title fs-5" id="editModalLabel" style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>Editar Producto</h1>
-                                    <button type="button" className="btn-close" onClick={() => closeEditModal()} aria-label="Close" style={{ fontSize: "20px", cursor: "pointer" }}></button>
-                                </div>
-                                <div className="modal-body" style={{ paddingTop: "10px" }}>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Nombre Producto</span>
-                                        <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setEditName(e.target.value)} value={editName} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={()=>setcategoria()}>
-                                            <option selected>Selecciona la categoría del producto: </option>
-                                            <option value="1">Frutas</option>
-                                            <option value="2">Verduras</option>
-                                            <option value="3">Ábrol</option>
-                                        </select>
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
-                                        <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setEditOrigin(e.target.value)} value={editOrigin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
-                                        <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setEditDescription(e.target.value)} value={editDescription} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
-                                        <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setEditPrice(e.target.value)} value={editPrice} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                </div>
-                                <div className="modal-footer" style={{ borderTop: "none", paddingTop: "10px" }}>
-                                    <button type="button" className="btn btn-secondary" onClick={() => closeEditModal()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#6c757d", borderColor: "#6c757d" }}>Cerrar</button>
-                                    <button type="button" className="btn btn-primary" onClick={() => handleSaveEditProduct()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#007bff", borderColor: "#007bff" }}>Guardar Cambios</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Backdrop */}
-                {(showModal || showEditModal) && <div className="modal-backdrop fade show"></div>}
             </div>
-        </>
+        )}
+
+        {/* Modal para editar productos */}
+        {showEditModal && (
+            <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="editModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+                <div className="modal-dialog modal-lg" style={{ margin: "100px auto" }}>
+                    <div className="modal-content" style={{
+                        borderRadius: "12px",
+                        padding: "20px",
+                        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)"
+                    }}>
+                        <div className="modal-header" style={{ borderBottom: "none", paddingBottom: "10px" }}>
+                            <h1 className="modal-title fs-5" id="editModalLabel" style={{
+                                fontSize: "24px",
+                                fontWeight: "600",
+                                color: "#007bff"
+                            }}>Editar Producto</h1>
+                            <button type="button" className="btn-close" onClick={() => closeEditModal()} aria-label="Close" style={{
+                                fontSize: "20px",
+                                cursor: "pointer"
+                            }}></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Nombre Producto</label>
+                                <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setEditName(e.target.value)} value={editName} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Categoría</label>
+                                <select className="form-select" value={categoria} onChange={() => setcategoria()}>
+                                    <option selected>Selecciona la categoría del producto:</option>
+                                    <option value="1">Frutas</option>
+                                    <option value="2">Verduras</option>
+                                    <option value="3">Árbol</option>
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Origen</label>
+                                <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setEditOrigin(e.target.value)} value={editOrigin} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Descripción</label>
+                                <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setEditDescription(e.target.value)} value={editDescription} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label" style={{ fontWeight: "500" }}>Precio</label>
+                                <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setEditPrice(e.target.value)} value={editPrice} />
+                            </div>
+                        </div>
+                        <div className="modal-footer" style={{ borderTop: "none" }}>
+                            <button type="button" className="btn btn-secondary" onClick={() => closeEditModal()} style={{
+                                borderRadius: "10px",
+                                padding: "10px 20px",
+                                backgroundColor: "#6c757d",
+                                borderColor: "#6c757d"
+                            }}>Cerrar</button>
+                            <button type="button" className="btn btn-primary" onClick={() => handleSaveEditProduct()} style={{
+                                borderRadius: "10px",
+                                padding: "10px 20px",
+                                backgroundColor: "#007bff",
+                                borderColor: "#007bff"
+                            }}>Guardar Cambios</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* Backdrop */}
+        {(showModal || showEditModal) && <div className="modal-backdrop fade show"></div>}
+    </div>
+</>
     );
 };
 

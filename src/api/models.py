@@ -91,6 +91,10 @@ class Product(db.Model):
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=False)
     origin = db.Column(db.String(120), unique=False, nullable=False)
+    # Nueva columna de clave foránea que vincula con Producer
+    producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)
+    # Relación inversa con Producer
+    producer = db.relationship('Producer', back_populates='products')
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -99,9 +103,10 @@ class Product(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "price": float(self.price),  # Asegúrate de convertir a float
+            "price": float(self.price),  # Convertir a float
             "description": self.description,
             "origin": self.origin,
+            "producer_id": self.producer_id
         }
 
 class Producer(db.Model):
@@ -117,6 +122,8 @@ class Producer(db.Model):
     zip_code = db.Column(db.String(10), unique=False, nullable=True)  # Usar String para códigos postales
     phone = db.Column(db.String(15), unique=True, nullable=True)  # Usar String para números de teléfono
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+    # Relación con Product
+    products = db.relationship('Product', back_populates='producer', lazy=True)
 
     def __repr__(self):
         return f'<Producer {self.email}>'
@@ -134,6 +141,7 @@ class Producer(db.Model):
             "province": self.province,
             "zip_code": self.zip_code,
             "phone": self.phone,
+            "products": [product.serialize() for product in self.products]
         }
 
 class ProductCategories(db.Model):

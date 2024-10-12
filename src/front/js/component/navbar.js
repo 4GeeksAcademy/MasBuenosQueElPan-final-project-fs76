@@ -8,22 +8,18 @@ export const Navbar = () => {
 	const { store, actions } = useContext(Context);
 	const { producerId } = useParams()
 	const navigate = useNavigate();
-
-	
-
+	console.log(producerId)
+	console.log("Hola")
 	function handleLogout () {
 		console.log("Loging out");
 		localStorage.clear();
 		actions.producerLogout();
-		navigate("/producer/login")
+		navigate("/")
 	}
-
 	function handleNewProduct () {
 		console.log("Going to add new product");
 		navigate(`/producer/dashboard/${localStorage.getItem("producerId")}/newproduct`)
 	}
-
-	
 	return (
 		<nav className="navbar navbar-light bg-light">
 			<div className="container">
@@ -105,7 +101,8 @@ export const Navbar = () => {
 								}}
 							>
 								<li>
-									<a 
+									{/* to=`/producer/profile/${localStorage.getItem("producerId")}` */}
+									<Link to={`/producer/profile/${localStorage.getItem("producerId")}`}
 										className="dropdown-item" 
 										href="#" 
 										style={{ 
@@ -117,7 +114,7 @@ export const Navbar = () => {
 										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
 									>
 										Perfíl
-									</a>
+									</Link>
 								</li>
 								<li>
 									<Link 
@@ -137,8 +134,9 @@ export const Navbar = () => {
 								</li>
 								<hr/>
 								<li>
-									<a 
+									<button 
 										className="dropdown-item" 
+										onClick={handleLogout}
 										href="#" 
 										style={{ 
 											padding: "5px 20px", 
@@ -149,7 +147,7 @@ export const Navbar = () => {
 										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
 									>
 										LogOut
-									</a>
+									</button>
 								</li>
 							</ul>
 						{/* </>)

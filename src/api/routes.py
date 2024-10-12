@@ -262,6 +262,7 @@ def add_product():
         price = data.get('price')
         description = data.get('description')
         origin = data.get('origin')
+        producer_id=data.get('producer_id')
         #Validación de la respuesta
         if not name or not price or not description or not origin:
             return jsonify({"msg": "Faltan datos"}), 400
@@ -277,7 +278,8 @@ def add_product():
             name=name,
             price=price,
             description=description,
-            origin=origin 
+            origin=origin, 
+            producer_id=producer_id,
         )
         #Actualizar la base de datos
         db.session.add(new_product)
@@ -306,6 +308,7 @@ def edit_product(id):
         price = data.get("price")
         description = data.get("description")
         origin = data.get("origin")
+        producer_id=data.get("producer_id")
         #Actualizamos la base de datos
         if name:
             product.name = name
@@ -319,6 +322,8 @@ def edit_product(id):
             product.description = description
         if origin:
             product.origin = origin
+        if producer_id:
+            product.producer_id = producer_id
         #Guardamos los datos en la base de datos
         db.session.commit()
         return jsonify(product.serialize()),200
@@ -344,6 +349,16 @@ def delete_product(id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
+####GET PRODUCERS PRODUCTS####
+@api.route("/producer/product/<int:producerId>", methods=["GET"])
+def get_producer_products(producerId):
+    # Filtra los productos usando el producer_id, no el id de los productos
+    producer_products = Product.query.filter_by(producer_id=producerId).all()
+
+    if not producer_products:
+        return jsonify({"message": "No se encontraron productos para este productor."}), 404
+
+    return jsonify([product.serialize() for product in producer_products]), 200
 
 ####PRODUCER SINGUP #####
 @api.route('/producer/signup', methods=['POST'])
