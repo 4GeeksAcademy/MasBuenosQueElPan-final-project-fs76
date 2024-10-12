@@ -1,6 +1,8 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Numeric, DateTime, Integer, String, Boolean
+from datetime import datetime
+from sqlalchemy import Numeric, DateTime, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
@@ -9,6 +11,8 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+
+    carts = relationship('CustomerCart', back_populates='user')
 
     def __repr__(self):
         return f'<User {self.email}>'
@@ -169,47 +173,59 @@ class CartProduct(db.Model):
 
 class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    customer_cart_id = db.Column(Integer, unique=False, nullable=False)
-    product_id = db.Column(Integer, unique=False, nullable=False)
-    quantity = db.Column(Integer, unique=False, nullable=False)  # Cambiar a Integer
+    customer_cart_id = db.Column(Integer, db.ForeignKey('customer_cart.id'), nullable=False)  # Corrección aquí
+    product_id = db.Column(Integer, db.ForeignKey('product.id'),  nullable=False)
+    quantity = db.Column(Integer, unique=False, nullable=False)
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     subtotal = db.Column(Numeric(10, 2), unique=False, nullable=False)
     total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)  # Fecha de creación
-    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)  # Fecha de actualización
+    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    customer_cart = relationship('CustomerCart', back_populates='items')
+    product = relationship('Product')
 
     def __repr__(self):
         return f'<CartItem {self.product_id}>'
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "customer_cart_id": self.customer_cart_id,
-            "product_id": self.product_id,
-            "quantity": self.quantity,
-            "price": float(self.price),
-            "subtotal": float(self.subtotal),
-            "total_price": float(self.total_price)
-        }
-
 class CustomerCart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(Integer, unique=False, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     status = db.Column(String(50), unique=False, nullable=False)
 
+    user = relationship('User', back_populates='carts')
+    items = relationship('CartItem', back_populates='customer_cart')
+
     def __repr__(self):
         return f'<CustomerCart {self.user_id}>'
+    
+class ProducerOrders(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(Numeric(10, 2), nullable=False)
+    total_price = db.Column(Numeric(10, 2), nullable=False)
+    order_date = db.Column(DateTime, default=datetime.utcnow, nullable=False)
+    status = db.Column(String(50), nullable=False)
+
+
+
+    def __repr__(self):
+        return f'<ProducerOrders {self.id}>'
 
     def serialize(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "created_at": self.created_at.isoformat(),  # Formato ISO para serialización
-            "updated_at": self.updated_at.isoformat(),  # Formato ISO para serialización
+            "customer_id": self.customer_id,
+            "product_id": self.product_id,
+            "quantity": self.quantity,
+            "price": float(self.price),
             "total_price": float(self.total_price),
+            "order_date": self.order_date.isoformat(),  # Formato ISO para serialización
             "status": self.status
         }
            
