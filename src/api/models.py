@@ -89,18 +89,18 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=False, nullable=False)
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    weight = db.Column(db.Integer, unique=False, nullable=True)
-    volume = db.Column(db.Integer, unique=False, nullable=True)
-    minimum = db.Column(db.Integer, unique=False, nullable=True)
+    weight = db.Column(Numeric, unique=False, nullable=True)
+    volume = db.Column(Numeric, unique=False, nullable=True)
+    minimum = db.Column(Numeric, unique=False, nullable=True)
     description = db.Column(db.String(500), unique=False, nullable=True)
     origin = db.Column(db.String(120), unique=False, nullable=False)
     brief_description = db.Column(db.String(200), unique=False, nullable=True)
     categorie_id = db.Column(db.Integer, db.ForeignKey('product_categories.id'))
     categorie = db.relationship('ProductCategories', backref='products')
-
-    # Clave foránea para el productor
-    producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'))
-    producer = db.relationship('Producer', backref='products')
+    # Nueva columna de clave foránea que vincula con Producer
+    producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)
+    # Relación inversa con Producer
+    producer = db.relationship('Producer', back_populates='products')
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -109,7 +109,7 @@ class Product(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "price": float(self.price),  # Asegúrate de convertir a float
+            "price": float(self.price),  # Convertir a float
             "description": self.description,
             "origin": self.origin,
             "brief_description": self.brief_description,
@@ -137,6 +137,8 @@ class Producer(db.Model):
     zip_code = db.Column(db.String(10), unique=False, nullable=True)  # Usar String para códigos postales
     phone = db.Column(db.String(15), unique=True, nullable=True)  # Usar String para números de teléfono
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+    # Relación con Product
+    products = db.relationship('Product', back_populates='producer', lazy=True)
 
     def __repr__(self):
         return f'<Producer {self.email}>'
@@ -154,6 +156,7 @@ class Producer(db.Model):
             "province": self.province,
             "zip_code": self.zip_code,
             "phone": self.phone,
+            "products": [product.serialize() for product in self.products]
         }
 
 class ProductCategories(db.Model):

@@ -8,22 +8,16 @@ export const Navbar = () => {
 	const { store, actions } = useContext(Context);
 	const { producerId } = useParams()
 	const navigate = useNavigate();
-
-
-
-	function handleLogout() {
+	function handleLogout () {
 		console.log("Loging out");
 		localStorage.clear();
 		actions.producerLogout();
-		navigate("/producer/login")
+		navigate("/")
 	}
-
-	function handleNewProduct() {
+	function handleNewProduct () {
 		console.log("Going to add new product");
 		navigate(`/producer/dashboard/${localStorage.getItem("producerId")}/newproduct`)
 	}
-
-
 	return (
 		<nav className="navbar navbar-light bg-light">
 			<div className="container">
@@ -56,9 +50,7 @@ export const Navbar = () => {
 						</div>
 
 						<div className="ml-auto">
-							{/* <Link to="/demo">
-								<button className="btn btn-primary">Check the Context in action</button>
-							</Link> */}
+
 							<Link to="/product" className="mx-2">
 								<button className="btn btn-primary">View Products</button>
 							</Link>
@@ -104,7 +96,7 @@ export const Navbar = () => {
 							fontWeight: "bold"
 						}}
 					>
-						Profile
+						Perfil
 					</button>
 					<ul
 						className="dropdown-menu"
@@ -118,19 +110,18 @@ export const Navbar = () => {
 						}}
 					>
 						<li>
-							<a
+						<Link to={`/producer/profile/${localStorage.getItem("producerId")}`}
 								className="dropdown-item"
-								href="#"
 								style={{
 									padding: "10px 20px",
 									color: "#333",
-									fontSize: "14px"
+									fontSize: "14px",
+									textDecoration: "none"  // Elimina el subrayado del texto
 								}}
 								onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
 								onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-							>
-								Perfíl
-							</a>
+							> Perfil
+							</Link>
 						</li>
 						<li>
 							<Link
@@ -145,32 +136,43 @@ export const Navbar = () => {
 								onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
 								onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
 							>
-								Carrito
 							</Link>
 						</li>
 						<hr />
-						<li>
-							<a
-								className="dropdown-item"
-								href="#"
-								style={{
-									padding: "5px 20px",
-									color: "#ff0000",
-									fontSize: "14px"
-								}}
-								onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
-								onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-							>
-								LogOut
-							</a>
-						</li>
-					</ul>
-					{/* </>)
-					:
-					<>
-						<button>Hola nuevos weys</button>
-					</>
-					} */}
+								<li>
+									<Link 
+										to="/producer/cart" 
+										className="dropdown-item" 
+										style={{ 
+											padding: "10px 20px", 
+											color: "#333", 
+											fontSize: "14px", 
+											textDecoration: "none"  // Elimina el subrayado del texto
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										Carrito
+									</Link>
+								</li>
+								<hr/>
+								<li>
+									<button 
+										className="dropdown-item" 
+										onClick={handleLogout}
+										href="#" 
+										style={{ 
+											padding: "5px 20px", 
+											color: "#ff0000", 
+											fontSize: "14px" 
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										LogOut
+									</button>
+								</li>
+							</ul>
 				</div>
 			</div>
 		</nav>

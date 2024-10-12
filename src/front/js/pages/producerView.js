@@ -11,29 +11,46 @@ export const ProducerView = () => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [origin, setOrigin] = useState("");
+    const [weight, setWeight] = useState("");
+    const [volume, setVolume] = useState("");
+    const [minimum, setMinimum] = useState("");
+    const [briefDescription, setBriefDescription] = useState("");
     const [description, setDescription] = useState("");
     const [showModal, setShowModal] = useState(false);
-    const [categoria, setcategoria] = useState("")
+    const [categorieId, setCategorieId] = useState("");
+    const [categorieImgUrl, setCategorieImgUrl] = useState("");
     const [showEditModal, setShowEditModal] = useState(false);
     const [editProductId, setEditProductId] = useState(null);
     const [editName, setEditName] = useState("");
     const [editPrice, setEditPrice] = useState("");
     const [editOrigin, setEditOrigin] = useState("");
+    const [editWeight, setEditWeight] = useState("");
+    const [editVolume, setEditVolume] = useState("");
+    const [editMinimum, setEditMinimum] = useState("");
+    const [editBriefDescription, setEditBriefDescription] = useState("");
     const [editDescription, setEditDescription] = useState("");
     const [editCategorie, setEditCategorie] = useState("");
+    const [editCategorieId, setEditCategorieId] = useState("");
+    const [editCategorieImgUrl, setEditCategorieImgUrl] = useState("");
+    
 
     const autenticate = store.producerIsLogedIn;
     const [isLoading, setIsLoading] = useState(true)
 
+    // console.log("checking infor of producers in producerView",store.producers);
+    // console.log("checking infor of producersInfo in producerView",store.producersInfo);
+    
     useEffect(() => {
         actions.checkToken().then(() => {
             setIsLoading(false)
+            
         });
-        // actions.getcategorieImg();
+        // actions.getCategorieImg();
         actions.getProducer(producerId);
-        actions.getProducts();
-        actions.getcategories();
-    }, [producerId]);
+        actions.getProducersProducts(producerId)
+        // actions.getProducts();
+        actions.getCategories();
+    }, []);
     if (isLoading) {
         return <div>Cargando...</div>;
     }
@@ -55,27 +72,47 @@ export const ProducerView = () => {
 
     const handleSaveProduct = () => {
         const parsePrice = parseFloat(price);
+        const parseWeight = weight ? parseInt(weight) : null; // Convierte a entero o a null si está vacío
+        const parseVolume = volume ? parseInt(volume) : null; // Convierte a entero o a null si está vacío
+        const parseMinimum = minimum ? parseInt(minimum) : null; // Convierte a entero o a null si está vacío
         const newProduct = {
             name: name,
             price: parsePrice,
             origin: origin,
+            weight: parseWeight,
+            volume: parseVolume,
+            minimum: parseMinimum,
+            brief_description: briefDescription,
             description: description,
-            categorie: categorie,
+            categorie_id: categorieId,
+            producer_id: producerId ? parseInt(producerId) : null,
         };
+        console.log("newProduct to be save in store",newProduct);
+        
         for (let field in newProduct) {
-            if (!newProduct[field]) {
+            // Excluir 'weight' y 'volume' de la validación
+            if (field !== 'weight' && field !== 'volume' && !newProduct[field]) {
                 alert(`No se han introducido los datos en: ${field}`);
                 return;
             }
         }
+        if (!parseWeight && !parseVolume) {
+            alert(`Debes introducir al menos el peso o el volumen.`);
+            return;
+        }
+        console.log("producerId antes de añadir producto:", producerId);
         actions.addProducts(newProduct);
         setName("");
-        setOrigin("");
-        setDescription("");
         setPrice("");
+        setOrigin("");
+        setWeight("");
+        setVolume("");
+        setMinimum("");
+        setBriefDescription("");
+        setDescription("");
+        setCategorieId("");
         closeModal();
     };
-
     const closeModal = () => {
         setShowModal(false);
     };
@@ -86,32 +123,55 @@ export const ProducerView = () => {
         setEditName(product.name);
         setEditPrice(product.price);
         setEditOrigin(product.origin);
+        setEditWeight(product.weight);
+        setEditVolume(product.volume);
+        setEditMinimum(product.minimum);
+        setEditBriefDescription(product.briefDescription);
         setEditDescription(product.description);
-        setEditCategorie(product.categorie);
+        setEditCategorie(product.selectedCategorie);
         setShowEditModal(true);
     };
 
     const handleSaveEditProduct = () => {
         const parsePrice = parseFloat(editPrice);
+        const parseWeight = editWeight ? parseInt(editWeight) : null;
+        const parseVolume = editVolume ? parseInt(editVolume) : null;
+        const parseMinimum = editMinimum ? parseInt(editMinimum) : null;
         const updatedProduct = {
             id: editProductId,
             name: editName,
             price: parsePrice,
             origin: editOrigin,
+            weight: parseWeight,
+            volume: parseVolume,
+            minimum: parseMinimum,
+            brief_description: editBriefDescription,
             description: editDescription,
-            categorie: editCategorie,
+            categorie_id: editCategorieId,
+            producer_id: producerId ? parseInt(producerId) : null
         };
+        if (!parseWeight && !parseVolume) {
+            alert(`Debes introducir al menos el peso o el volumen.`);
+            return;
+        }
         for (let field in updatedProduct) {
-            if (!updatedProduct[field]) {
+            // Excluir 'categorie_id' de la validación
+            if (field !== 'categorie_id' && !updatedProduct[field]) {
                 alert(`No se han introducido los datos en: ${field}`);
                 return;
             }
         }
+
         actions.modifyProduct(updatedProduct);
         setEditName("")
         setEditPrice("")
         setEditOrigin("")
+        setEditWeight("")
+        setEditVolume("")
+        setEditMinimum("")
+        setEditBriefDescription("")
         setEditDescription("")
+        setEditCategorie("")
         closeEditModal();
     };
 
@@ -122,7 +182,9 @@ export const ProducerView = () => {
     const handleDelete = (id) => {
         actions.deleteProduct(id);
     };
-
+    // console.log("user name from producersInfo producerView", store.producersInfo.user_name)
+    // console.log(store.producers)
+    // console.log(producerId)
     // return (
     //     <>
     //     <h1 className="my-3">This is the producer view</h1>
@@ -143,37 +205,56 @@ export const ProducerView = () => {
     //         ) : (
     //             <button className="btn btn-primary" onClick={()=>handleGoToAddProduct()}>Añade nuevos productos</button>
     //         )}
-
-
-
     return (
         <>
             <div className="container">
                 <div className="row">
-                    <h1 className="my-3">Bienvenido a tu panel! Tus productos son los siguientes:</h1>
+                {store.producersInfo.map((producer, index) => 
+                    <h1 key={index} className="my-3">¡Encantados de recibirte, {producer.user_name}!</h1>
+                )}
+                {store.producerProducts.length > 0 ? <h1>Tus productos son los siguientes:</h1> : <h1>¡Es momento de añadir nuevos productos!</h1>}
                     <br />
                     <hr />
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "center" }}>
-                        {store.products.length > 0 && store.products.map((product, index) => {                        
-                            return (
-                                <div key={index} className="card" style={{ width: "24rem", borderRadius: "15px", boxShadow: "0 4px 8px rgba(0,0,0,0.2)", overflow: "hidden" }}>
-                                    <img
-                                        src={product.categorie_imageUrl}
-                                        // alt="imagen de producto"
-                                    />
-                                    <div className="card-body" style={{ padding: "20px" }}>
-                                        <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>Producto: {product.name}</h5>
-                                        <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Categoría: {product.categorie_name}</p>
-                                        <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {product.price} €/kg</p>
-                                        <p style={{ color: "#555" }}>El origen del producto es: {product.origin}</p>
-                                        <p style={{ color: "#555" }}>Descripción del producto: {product.description}</p>
-                                        <button type="button" className="btn btn-danger" onClick={() => handleDelete(product.id)}>Eliminar producto</button>
-                                        <button type="button" className="btn btn-warning" onClick={() => handleEditProduct(product)}>Editar</button>
-                                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems:"center" }}>
+                        {store.producerProducts.length > 0 && store.producerProducts.map((product, index) => (
+                            <div key={index} className="card"
+                            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                            onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+                            style={{
+                                width: "300px",
+                                borderRadius: "12px",
+                                boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
+                                overflow: "hidden",
+                                transition: "transform 0.3s ease-in-out",
+                                cursor: "pointer",
+                            }}>
+                                <img src={product.categorie_imageUrl} className="card-img-top" alt="..." style={{ height: "200px", objectFit: "cover" }} />
+                                <div className="card-body" style={{ padding: "20px" }}>
+                                    <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</h5>
+                                    <p className="card-text" style={{color:"#777", fontSize: "14px"}}>Categoría: {product.categorie_name}</p>
+                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {product.price} €/kg</p>
+                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Origen del producto: {product.origin}</p>
+                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Breve descripción: {product.brief_description}</p>
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-danger" 
+                                        style={{ borderRadius: "10px", backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", transition: "background-color 0.3s ease" }} 
+                                        onClick={() => handleDelete(product.id)}
+                                    >
+                                        Eliminar producto
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-warning" 
+                                        style={{ borderRadius: "10px", backgroundColor: "#ffc107", borderColor: "#ffc107", transition: "background-color 0.3s ease", marginLeft: "10px" }}
+                                        onClick={() => handleEditProduct(product)}
+                                    >
+                                        Editar
+                                    </button>
                                 </div>
-                            );
-                        })}
-
+                            </div>
+                        ))}
+                        
                         {/* Botón para añadir una nueva tarjeta */}
                         <button
                             className="add-card-button "
@@ -198,7 +279,7 @@ export const ProducerView = () => {
                         </button>
                     </div>
                 </div>
-
+                
                 {/* Modal para añadir productos */}
                 {showModal && (
                     <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
@@ -210,29 +291,104 @@ export const ProducerView = () => {
                                 </div>
                                 <div className="modal-body" style={{ paddingTop: "10px" }}>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Nombre Producto </span>
+                                        <span className="input-group-text" id="name" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Nombre Producto </span>
                                         <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setName(e.target.value)} value={name} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                    <div className="mb-3">
+                                        <label htmlFor="categorie" className="form-label">Categoría</label>
+                                        <select
+                                            className="form-select"
+                                            id="categorie"
+                                            aria-label="Default select example"
+                                            defaultValue={categorieId}
+                                            onChange={(e) => {
+                                                const selected = store.categories.find(cat => cat.categorie === e.target.value);
+                                                console.log("selected categorie", selected);
+                                                setCategorieId(selected ? selected.id : "");
+                                                setCategorieImgUrl(selected ? selected.url : "");
+                                                // setSelectedCategorie(e.target.value); // Actualiza el estado al seleccionar una categoría
+                                            }}
+                                        >
+                                            <option disabled value="">Escoge una categoría</option> {/* Cambia defaultValue a value="" */}
+                                            {store.categories?.length > 0 ? (
+                                                store.categories
+                                                    .sort((a, b) => a.categorie.localeCompare(b.categorie)) // Ordena alfabéticamente
+                                                    .map((categorie, id) => (
+                                                        <option key={id} value={categorie.categorie}>{categorie.categorie}</option>
+                                                    ))
+                                            ) : (
+                                                <option>Añade una nueva categoría</option>
+                                            )}
+                                        </select>
+                                        <div className="my-3">
+                                            {categorieImgUrl ? (
+                                                <img src={categorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
+                                            ) : (
+                                                <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {/* {displayAddcategorie &&
+                                        <div className="mt-3">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Añade aquí la nueva categoría"
+                                                value={newCategorieName} // Controlamos el estado del input
+                                                onChange={(e) => setNewCategorieName(e.target.value)}
+                                            />
+                                            <button className="btn btn-success my-2" onClick={() => handleAddcategorie()}>
+                                                Nueva categoría
+                                            </button>
+                                        </div>
+                                    } */}
+                                    {/* <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={() => setcategoria()}>
+                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={()=>setcategoria()}>
                                             <option defaultValue>Selecciona la categoría del producto: </option>
                                             <option value="1">Frutas</option>
                                             <option value="2">Verduras</option>
                                             <option value="3">Ábrol</option>
                                         </select>
+                                    </div> */}
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="origin" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
+                                        <input type="text" className="form-control" placeholder="ej: Valencia" onChange={(e) => setOrigin(e.target.value)} value={origin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
-                                        <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setOrigin(e.target.value)} value={origin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                        <span className="input-group-text" id="weight" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Peso</span>
+                                        <input type="number" className="form-control" placeholder="ej: 1" onChange={(e) => setWeight(e.target.value)} value={weight} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
-                                        <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setDescription(e.target.value)} value={description} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                        <span className="input-group-text" id="volume" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Volumen</span>
+                                        <input type="number" className="form-control" placeholder="ej: 3" onChange={(e) => setVolume(e.target.value)} value={volume} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
-                                        <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setPrice(e.target.value)} value={price} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                        <span className="input-group-text" id="minimum" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Cantidad mínima</span>
+                                        <input type="number" className="form-control" placeholder="Pon la cantidad mínima que el comprador debe comprar. ej: 5" onChange={(e) => setMinimum(e.target.value)} value={minimum} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="briefDescription" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Breve descripción</span>
+                                        <input type="text" className="form-control" placeholder="Cuenta en pocas palabras algo interesante del producto" onChange={(e) => setBriefDescription(e.target.value)} value={briefDescription} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="description" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
+                                        <input type="text" className="form-control" placeholder="Aquí te puedes explayar!" onChange={(e) => setDescription(e.target.value)} value={description} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="price" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
+                                        <input type="number" className="form-control" placeholder="3,14..." onChange={(e) => setPrice(e.target.value)} value={price} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="status" className="form-label">Estatus</label>
+                                        <div className="mb-3 d-block">
+                                            <input type="checkbox" className="form-check-input me-1" id="available" />
+                                            <label className="form-check-label me-4" htmlFor="available">Disponible</label>
+                                            <input type="checkbox" className="form-check-input me-1" id="lastUnits" />
+                                            <label className="form-check-label me-4" htmlFor="lastUnits">Últimas unidades</label>
+                                            <input type="checkbox" className="form-check-input me-1" id="soon" />
+                                            <label className="form-check-label me-4" htmlFor="soon">Pronto en nuestra página</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="modal-footer" style={{ borderTop: "none", paddingTop: "10px" }}>
@@ -258,29 +414,75 @@ export const ProducerView = () => {
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Nombre Producto</span>
                                         <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setEditName(e.target.value)} value={editName} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                    <div className="mb-3">
+                                        <label htmlFor="categorie" className="form-label">Categoría</label>
+                                        <select
+                                            className="form-select"
+                                            id="categorie"
+                                            aria-label="Default select example"
+                                            defaultValue={editCategorieId}
+                                            onChange={(e) => {
+                                                const selected = store.categories.find(cat => cat.categorie === e.target.value);
+                                                console.log("selected categorie", selected);
+                                                setEditCategorieId(selected ? selected.id : "");
+                                                setEditCategorieImgUrl(selected ? selected.url : "");
+                                                // setSelectedCategorie(e.target.value); // Actualiza el estado al seleccionar una categoría
+                                            }}
+                                        >
+                                            <option disabled value="">Escoge una categoría</option> {/* Cambia defaultValue a value="" */}
+                                            {store.categories?.length > 0 ? (
+                                                store.categories
+                                                    .sort((a, b) => a.categorie.localeCompare(b.categorie)) // Ordena alfabéticamente
+                                                    .map((categorie, id) => (
+                                                        <option key={id} value={categorie.categorie}>{categorie.categorie}</option>
+                                                    ))
+                                            ) : (
+                                                <option>Añade una nueva categoría</option>
+                                            )}
+                                        </select>
+                                        <div className="my-3">
+                                            {editCategorieImgUrl ? (
+                                                <img src={editCategorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
+                                            ) : (
+                                                <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {/* <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={() => setcategoria()}>
+                                        <select className="form-select" aria-label="Default select example" value={selectedCategorie} onChange={()=>setcategoria()}>
                                             <option selected>Selecciona la categoría del producto: </option>
                                             <option value="1">Frutas</option>
                                             <option value="2">Verduras</option>
                                             <option value="3">Ábrol</option>
                                         </select>
-                                    </div>
+                                    </div> */}
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
                                         <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setEditOrigin(e.target.value)} value={editOrigin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
+                                        <span className="input-group-text" id="weightEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Peso</span>
+                                        <input type="number" className="form-control" placeholder="ej: 1" onChange={(e) => setEditWeight(e.target.value)} value={editWeight} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="volumeEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Volumen</span>
+                                        <input type="number" className="form-control" placeholder="ej: 3" onChange={(e) => setEditVolume(e.target.value)} value={editVolume} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="minimumEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Cantidad mínima</span>
+                                        <input type="number" className="form-control" placeholder="Pon la cantidad mínima que el comprador debe comprar. ej: 5" value={editMinimum} onChange={(e) => setEditMinimum(e.target.value)}  aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="briefDescriptionEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Breve descripción</span>
+                                        <input type="text" className="form-control" placeholder="Cuenta en pocas palabras algo interesante del producto"  value={editBriefDescription} onChange={(e) => setEditBriefDescription(e.target.value)} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
+                                        <span className="input-group-text" id="descriptionEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
                                         <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setEditDescription(e.target.value)} value={editDescription} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
-                                        <input type="text" className="form-control" placeholder="De categoría..." onChange={(e) => setEditCategorie(e.target.value)} value={editCategorie} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
-                                    </div>
-                                    <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
+                                        <span className="input-group-text" id="priceEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
                                         <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setEditPrice(e.target.value)} value={editPrice} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                 </div>
@@ -293,10 +495,10 @@ export const ProducerView = () => {
                     </div>
                 )}
 
-                {/* Backdrop */}
-                {(showModal || showEditModal) && <div className="modal-backdrop fade show"></div>}
-            </div>
-        </>
+        {/* Backdrop */}
+        {(showModal || showEditModal) && <div className="modal-backdrop fade show"></div>}
+    </div>
+</>
     );
 };
 

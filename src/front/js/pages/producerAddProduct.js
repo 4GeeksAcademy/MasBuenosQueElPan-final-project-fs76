@@ -26,7 +26,7 @@ export const AddProduct = () => {
 
 	useEffect(() => {
 		actions.checkToken();
-		actions.getcategories();
+		actions.getCategories();
 	}, []);
 
 	useEffect(() => {

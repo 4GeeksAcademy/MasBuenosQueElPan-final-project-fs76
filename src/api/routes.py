@@ -192,23 +192,6 @@ def get_products():
 #     products = Product.query.all()
 #     return jsonify([product.serialize() for product in products]), 200
 
-#####GET Product: Para cuando podamos obtener los productos que haya añadido cada productor, revisar ruta#####
-@api.route('/product', methods=['GET'])
-def view_producer_products():
-    producer_id = request.args.get('producerId')
-    print(producer_id)
-    if producer_id:
-        all_products = Product.query.filter_by(producer_id=producer_id).all()  # Filtrar productos por producer_id
-    else:
-        return {"msg": "No existen datos"}  # Obtener todos los productos si no se proporciona producer_id
-    result = list(map(lambda product: product.serialize(), all_products))
-    if not result:
-        response_body = {
-            "msg": "No existen datos"
-        }
-        return jsonify(response_body), 200
-    return jsonify(result), 200
-
 #####GET Product#####
 @api.route('/product/<int:product_id>', methods=['GET'])
 def view_product(product_id):
@@ -241,6 +224,7 @@ def add_product():
         minimum = data.get('minimum')
         categorie_id= data.get('categorie_id')
         producer_id= data.get('producer_id')
+        print(producer_id)
         # categorie_name= data.get('categorie_name')
         # categorie_imageUrl= data.get('categorie_imageUrl')
         # producer_email= data.get('producer_email')
@@ -308,13 +292,17 @@ def edit_product(id):
         data = request.get_json()
         if not data:
             return jsonify({"msg":"No se han proporcionado datos"}), 400
-        name = data.get("name")
-        price = data.get("price")
-        description = data.get("description")
-        origin = data.get("origin")
-        brief_description=data.get("brief_description"),
-        categorie_id=data.get("categorie_id"),
-        # producer_id=data.get("producer_id"),
+        
+        name = data.get('name')
+        price = data.get('price')
+        description = data.get('description')
+        origin = data.get('origin')
+        brief_description = data.get('brief_description')
+        weight = data.get('weight')
+        volume = data.get('volume')
+        minimum = data.get('minimum')
+        categorie_id= data.get('categorie_id')
+        producer_id= data.get('producer_id')
         #Actualizamos la base de datos
         if name:
             product.name = name
@@ -324,16 +312,34 @@ def edit_product(id):
             except ValueError:
                 return jsonify({"msg":"El precio debe ser un número"}), 400
             product.price = price
-        if description:
-            product.description = description
         if origin:
             product.origin = origin
+        if weight:
+            try:
+                product.weight = int(weight)
+            except ValueError:
+                return jsonify({"msg":"El precio debe ser un número"}), 400
+            product.weight = weight
+        if volume:
+            try:
+                product.volume = int(volume)
+            except ValueError:
+                return jsonify({"msg":"El precio debe ser un número"}), 400
+            product.volume = wevolumeight
+        if minimum:
+            try:
+                product.minimum = int(minimum)
+            except ValueError:
+                return jsonify({"msg":"El precio debe ser un número"}), 400
+            product.minimum = minimum
         if brief_description:
             product.brief_description = brief_description
+        if description:
+            product.description = description
         if categorie_id:
             product.categorie_id = categorie_id
-        if origin:
-            product.origin = origin
+        if producer_id:
+            product.producer_id = producer_id
         #Guardamos los datos en la base de datos
         db.session.commit()
         return jsonify(product.serialize()),200
@@ -359,6 +365,17 @@ def delete_product(id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
+####GET PRODUCERS PRODUCTS####
+@api.route("/producer/product/<int:producerId>", methods=["GET"])
+def get_producer_products(producerId):
+    # Filtra los productos usando el producer_id, no el id de los productos
+    producer_products = Product.query.filter_by(producer_id=producerId).all()
+
+    if not producer_products:
+        return jsonify({"message": "No se encontraron productos para este productor."}), 404
+
+    return jsonify([product.serialize() for product in producer_products]), 200
+
 
 ####PRODUCER SINGUP #####
 @api.route('/producer/signup', methods=['POST'])
@@ -374,9 +391,10 @@ def handle_signup():
     # zip_code = request.json["zip_code"]
     # phone = request.json["phone"]
     print(email,password)
+    hashed_password = generate_password_hash(password)
     new_producer = Producer(
         email=email,
-        password=password,
+        password=hashed_password,
         # brand_name=brand_name,
         # user_name=user_name,
         # user_last_name=user_last_name,
@@ -433,8 +451,7 @@ def view_users():
 def handle_login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
-    # brand_name = request.json.get("brand_name", None)
-    # print(brand_name)
+
     producer = Producer.query.filter_by(email=email).first()
     if producer is None:
         print("email does not exist")
@@ -442,13 +459,20 @@ def handle_login():
     if producer.email != email:
         print("incorrect email")
         return jsonify({"msg": "Password or email incorrect"}), 401
-    if producer.password != password:
-        print("incorrect password")
-        return jsonify({"msg": "Password or email incorrect"}), 401
-    access_token = create_access_token(identity=email)
-    is_fill = producer.brand_name is not None and producer.brand_name != ""
-    # if producer.brand_name is None:
-    return jsonify(access_token=access_token, is_verify=True, is_fill=is_fill, producer_id=producer.id, brand_name=producer.brand_name)
+    if not check_password_hash(producer.password, password):
+        print("Incorrect password")
+        return jsonify({"msg": "Incorrect password"}), 401
+    
+    access_token = create_access_token(identity=producer.id)
+    is_fill = bool(producer.brand_name)
+    # is_fill = producer.brand_name is not None and producer.brand_name != ""
+        # if producer.brand_name is None:
+    return jsonify({"access_token": access_token,
+                    "is_verify": True,
+                    "is_fill": is_fill,
+                    "producer_id": producer.id,
+                    "brand_name": producer.brand_name})
+
     # return jsonify(access_token=access_token, is_verify=True, is_fill=True, producer_id=producer.id, brand_name=producer.brand_name)
 
 # Protect a route with jwt_required, which will kick out requests
@@ -526,7 +550,8 @@ def add_producer_info(producer_id):
 @api.route('/categories', methods=['GET'])
 def get_categories():
     all_categories= ProductCategories.query.all()    
-    results = list (map(lambda categorie: categorie.serialize (), all_categories)) 
+    results = list (map(lambda categorie: categorie.serialize (), all_categories))
+    print(results)
     return jsonify(results), 200
 
 
@@ -556,7 +581,7 @@ def delete_categorie(categorie_id):
 def get_images():
     try:
         categories = ProductCategories.query.all()
-        images = [{'url': categorie.imageUrl, 'categorie': categorie.name} for categorie in categories]
+        images = [{'url': categorie.imageUrl, 'categorie': categorie.name, 'id': categorie.id} for categorie in categories]
         return jsonify(images), 200
     except Exception as e:
         print(f"Error: {e}")
