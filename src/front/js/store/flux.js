@@ -5,6 +5,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			message: null,
 			products: [],
 			token: null,
+			producerProducts: [],
 			tokenProducer: null,
 			demo: [
 				{
@@ -18,7 +19,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
-			producers: [],
+			producersInfo: [],
 			producerCart:[
 				{
 					usuario: "Marcos",
@@ -155,7 +156,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"description": newProductInfo.description,
 					"name": newProductInfo.name,
 					"origin": newProductInfo.origin,
-					"price": newProductInfo.price
+					"price": newProductInfo.price,
+					"producer_id": newProductInfo.producer_id
 				  });
 				  const requestOptions = {
 					method: "PUT",
@@ -167,7 +169,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
 					.then((response) => response.json())
 					.then((data) =>
-						getActions().getProducts()
+						// getActions().getProducts()
+					getActions().get_Producers_Products(data.producer_id)
 					)
 			},
 			deleteProduct: (id) => {
@@ -178,7 +181,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.then((response) => response.text())
 					.then((result) => {
 						console.log(result),
-							getActions().getProducts()
+							// getActions().getProducts()
+							getActions().get_Producers_Products(result.producer_id)
 					})
 					.catch((error) => console.error(error));
 			},
@@ -187,8 +191,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"origin": newProduct.origin,
 					"description": newProduct.description,
 					"name": newProduct.name,
-					"price": newProduct.price
+					"price": newProduct.price,
+					"producer_id": newProduct.producer_id
 				  });
+				  console.log("Aquí debería haber algo:")
+				  console.log(raw)
 				  const requestOptions = {
 					method: "POST",
 					body: raw,
@@ -199,9 +206,22 @@ const getState = ({ getStore, getActions, setStore }) => {
 				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
 					.then((response) => response.json())
 					.then((result) => 
-						getActions().getProducts()
+						// getActions().getProducts()
+					getActions().get_Producers_Products(result.producer_id)
 					)
 					.catch((error) => console.error(error));
+			},
+			// Traer los productos de cada productor
+			get_Producers_Products:(producerId)=>{
+				const requesOptions = {
+					method: "GET",
+					headers: {
+						"Content-type": "application/json"
+					}
+				}
+				fetch(`${process.env.BACKEND_URL}/api/producer/product/${producerId}`, requesOptions)
+				.then((response)=> response.json())
+				.then((data)=> setStore({producerProducts: data}))
 			},
 			// addProducts:(newProduct) => {
 			// 	const store = setStore();
@@ -249,33 +269,27 @@ const getState = ({ getStore, getActions, setStore }) => {
 			initCategoriesWithUrls: () => {
 				const store = getStore();
 				const categories = store.categories;
-			
 				// Crear un array de objetos { name: 'Pan', url: '' } basado en los nombres de las categorías
 				const categoriesWithUrls = categories?.map(categoryName => ({
 					name: categoryName,
 					url: '' // Inicialmente vacío
 				}));
-			
 				// Actualiza el store con la nueva variable
 				setStore({ categoriesWithUrls });
 			},
 			updateCategoriesWithUrls: (images) => {
 				const store = getStore();
 				const categoriesWithUrls = [...store.categoriesWithUrls]; // Copia del array actual
-			
 				// Iterar sobre las imágenes y asignar las URLs correspondientes
 				images.forEach(image => {
 					const categoryName = image.public_id.toLowerCase();
-			
 					// Buscar el objeto que tiene el mismo nombre que el public_id de la imagen
 					const category = categoriesWithUrls.find(cat => categoryName.includes(cat.name.toLowerCase()));
-			
 					if (category) {
 						// Asignar la URL de la imagen a la categoría correspondiente
 						category.url = image.url;
 					}
 				});
-			
 				// Actualiza el store con las URLs asignadas
 				setStore({ categoriesWithUrls });
 			},
@@ -319,8 +333,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// 			})
 			// 			.catch((error) => console.error(error));
 			// 	},
-				
-			
 			deleteCategory: (categoryId) => {
 				console.log(categoryId);
                 fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
@@ -449,6 +461,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				.catch((error) => console.error("error while login in", error)
 				)
 			},
+			// Traer un productor
 			getProducer: (producer_id) => {
 				const store = getStore();
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producer_id}`)
@@ -461,19 +474,17 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.then((data) => {
 						// console.log("single producer data from flux", data);
-						setStore({ producers: [data] }); 
+						// 
+						// 
+						setStore({ producersInfo: data })
 					})
 					.catch((error) => console.error("there was an error in the process", error));
 			},
-
 			editProducer: (producerId, updatedInfo) => {
 				const store = getStore();
-
-				// Obtener el productor actual desde el estado
-				const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId));
-				console.log("currentProducer in edition", currentProducer);
-
-				if (!currentProducer) {
+				// Si producersInfo es un objeto, no uses find
+				const currentProducer = store.producersInfo; // Accedes al objeto directamente
+				if (!currentProducer || currentProducer.id !== parseInt(producerId)) {
 					console.error("Producer not found");
 					return;
 				}
@@ -484,22 +495,54 @@ const getState = ({ getStore, getActions, setStore }) => {
 				};
 				fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
 					.then((response) => {
-						console.log(response.status);
-						if (response.status === 400) {
+						if (!response.ok) {
 							throw new Error("Error editing producer");
 						}
 						return response.json();
 					})
 					.then((data) => {
-						console.log(data);
-						const updatedProducerInfo = store.producers.map(producer =>
-							producer.id === producerId ? { ...producer, ...updatedInfo } : producer
-						);
-						setStore({ producers: updatedProducerInfo });
+						console.log("Updated producer data from server:", data);
+						setStore({ producersInfo: data });
 					})
 					.catch((error) => console.error("Error editing producer", error));
 			},
+			// editProducer: (producerId, updatedInfo) => {
+			// 	const store = getStore();
+			
+			// 	// Obtener el productor actual desde el estado
+			// 	const currentProducer = store.producersInfo.find(producer => producer.id === parseInt(producerId));
+			// 	console.log("currentProducer in edition", currentProducer);
+			
+			// 	if (!currentProducer) {
+			// 		console.error("Producer not found");
+			// 		return;
+			// 	}
+			
+			// 	const requestOptions = {
+			// 		method: "PUT",
+			// 		headers: { "Content-Type": "application/json" },
+			// 		body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
+			// 	};
+			
+			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
+			// 		.then((response) => {
+			// 			if (!response.ok) {
+			// 				throw new Error("Error editing producer");
+			// 			}
+			// 			return response.json();
+			// 		})
+			// 		.then((data) => {
+			// 			console.log("Updated producer data from server:", data);
+			// 			setStore({ producersInfo: data });
+			// 			// Actualizar el estado con los datos retornados por el servidor
+			// 			// const updatedProducerInfo = store.producersInfo.map(producer =>
+			// 			// 	producer.id === parseInt(producerId) ? data : producer
+			// 			// );
 
+			// 			// setStore({ producersInfo: updatedProducerInfo });
+			// 		})
+			// 		.catch((error) => console.error("Error editing producer", error));
+			// },
 			producerLogout: () => {
 				setStore({ isLogedIn: false })
 				localStorage.removeItem("token");
@@ -721,7 +764,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 				fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
 				.then((response) => response.json())
-
 			}
 			// getMessage: async () => {
 			// 	try{

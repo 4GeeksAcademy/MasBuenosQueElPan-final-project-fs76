@@ -34,7 +34,7 @@ export const ProducerSignup = () => {
                 console.log("Signup successful, navigating to login");
                 
                 setTimeout(() => {
-                    navigate("/producer/login"); 
+                    navigate("/"); 
                 }, 3000);
             } catch (error) {
                 console.error("Signup error:", error);
@@ -43,57 +43,102 @@ export const ProducerSignup = () => {
 
     return (
         <>
-        <div className="container d-block border rounded-3 my-4">
-        <h2>Registrarse</h2>
-        {showEmptyInputs &&
-            <div className="alert alert-warning alert-dismissible fade show text-center" role="alert">
-                Todas las casillas deben ser rellenadas.
-                <button type="button" onClick={()=>setShowEmptyInputs(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
+            <div className="card shadow-lg p-5" style={{ width: "100%", maxWidth: "500px", borderRadius: "15px", backgroundColor: "#ffffff" }}>
+                <h2 className="text-center mb-4" style={{ color: "#28a745", fontWeight: "bold" }}>Regístrate como Productor</h2>
+                
+                {showEmptyInputs && (
+                    <div className="alert alert-warning alert-dismissible fade show text-center" role="alert">
+                        Todas las casillas deben ser rellenadas.
+                        <button type="button" onClick={() => setShowEmptyInputs(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                )}
+                {showExists && (
+                    <div className="alert alert-danger alert-dismissible fade show text-center" role="alert">
+                        Ups! Parece que ya existe una cuenta con este correo.
+                        <button type="button" onClick={() => setShowExists(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                )}
+                {showAt && (
+                    <div className="alert alert-warning alert-dismissible fade show text-center" role="alert">
+                        El correo debe contener un "@".
+                        <button type="button" onClick={() => setShowAt(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                )}
+
+                <form onSubmit={handleSignup}>
+                    <div className="mb-3">
+                        <label htmlFor="signupEmailInput" className="form-label">Email</label>
+                        <input
+                            type="email"
+                            className="form-control"
+                            id="signupEmailInput"
+                            placeholder="alguien@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={{
+                                borderRadius: "10px",
+                                border: "1px solid #28a745",
+                                padding: "10px",
+                            }}
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="signupPasswordInput" className="form-label">Contraseña</label>
+                        <input
+                            type="password"
+                            id="signupPasswordInput"
+                            className="form-control"
+                            aria-describedby="passwordHelpBlock"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{
+                                borderRadius: "10px",
+                                border: "1px solid #28a745",
+                                padding: "10px",
+                            }}
+                        />
+                        <div id="passwordHelpBlock" className="form-text">
+                            Te aconsejamos que tu contraseña tenga, al menos, 8 caracteres, con letras en mayúscula y minúscula, números y caracteres especiales.
+                        </div>
+                    </div>
+
+                    {showSuccessMessage && (
+                        <div className="alert alert-success mt-3">
+                            ¡Perfecto! Ya te has registrado.
+                            <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
+                            <span className="visually-hidden" role="status">Llevándote a la página de login...</span>
+                        </div>
+                    )}
+
+                    <div className="d-grid gap-2">
+                        <button
+                            type="submit"
+                            className="btn btn-success"
+                            style={{
+                                borderRadius: "10px",
+                                padding: "10px 20px",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Registrarse
+                        </button>
+                        <Link to="/">
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{
+                                    borderRadius: "10px",
+                                    padding: "10px 20px",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                Volver
+                            </button>
+                        </Link>
+                    </div>
+                </form>
             </div>
-            }
-            {showExists &&
-            <div className="alert alert-danger alert-dismissible fade show text-center" role="alert">
-                Ups! Parece que no has escrito bien el email o la contraseña!.
-                <button type="button" onClick={()=>setShowExists(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            }
-            {showAt &&
-            <div className="alert alert-warning alert-dismissible fade show text-center" role="alert">
-                Pasaba por aquí para decirte que el email debe llevar el @.
-                <button type="button" onClick={()=>setShowAt(false)} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            }
-            <div className="mb-3">
-                <label htmlFor="signupEmailInput" className="form-label">Email</label>
-                <input type="email"
-                className="form-control"
-                id="signupEmailInput"
-                placeholder="alguien@example.com"
-                value={email}
-                onChange={(e)=> setEmail(e.target.value)}/>
-            </div>
-            <div className="mb-3">
-                <label htmlFor="signupPasswordInput" className="form-label">Contraseña</label>
-                <input type="password"
-                id="signupPasswordInput"
-                className="form-control"
-                aria-describedby="passwordHelpBlock"
-                value={password}
-                onChange={(e)=> setPassword(e.target.value)}/>
-                <div id="passwordHelpBlock" className="form-text">
-                    Te aconsejamos que tu contreaseña tenga, al menos, 8 caracteres, con letras en mayúscula y minúscula, números y caracteres especiales.
-                </div>
-            </div>
-            {showSuccessMessage && 
-            <div className="alert alert-success">Perfecto! Ya has te has registrado!
-                <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
-                <span className="visually-hidden" role="status">Llevándote a la página Login!...</span>
-            </div>
-            }
-            <button type="submit" onClick={handleSignup} className="signup btn btn-success">Registrase</button>            
-            <Link to="/producer/login">
-                <button type="button" className="backlogin btn btn-secondary">Volver</button>
-            </Link>
         </div>
         </>
     );

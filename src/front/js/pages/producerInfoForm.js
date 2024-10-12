@@ -46,59 +46,152 @@ export const ProducerInfoForm = () => {
 
     return (
         <>
-        <h1>Añade aquí tu información</h1>
-        {producerInfo ? (
-            <form onSubmit={handleEdition}>
-                <div className="mb-3">
-                    <label htmlFor="emailInput" className="form-label">Email</label>
-                    <input type="text" name="email" value={producerInfo.email || ''} onChange={handleChange} className="form-control" id="emailInput" disabled readOnly/>
+    <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
+        <div className="card shadow-lg p-5" style={{ width: "100%", maxWidth: "600px", borderRadius: "15px", backgroundColor: "#ffffff" }}>
+            <h1 className="text-center mb-4" style={{ color: "#007bff", fontWeight: "bold" }}>Añade tu Información</h1>
+            {producerInfo ? (
+                <form onSubmit={handleEdition}>
+                    <div className="mb-3">
+                        <label htmlFor="emailInput" className="form-label">Email</label>
+                        <input 
+                            type="text" 
+                            name="email" 
+                            value={producerInfo.email || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="emailInput" 
+                            disabled 
+                            readOnly
+                            style={{ 
+                                backgroundColor: "#e9ecef", 
+                                borderRadius: "10px", 
+                                padding: "10px" 
+                            }} 
+                        />
+                    </div>
+                    
+                    <div className="mb-3">
+                        <label htmlFor="brandNameInput" className="form-label">Nombre de la Empresa</label>
+                        <input 
+                            type="text" 
+                            name="brand_name" 
+                            value={producerInfo.brand_name || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="brandNameInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="userNameInput" className="form-label">Nombre de Usuario</label>
+                        <input 
+                            type="text" 
+                            name="user_name" 
+                            value={producerInfo.user_name || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="userNameInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="userLastNameInput" className="form-label">Apellido de Usuario</label>
+                        <input 
+                            type="text" 
+                            name="user_last_name" 
+                            value={producerInfo.user_last_name || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="userLastNameInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="cifInput" className="form-label">CIF de la Empresa</label>
+                        <input 
+                            type="text" 
+                            name="cif" 
+                            value={producerInfo.cif || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="cifInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="addressInput" className="form-label">Dirección de la Empresa</label>
+                        <input 
+                            type="text" 
+                            name="address" 
+                            value={producerInfo.address || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="addressInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="provinceInput" className="form-label">Ciudad/Provincia</label>
+                        <input 
+                            type="text" 
+                            name="province" 
+                            value={producerInfo.province || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="provinceInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="zipCodeInput" className="form-label">Código Postal</label>
+                        <input 
+                            type="text" 
+                            name="zip_code" 
+                            value={producerInfo.zip_code || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="zipCodeInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="phoneInput" className="form-label">Teléfono</label>
+                        <input 
+                            type="number" 
+                            name="phone" 
+                            value={producerInfo.phone || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="phoneInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+
+                    <div className="d-flex justify-content-center mb-3">
+                        <button type="submit" className="btn btn-primary me-3" style={{ padding: "10px 20px", borderRadius: "10px" }}>Añadir</button>
+                        <button type="button" onClick={handleExit} className="btn btn-secondary" style={{ padding: "10px 20px", borderRadius: "10px" }}>Salir</button>
+                    </div>
+                </form>
+            ) : (
+                <p>Ups! Parece que ha habido un problema...</p>
+            )}
+
+            {showSuccessMessage && (
+                <div className="alert alert-success text-center mt-4" style={{ fontSize: "16px" }}>
+                    Información añadida con éxito! 
+                    <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
+                    <span className="visually-hidden" role="status">Llevándote en tractor a Home!...</span>
                 </div>
-                <div className="mb-3">
-                    <label htmlFor="brandNameInput" className="form-label">Nombre de la empresa</label>
-                    <input type="text" name="brand_name" value={producerInfo.brand_name || ''} onChange={handleChange} className="form-control" id="brandNameInput"/>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="userNameInput" className="form-label">Nombre de usuario</label>
-                    <input type="text" name="user_name" value={producerInfo.user_name || ''} onChange={handleChange} className="form-control" id="userNameInput"/>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="userLastNameInput" className="form-label">Apellido de usuario</label>
-                    <input type="text" name="user_last_name" value={producerInfo.user_last_name || ''} onChange={handleChange} className="form-control" id="userLastNameInput"/>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="cifInput" className="form-label">CIF de la empresa</label>
-                    <input type="text" name="cif" value={producerInfo.cif || ''} onChange={handleChange} className="form-control" id="cifInput"/>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="addressInput" className="form-label">Dirección de la empresa</label>
-                    <input type="text" name="address" value={producerInfo.address || ''} onChange={handleChange} className="form-control" id="addressInput"/>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="provinceInput" className="form-label">Ciudad/Provincia</label>
-                    <input type="text" name="province" value={producerInfo.province || ''} onChange={handleChange} className="form-control" id="provinceInput"/>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="zipCodeInput" className="form-label">Código postal</label>
-                    <input type="text" name="zip_code" value={producerInfo.zip_code || ''} onChange={handleChange} className="form-control" id="zipCodeInput"/>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="phoneInput" className="form-label">Teléfono</label>
-                    <input type="number" name="phone" value={producerInfo.phone || ''} onChange={handleChange} className="form-control" id="phoneInput"/>
-                </div>
-                <div className="col-auto mb-3">
-                    <button type="submit" className="btn btn-primary me-3">Añadir</button>
-                    <button type="button" onClick={handleExit} className="btn btn-secondary">Salir</button>
-                </div>
-            </form>
-        ) : (
-        <p>Ups! Parece que ha habido un problema...</p>
-        )}
-        {showSuccessMessage &&
-        <div className="alert alert-success">Información añadida con éxito! 
-            <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
-            <span className="visually-hidden" role="status">Llevándote en tractor a Home!...</span>
+            )}
         </div>
-        }
-        </>
+    </div>
+</>
     );
 };
