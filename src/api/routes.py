@@ -182,15 +182,15 @@ def customer_login():
 
 #####GET Products#####
 @api.route('/products', methods=['GET'])
-def view_products():
-    all_products = Product.query.all()
-    result = list(map(lambda product: product.serialize(), all_products))
-    if not result:
-        response_body = {
-            "msg": "No existen datos"
-        }
-        return jsonify(response_body),200
+def get_products():
+    products = Product.query.all()
+    result = list(map(lambda product: product.serialize(), products))
+
     return jsonify(result), 200
+# @api.route('/products', methods=['GET'])
+# def get_products():
+#     products = Product.query.all()
+#     return jsonify([product.serialize() for product in products]), 200
 
 #####GET Product: Para cuando podamos obtener los productos que haya añadido cada productor, revisar ruta#####
 @api.route('/product', methods=['GET'])
@@ -209,7 +209,7 @@ def view_producer_products():
         return jsonify(response_body), 200
     return jsonify(result), 200
 
-#####POST Products#####
+#####GET Product#####
 @api.route('/product/<int:product_id>', methods=['GET'])
 def view_product(product_id):
     product = Product.query.get(product_id)
@@ -227,6 +227,7 @@ def view_product(product_id):
 def add_product():
     try:
         data = request.get_json()
+        print(data)
         if not data:
             return jsonify({"msg":"No se han proporcionado datos"}), 400 
         ##Body Obtener respuesta
@@ -234,9 +235,31 @@ def add_product():
         price = data.get('price')
         description = data.get('description')
         origin = data.get('origin')
+        brief_description = data.get('brief_description')
+        weight = data.get('weight')
+        volume = data.get('volume')
+        minimum = data.get('minimum')
+        categorie_id= data.get('categorie_id')
+        producer_id= data.get('producer_id')
+        # categorie_name= data.get('categorie_name')
+        # categorie_imageUrl= data.get('categorie_imageUrl')
+        # producer_email= data.get('producer_email')
+        # producer_brand_name= data.get('producer_brand_name')
+
         #Validación de la respuesta
-        if not name or not price or not description or not origin:
+        if not name or not price or not description or not origin or not brief_description or not minimum:
             return jsonify({"msg": "Faltan datos"}), 400
+        weight = data.get('weight')
+        volume = data.get('volume')
+
+        if (weight and volume) or (not weight and not volume):
+            return jsonify({"msg": "Debes proporcionar solo uno de los campos: weight o volume."}), 400
+
+        # Asegúrate de convertir weight y volume a enteros si están presentes
+        if weight:
+            weight = int(weight) if weight else None
+        if volume:
+            volume = int(volume) if volume else None
         #Hago verificación de que el precio sea número
         try:
             price = float(price)
@@ -249,8 +272,19 @@ def add_product():
             name=name,
             price=price,
             description=description,
-            origin=origin 
+            brief_description=brief_description,
+            origin=origin,
+            weight=weight,
+            volume=volume,
+            minimum=minimum,
+            categorie_id=categorie_id,
+            producer_id=producer_id,
+            # categorie_name=categorie_name,
+            # categorie_imageUrl=categorie_imageUrl,
+            # producer_email=producer_email,
+            # producer_brand_name=producer_brand_name,
         )
+        print("nuevo producto desde routes",new_product)
         #Actualizar la base de datos
         db.session.add(new_product)
         db.session.commit()
@@ -278,6 +312,9 @@ def edit_product(id):
         price = data.get("price")
         description = data.get("description")
         origin = data.get("origin")
+        brief_description=data.get("brief_description"),
+        categorie_id=data.get("categorie_id"),
+        # producer_id=data.get("producer_id"),
         #Actualizamos la base de datos
         if name:
             product.name = name
@@ -289,6 +326,12 @@ def edit_product(id):
             product.price = price
         if description:
             product.description = description
+        if origin:
+            product.origin = origin
+        if brief_description:
+            product.brief_description = brief_description
+        if categorie_id:
+            product.categorie_id = categorie_id
         if origin:
             product.origin = origin
         #Guardamos los datos en la base de datos
@@ -513,7 +556,7 @@ def delete_categorie(categorie_id):
 def get_images():
     try:
         categories = ProductCategories.query.all()
-        images = [{'url': categorie.imageUrl, 'categorie': categorie.categorie} for categorie in categories]
+        images = [{'url': categorie.imageUrl, 'categorie': categorie.name} for categorie in categories]
         return jsonify(images), 200
     except Exception as e:
         print(f"Error: {e}")

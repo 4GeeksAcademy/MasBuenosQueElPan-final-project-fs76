@@ -10,7 +10,7 @@ export const AddProduct = () => {
 	const navigate = useNavigate()
 	const [newcategorieName, setNewcategorieName] = useState("");
 	const [displayAddcategorie, setDisplayAddcategorie] = useState(false);
-	const [selectedcategorie, setSelectedcategorie] = useState("");
+	const [selectedCategorie, setSelectedCategorie] = useState("");
 
 
 	// const cld = new Cloudinary({ cloud: {
@@ -50,12 +50,17 @@ export const AddProduct = () => {
 			origin: document.getElementById("origin").value,
 			price: document.getElementById("price").value,
 			description: document.getElementById("description").value,
-			weight: document.getElementById("weight").value,
-			volume: document.getElementById("volume").value,
-			minimum: document.getElementById("minimum").value,
-			// imageUrl: document.getElementById("image").value,
-			categorie: newcategorieName
+			brief_description: document.getElementById("brief_description").value,
+			weight: document.getElementById("weight").value ? parseInt(document.getElementById("weight").value) : null, // Asigna null si está vacío
+			volume: document.getElementById("volume").value ? parseInt(document.getElementById("volume").value) : null, // Asigna null si está vacío
+			minimum: document.getElementById("minimum").value ? parseInt(document.getElementById("minimum").value) : null, // Asigna null si está vacío
+			// // imageUrl: document.getElementById("image").value,
+			categorie_id: selectedCategorie ? selectedCategorie.id : null, // Obtén el id de la categoría seleccionada
+			producer_id: producerId, // Obtén el id del productor desde el estado o contexto
+			// categorie: newcategorieName
 		};
+		console.log("new product",newProduct);
+		
 		actions.addProducts(newProduct);
 		navigate(`/producer/dashboard/${producerId}`)
 	};
@@ -74,11 +79,12 @@ export const AddProduct = () => {
 						className="form-select"
 						id="categorie"
 						aria-label="Default select example"
-						defaultValue={selectedcategorie} // Establece el valor del select
+						defaultValue={selectedCategorie}
 						onChange={(e) => {
-							const selected = store.categories.find(item => item.categorie === e.target.value);
-							setSelectedcategorie(selected ? selected.url : "");
-							// setSelectedcategorie(e.target.value); // Actualiza el estado al seleccionar una categoría
+							const selected = store.categories.find(cat => cat.categorie === e.target.value);
+							console.log("selected categorie", selected);
+							setSelectedCategorie(selected ? selected.url : "");
+							// setSelectedCategorie(e.target.value); // Actualiza el estado al seleccionar una categoría
 						}}
 					>
 						<option disabled value="">Escoge una categoría</option> {/* Cambia defaultValue a value="" */}
@@ -93,8 +99,8 @@ export const AddProduct = () => {
 						)}
 					</select>
 					<div className="my-3">
-						{selectedcategorie ? (
-							<img src={selectedcategorie} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
+						{selectedCategorie ? (
+							<img src={selectedCategorie} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
 						) : (
 							<p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
 						)}
@@ -148,6 +154,10 @@ export const AddProduct = () => {
 					<input type="number" className="form-control" id="minimum" aria-describedby="emailHelp" />
 				</div>
 				<div className="mb-3">
+					<label htmlFor="brief_description" className="form-label">BREVE DESCRIPCIÓN</label>
+					<textarea className="form-control" id="brief_description" aria-label="With textarea"></textarea>
+				</div>
+				<div className="mb-3">
 					<label htmlFor="description" className="form-label">DESCRIPCIÓN</label>
 					<textarea className="form-control" id="description" aria-label="With textarea"></textarea>
 				</div>
@@ -156,8 +166,6 @@ export const AddProduct = () => {
 					<div className="mb-3 d-block">
 						<input type="checkbox" className="form-check-input" id="available" />
 						<label className="form-check-label" htmlFor="available">Disponible</label>
-						{/* <input type="checkbox" className="form-check-input" id="withoutStock"/>
-				<label className="form-check-label" htmlFor="withoutStock">Sin existencias</label> */}
 						<input type="checkbox" className="form-check-input" id="lastUnits" />
 						<label className="form-check-label" htmlFor="lastUnits">Últimas unidades</label>
 						<input type="checkbox" className="form-check-input" id="soon" />

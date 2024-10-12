@@ -41,17 +41,17 @@ def setup_commands(app):
         categorie = ProductCategories
         try:
             categorie = [
-                categorie(categorie = "Cereales", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/cereals"),
-                categorie(categorie = "Frutas", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/fruits"),
-                categorie(categorie = "Verduras", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/vegetables"),
-                categorie(categorie = "Frutos secos", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/dried_fruits"),
-                categorie(categorie = "Alcoholes fermentados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/alcohol_fermentado"),
-                categorie(categorie = "Leche y derivados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/milk_and_related"),
-                categorie(categorie = "Carnes", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/meat"),
-                categorie(categorie = "Especias", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/spices"),
-                categorie(categorie = "Hierbas", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/herbs"),
-                categorie(categorie = "Productos del mar", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/seafood"),
-                categorie(categorie = "Alcoholes destilados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/alcohol_destilado"),
+                categorie(name = "Cereales", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/cereals"),
+                categorie(name = "Frutas", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/fruits"),
+                categorie(name = "Verduras", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/vegetables"),
+                categorie(name = "Frutos secos", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/dried_fruits"),
+                categorie(name = "Alcoholes fermentados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/alcohol_fermentado"),
+                categorie(name = "Leche y derivados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/milk_and_related"),
+                categorie(name = "Carnes", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/meat"),
+                categorie(name = "Especias", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/spices"),
+                categorie(name = "Hierbas", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/herbs"),
+                categorie(name = "Productos del mar", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/seafood"),
+                categorie(name = "Alcoholes destilados", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/alcohol_destilado"),
                 # categorie(categorie = "Error", imageUrl = "https://res.cloudinary.com/dw5sqtvsd/image/upload/error"),
             ]
             db.session.add_all(categorie)

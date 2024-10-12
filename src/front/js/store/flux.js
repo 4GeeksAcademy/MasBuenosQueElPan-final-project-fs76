@@ -49,7 +49,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 			producerIsLogedIn: false,
 			customerIsLogedIn: false,
 			categories: [],
-			// images: [],
 			cart_items: [],
 			customer_carts: [],
 			user: {
@@ -127,18 +126,31 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 			},
 			//Estos son productos!! fetch(process.env.BACKEND_URL + "/api/producers")
+			// getProducts: () => {
+			// 	const store = getStore();
+			// 	const requestOptions = {
+			// 		method: "GET",
+			// 	};
+			// 	fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
+			// 		.then((response) => response.json())
+			// 		.then((data) => {
+			// 			console.log("getting products", data);
+						
+			// 			// setStore({ products: data })
+			// 		})
+			// },
 			getProducts: () => {
-				const store = getStore();
+				const store = getStore()
 				const requestOptions = {
 					method: "GET",
 				};
 				fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
 					.then((response) => response.json())
-					.then((data) => {
-						console.log("getting products", data);
-						
-						setStore({ products: data })
+					.then((result) => {
+						console.log(result)
+						setStore({ products: result });
 					})
+					.catch((error) => console.error(error));
 			},
 			// getProduct:(producerId) => {   //Para cuando podamos obtener los productos que haya añadido cada productor, revisar función
 			// 	const requestOptions = {
@@ -183,16 +195,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			addProducts: (newProduct) => {
 				const raw = JSON.stringify({
-					"origin": newProduct.origin,
-					"description": newProduct.description,
 					"name": newProduct.name,
+					"origin": newProduct.origin,
 					"price": newProduct.price,
+					"description": newProduct.description,
+					"brief_description": newProduct.brief_description || "",
 					"weight": newProduct.weight,
 					"volume": newProduct.volume,
 					"minimum": newProduct.minimum,
-					"imageUrl": newProduct.imageUrl,
-					"categorie": newProduct.categorie
+					"categorie_id:": newProduct.categorie_id,
+					"producer_id": newProduct.producer_id,
+
 				});
+				console.log("raw product", raw)
 				const requestOptions = {
 					method: "POST",
 					body: raw,

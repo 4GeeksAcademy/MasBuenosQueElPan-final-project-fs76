@@ -32,7 +32,7 @@ export const ProducerView = () => {
         // actions.getcategorieImg();
         actions.getProducer(producerId);
         actions.getProducts();
-        // actions.getcategories();
+        actions.getcategories();
     }, [producerId]);
     if (isLoading) {
         return <div>Cargando...</div>;
@@ -154,20 +154,16 @@ export const ProducerView = () => {
                     <br />
                     <hr />
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "center" }}>
-                        {store.products.length > 0 && store.products.map((product, index) => {
-                            // Busca la categoría correspondiente
-                            const categorie = store.categories.find(categorie => categorie.categorie === product.categorie);
-                            const imageUrl = categorie ? categorie.imageUrl : "Imagen de producto.jpg"; // Imagen por defecto si no hay categoría
-
+                        {store.products.length > 0 && store.products.map((product, index) => {                        
                             return (
                                 <div key={index} className="card" style={{ width: "24rem", borderRadius: "15px", boxShadow: "0 4px 8px rgba(0,0,0,0.2)", overflow: "hidden" }}>
                                     <img
-                                        src={imageUrl}
-                                        alt="imagen de producto"
+                                        src={product.categorie_imageUrl}
+                                        // alt="imagen de producto"
                                     />
                                     <div className="card-body" style={{ padding: "20px" }}>
                                         <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>Producto: {product.name}</h5>
-                                        <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Categoría: {product.categorie_categorie}</p>
+                                        <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Categoría: {product.categorie_name}</p>
                                         <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {product.price} €/kg</p>
                                         <p style={{ color: "#555" }}>El origen del producto es: {product.origin}</p>
                                         <p style={{ color: "#555" }}>Descripción del producto: {product.description}</p>

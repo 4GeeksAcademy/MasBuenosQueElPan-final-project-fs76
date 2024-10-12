@@ -89,13 +89,17 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=False, nullable=False)
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    description = db.Column(db.String(500), unique=False, nullable=False)
+    weight = db.Column(db.Integer, unique=False, nullable=True)
+    volume = db.Column(db.Integer, unique=False, nullable=True)
+    minimum = db.Column(db.Integer, unique=False, nullable=True)
+    description = db.Column(db.String(500), unique=False, nullable=True)
     origin = db.Column(db.String(120), unique=False, nullable=False)
-    brief_description = db.Column(db.String(200), unique=False, nullable=False)
-    categorie_id = db.Column(db.Integer, db.ForeignKey('product_categories.id'), nullable=False)
-    producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)
-
+    brief_description = db.Column(db.String(200), unique=False, nullable=True)
+    categorie_id = db.Column(db.Integer, db.ForeignKey('product_categories.id'))
     categorie = db.relationship('ProductCategories', backref='products')
+
+    # Clave foránea para el productor
+    producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'))
     producer = db.relationship('Producer', backref='products')
 
     def __repr__(self):
@@ -109,9 +113,15 @@ class Product(db.Model):
             "description": self.description,
             "origin": self.origin,
             "brief_description": self.brief_description,
+            "weight": self.weight,
+            "volume": self.volume,
+            "minimum": self.minimum,
             "categorie_id": self.categorie_id,
             "producer_id": self.producer_id,
-            "categorie_categorie": self.categorie.categorie,
+            "categorie_name": self.categorie.name,
+            "categorie_imageUrl": self.categorie.imageUrl,
+            "producer_email": self.producer.email if self.producer else None,
+            "producer_brand_name": self.producer.brand_name
         }
 
 class Producer(db.Model):
@@ -148,18 +158,18 @@ class Producer(db.Model):
 
 class ProductCategories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    categorie = db.Column(db.String(40), unique=True, nullable=False)
+    name = db.Column(db.String(40), unique=True, nullable=False)
     imageUrl = db.Column(db.String(255), nullable=True)
     
     #Representación básica
     def __repr__(self):
-        return f'<Categorie {self.categorie}>'
+        return f'<Categorie {self.name}>'
 
     def serialize(self):
         return {
             "id": self.id,
             "imageUrl": self.imageUrl,
-            "categorie": self.categorie,
+            "name": self.name,
         }
 
 class CartProduct(db.Model):
