@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Numeric, DateTime, Integer, String, Boolean
+from sqlalchemy import Numeric, DateTime, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
@@ -17,34 +18,32 @@ class User(db.Model):
         return {
             "id": self.id,
             "email": self.email,
-            # do not serialize the password, its a security breach
         }
     
 ####CUSTOMER####
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), unique=False, nullable = False)
-    last_name = db.Column(db.String(60), unique=False, nullable = False)
-    email = db.Column(db.String(120), unique = True, nullable = False)
-    password = db.Column (db.String(400), unique = False, nullable = False)
-    address = db.Column(db.String(60), unique = False, nullable = False)
-    province = db.Column (db.String(40), unique=False, nullable=False)
-    zipcode = db.Column (db.String(14), unique = False, nullable = False)
-    phone = db.Column (db.String(20), unique = False, nullable = False)
-    country = db.Column (db.String(20), unique = False, nullable = False)
-    is_active = db.Column (db.Boolean, default=True, nullable=False)
-    #Representación básica
+    name = db.Column(db.String(60), unique=False, nullable=False)
+    last_name = db.Column(db.String(60), unique=False, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(400), unique=False, nullable=False)
+    address = db.Column(db.String(60), unique=False, nullable=False)
+    province = db.Column(db.String(40), unique=False, nullable=False)
+    zipcode = db.Column(db.String(14), unique=False, nullable=False)
+    phone = db.Column(db.String(20), unique=False, nullable=False)
+    country = db.Column(db.String(20), unique=False, nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+
     def __repr__(self):
         return f'<Customer {self.name}>'
-    #Representación completa
+
     def serialize(self):
         return {
             "id": self.id,
             "customer_name": self.name,
             "customer_lastname": self.last_name,
             "customer_email": self.email,
-            "customer_password": self.password,
-            "customer_address": self.address, 
+            "customer_address": self.address,
             "customer_province": self.province,
             "customer_zipcode": self.zipcode,
             "customer_phone": self.phone,
@@ -91,9 +90,7 @@ class Product(db.Model):
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=False)
     origin = db.Column(db.String(120), unique=False, nullable=False)
-    # Nueva columna de clave foránea que vincula con Producer
     producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)
-    # Relación inversa con Producer
     producer = db.relationship('Producer', back_populates='products')
 
     def __repr__(self):
@@ -103,7 +100,7 @@ class Product(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "price": float(self.price),  # Convertir a float
+            "price": float(self.price),
             "description": self.description,
             "origin": self.origin,
             "producer_id": self.producer_id
@@ -177,14 +174,19 @@ class CartProduct(db.Model):
 
 class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    customer_cart_id = db.Column(Integer, unique=False, nullable=False)
-    product_id = db.Column(Integer, unique=False, nullable=False)
-    quantity = db.Column(Integer, unique=False, nullable=False)  # Cambiar a Integer
+    customer_cart_id = db.Column(Integer, db.ForeignKey('customer_cart.id'), nullable=False)
+    product_id = db.Column(Integer, db.ForeignKey('product.id'), nullable=False)
+    user_id = db.Column(Integer, db.ForeignKey('user.id'), nullable=False)  # Nueva clave foránea
+    quantity = db.Column(Integer, unique=False, nullable=False)
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     subtotal = db.Column(Numeric(10, 2), unique=False, nullable=False)
     total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)  # Fecha de creación
-    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)  # Fecha de actualización
+    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    customer_cart = relationship('CustomerCart', back_populates='items')
+    product = relationship('Product')
+    user = relationship('User')  # Relación inversa con User
 
     def __repr__(self):
         return f'<CartItem {self.product_id}>'
@@ -194,6 +196,7 @@ class CartItem(db.Model):
             "id": self.id,
             "customer_cart_id": self.customer_cart_id,
             "product_id": self.product_id,
+            "user_id": self.user_id,
             "quantity": self.quantity,
             "price": float(self.price),
             "subtotal": float(self.subtotal),
@@ -202,11 +205,14 @@ class CartItem(db.Model):
 
 class CustomerCart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(Integer, unique=False, nullable=False)
+    user_id = db.Column(Integer, db.ForeignKey('user.id'), nullable=False)  # Clave foránea a User
     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     status = db.Column(String(50), unique=False, nullable=False)
+
+    user = relationship('User')  # Relación con User
+    items = relationship('CartItem', back_populates='customer_cart')
 
     def __repr__(self):
         return f'<CustomerCart {self.user_id}>'
@@ -215,10 +221,11 @@ class CustomerCart(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "created_at": self.created_at.isoformat(),  # Formato ISO para serialización
-            "updated_at": self.updated_at.isoformat(),  # Formato ISO para serialización
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
             "total_price": float(self.total_price),
-            "status": self.status
+            "status": self.status,
+            "items": [item.serialize() for item in self.items]  # Incluir elementos del carrito
         }
            
             
