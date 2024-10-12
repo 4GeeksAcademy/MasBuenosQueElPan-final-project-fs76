@@ -120,7 +120,7 @@ class Producer(db.Model):
     phone = db.Column(db.String(15), unique=True, nullable=True)  # Usar String para números de teléfono
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     # Relación con Product
-    products = db.relationship('Product', back_populates='producer', lazy=True)
+    products = relationship('Product', back_populates='producer', lazy=True)
 
     def __repr__(self):
         return f'<Producer {self.email}>'
@@ -174,19 +174,19 @@ class CartProduct(db.Model):
 
 class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    customer_cart_id = db.Column(Integer, db.ForeignKey('customer_cart.id'), nullable=False)
-    product_id = db.Column(Integer, db.ForeignKey('product.id'), nullable=False)
-    user_id = db.Column(Integer, db.ForeignKey('user.id'), nullable=False)  # Nueva clave foránea
-    quantity = db.Column(Integer, unique=False, nullable=False)
-    price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    subtotal = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+    customer_cart_id = db.Column(db.Integer, db.ForeignKey('customer_cart.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(Numeric(10, 2), nullable=False)
+    subtotal = db.Column(Numeric(10, 2), nullable=False)
+    total_price = db.Column(Numeric(10, 2), nullable=False)
     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     customer_cart = relationship('CustomerCart', back_populates='items')
     product = relationship('Product')
-    user = relationship('User')  # Relación inversa con User
+    user = relationship('User')  
 
     def __repr__(self):
         return f'<CartItem {self.product_id}>'
@@ -205,11 +205,11 @@ class CartItem(db.Model):
 
 class CustomerCart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(Integer, db.ForeignKey('user.id'), nullable=False)  # Clave foránea a User
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # Clave foránea a User
     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    status = db.Column(String(50), unique=False, nullable=False)
+    total_price = db.Column(Numeric(10, 2), nullable=False)
+    status = db.Column(db.String(50), nullable=False)
 
     user = relationship('User')  # Relación con User
     items = relationship('CartItem', back_populates='customer_cart')
@@ -225,9 +225,8 @@ class CustomerCart(db.Model):
             "updated_at": self.updated_at.isoformat(),
             "total_price": float(self.total_price),
             "status": self.status,
-            "items": [item.serialize() for item in self.items]  # Incluir elementos del carrito
+            "items": [item.serialize() for item in self.items]
         }
-           
             
 
   

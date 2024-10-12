@@ -20,34 +20,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			],
 			producersInfo: [],
-			producerCart:[
-				{
-					usuario: "Marcos",
-					creado: "18/07/2024",
-					Precio: 240,
-					Estado: "Recibido"
-				},
-				{
-					usuario: "Alicia",
-					creado: "18/10/2024",
-					Precio: 3800,
-					Estado: "Recibido"
-				},
-				{
-					usuario: "David",
-					creado: "30/10/2024",
-					Precio: 800,
-					Estado: "Recibido"
-				}
-
-			],
-			producerCartInfo: [
-				{
-					usuario: "Marcos",
-					Productos:"Manzana, Pochas, Albaricoques",
-					Precio: "20, 500, 700",
-				}
-			],
+			producerCart: [],
+			producerCartInfo: [],
 			isLogedIn: false,
 			// categories: ["Cereales", "Frutas", "Lácteos", "Verduras", "Carne", "Productos del mar", "Frutos secos", "Hierbas", "Especias", "Alcoholes destilados", "Alcoholes fermentados"],
 			// categories: {Cereales:"url", Frutas, Lácteos, Verduras, Carne, Productos_del_mar, Frutos_secos, Hierbas, Especias, Alcoholes_destilados, Alcoholes_fermentados},
@@ -56,10 +30,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			categories: [],
 			cart_items: [],
 			customer_carts: [],
-			user: {
-				id: "123",
-				name: "Usuario Test"
-			},
+			user: [],
 			producers: [],
 			isFirstLogin: true,
 			isLogedIn: false,
@@ -69,16 +40,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// exampleFunction: () => {
 			// 	getActions().changeColor(0, "green");
 			// },
+			setUser: (userData) => {
+				setStore({ user: userData });
+			},
 			setToken: (token) => {
 				setStore({ token: token })
 			},
-			setTokenProducer: (token) =>{
-				setStore({tokenProducer:token})
+			setTokenProducer: (token) => {
+				setStore({ tokenProducer: token })
 			},
 			checkToken: () => {
 				return new Promise((resolve, reject) => {
 					const token = localStorage.getItem("token");
-			
+
 					if (token) {
 						getActions().setToken(token); // Guarda el token en el store
 						setStore({ isLogedIn: true });
@@ -99,12 +73,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 				setStore({ token: null })
 			},
 			updateProducerCart: (updatedCart) => {
-                const store = getStore();
-                setStore({
-                    ...store,
-                    producerCart: updatedCart 
-                });
-            },
+				const store = getStore();
+				setStore({
+					...store,
+					producerCart: updatedCart
+				});
+			},
 			createCustomer: (newCustomer) => {
 				const raw = JSON.stringify({
 					"name": newCustomer.name,
@@ -124,7 +98,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					headers: {
 						"Content-type": "application/json",
 					}
-				}; 
+				};
 				fetch(process.env.BACKEND_URL + "/api/customers", requestOptions)
 					.then((response) => response.json())
 					.then((result) =>
@@ -158,19 +132,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"origin": newProductInfo.origin,
 					"price": newProductInfo.price,
 					"producer_id": newProductInfo.producer_id
-				  });
-				  const requestOptions = {
+				});
+				const requestOptions = {
 					method: "PUT",
 					headers: {
 						"Content-type": "application/json",
 					},
 					body: raw,
-				  };
+				};
 				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
 					.then((response) => response.json())
 					.then((data) =>
 						// getActions().getProducts()
-					getActions().get_Producers_Products(data.producer_id)
+						getActions().get_Producers_Products(data.producer_id)
 					)
 			},
 			deleteProduct: (id) => {
@@ -186,33 +160,33 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error(error));
 			},
-			addProducts:(newProduct) => {
+			addProducts: (newProduct) => {
 				const raw = JSON.stringify({
 					"origin": newProduct.origin,
 					"description": newProduct.description,
 					"name": newProduct.name,
 					"price": newProduct.price,
 					"producer_id": newProduct.producer_id
-				  });
-				  console.log("Aquí debería haber algo:")
-				  console.log(raw)
-				  const requestOptions = {
+				});
+				console.log("Aquí debería haber algo:")
+				console.log(raw)
+				const requestOptions = {
 					method: "POST",
 					body: raw,
 					headers: {
 						"Content-type": "application/json",
 					}
-				  };
-				  fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+				};
+				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
 					.then((response) => response.json())
-					.then((result) => 
+					.then((result) =>
 						// getActions().getProducts()
-					getActions().get_Producers_Products(result.producer_id)
+						getActions().get_Producers_Products(result.producer_id)
 					)
 					.catch((error) => console.error(error));
 			},
 			// Traer los productos de cada productor
-			get_Producers_Products:(producerId)=>{
+			get_Producers_Products: (producerId) => {
 				const requesOptions = {
 					method: "GET",
 					headers: {
@@ -220,8 +194,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 				}
 				fetch(`${process.env.BACKEND_URL}/api/producer/product/${producerId}`, requesOptions)
-				.then((response)=> response.json())
-				.then((data)=> setStore({producerProducts: data}))
+					.then((response) => response.json())
+					.then((data) => setStore({ producerProducts: data }))
 			},
 			// addProducts:(newProduct) => {
 			// 	const store = setStore();
@@ -258,12 +232,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const store = getStore()
 				const requestOptions = {
 					method: "GET",
-				  };
-				  fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
+				};
+				fetch(process.env.BACKEND_URL + "/api/categories", requestOptions)
 					.then((response) => response.json())
-					.then((result) => {console.log (result)
-						setStore({categoriesWithUrls: result});
-					}) 
+					.then((result) => {
+						console.log(result)
+						setStore({ categoriesWithUrls: result });
+					})
 					.catch((error) => console.error(error));
 			},
 			initCategoriesWithUrls: () => {
@@ -328,30 +303,31 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// 			})
 			// 			.then((result) => {
 			// 				console.log(result);
-						
-							
+
+
 			// 			})
 			// 			.catch((error) => console.error(error));
 			// 	},
 			deleteCategory: (categoryId) => {
 				console.log(categoryId);
-                fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
-                    method: "DELETE",
-					headers: {"Content-Type": "application/json"},
-                })
-                .then((response) => {
-					console.log(response.status);
-					response.json()})
-                .then((result) => {
-                    console.log(result);
-                    const store = getStore();
-                    // Filtra las categorías eliminando la que fue borrada
-                    const updatedCategories = store.categories.filter(category => category.id !== categoryId);
-					console.log(updatedCategories);
-					setStore({ categories: updatedCategories });
-                })
-                .catch((error) => console.error(error));
-            },
+				fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
+					method: "DELETE",
+					headers: { "Content-Type": "application/json" },
+				})
+					.then((response) => {
+						console.log(response.status);
+						response.json()
+					})
+					.then((result) => {
+						console.log(result);
+						const store = getStore();
+						// Filtra las categorías eliminando la que fue borrada
+						const updatedCategories = store.categories.filter(category => category.id !== categoryId);
+						console.log(updatedCategories);
+						setStore({ categories: updatedCategories });
+					})
+					.catch((error) => console.error(error));
+			},
 			addCategory: (newCategoryName) => {
 				const store = setStore()
 				fetch(process.env.BACKEND_URL + "/api/categories", {
@@ -443,23 +419,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}),
 				};
 				return fetch(process.env.BACKEND_URL + "/api/producer/login", requestOptions)
-				.then((response) => {
-					console.log(response.status);
-					if (response.status === 200) {
-						setStore ({ isLogedIn: true})
-					} else return "Email o contraseña erróneas"
-					return response.json()
-				})
-				.then((data) => {
-					// console.log("loginData from flux",data);
-					localStorage.setItem("producerId", data.producer_id)
-					localStorage.setItem("token", data.access_token)
-					localStorage.setItem("verified", data.is_verify)
-					localStorage.setItem("is_fill", data.is_fill)
-					return {isVerify:data.is_verify, producerId:data.producer_id, is_fill:data.is_fill}
-				})
-				.catch((error) => console.error("error while login in", error)
-				)
+					.then((response) => {
+						console.log(response.status);
+						if (response.status === 200) {
+							setStore({ isLogedIn: true })
+						} else return "Email o contraseña erróneas"
+						return response.json()
+					})
+					.then((data) => {
+						// console.log("loginData from flux",data);
+						localStorage.setItem("producerId", data.producer_id)
+						localStorage.setItem("token", data.access_token)
+						localStorage.setItem("verified", data.is_verify)
+						localStorage.setItem("is_fill", data.is_fill)
+						return { isVerify: data.is_verify, producerId: data.producer_id, is_fill: data.is_fill }
+					})
+					.catch((error) => console.error("error while login in", error)
+					)
 			},
 			// Traer un productor
 			getProducer: (producer_id) => {
@@ -508,22 +484,22 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			// editProducer: (producerId, updatedInfo) => {
 			// 	const store = getStore();
-			
+
 			// 	// Obtener el productor actual desde el estado
 			// 	const currentProducer = store.producersInfo.find(producer => producer.id === parseInt(producerId));
 			// 	console.log("currentProducer in edition", currentProducer);
-			
+
 			// 	if (!currentProducer) {
 			// 		console.error("Producer not found");
 			// 		return;
 			// 	}
-			
+
 			// 	const requestOptions = {
 			// 		method: "PUT",
 			// 		headers: { "Content-Type": "application/json" },
 			// 		body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
 			// 	};
-			
+
 			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
 			// 		.then((response) => {
 			// 			if (!response.ok) {
@@ -635,30 +611,73 @@ const getState = ({ getStore, getActions, setStore }) => {
 			addToCart: (product, quantity) => {
 				const store = getStore();
 
+				// Verificar que el usuario esté logueado
+				if (!store.user || !store.user.id) {
+					alert("Por favor inicie sesión para agregar productos al carrito.");
+					return;
+				}
+
+				// Obtener o crear un carrito para el usuario
+				let customerCartId = null;
+				if (store.customer_carts.length > 0) {
+					// Obtiene el último carrito del usuario
+					customerCartId = store.customer_carts[store.customer_carts.length - 1].id;
+				} else {
+					// Si no hay carritos, deberías crear uno
+					// Crear una función (o llamada de API) para crear un nuevo cart aquí y obtener su ID
+					// Llamado a la API para crear un nuevo carrito
+					fetch(`${process.env.BACKEND_URL}/api/customers_cart`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							user_id: store.user.id,
+							total_price: 0, // O cualquier valor inicial que necesites
+							// Otros campos necesarios
+						}),
+					})
+						.then(response => response.json())
+						.then(newCart => {
+							customerCartId = newCart.id; // Guarda el ID del nuevo carrito
+							// Ahora que tenemos el ID, agrega el ítem al carrito
+							postCartItem(customerCartId, product, quantity);
+						})
+						.catch((error) => {
+							console.error('Error al crear el carrito:', error);
+						});
+				}
+
+				// Si existe, solo añadir el nuevo producto
+				if (customerCartId) {
+					postCartItem(customerCartId, product, quantity);
+				}
+			},
+
+			postCartItem: (customerCartId, product, quantity) => {
+				const store = getStore();
 				const newCartItem = {
-					customer_cart_id: parseInt(store.user.id),  // Asegúrate de que este ID sea un número
+					customer_cart_id: customerCartId, // ID del carrito
 					product_id: product.id,
 					quantity: quantity,
 					price: product.price,
+					user_id: store.user.id // Asegúrate de que el usuario esté logueado
 				};
+
 				fetch(`${process.env.BACKEND_URL}/api/cart`, {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
+					headers: {
+						'Content-Type': 'application/json',
+					},
 					body: JSON.stringify(newCartItem),
 				})
-					.then(response => {
-						if (!response.ok) {
-							throw new Error(`Error al añadir al carrito: ${response.status} ${response.statusText}`);
-						}
-						return response.json();
-					})
+					.then(response => response.json())
 					.then(data => {
-						// setStore({ cart_items: [...store.cart_items, { ...newCartItem, id: data.id }] });
 						alert("Producto añadido al carrito!");
-						getActions().getCartItems()
+						getActions().getCartItems();
 					})
 					.catch(error => {
-						console.error('Error añadiendo al carrito:', error);
+						console.error('Error al añadir al carrito:', error);
 						alert(`No se pudo añadir el producto al carrito: ${error.message}`);
 					});
 			},
@@ -697,7 +716,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						quantity: item.quantity,
 						price: item.price
 					}))
-				};
+				}; getCustomerCarts
 				// getActions().getCustomerCarts()
 				fetch(`${process.env.BACKEND_URL}/api/customers_cart`, {
 					method: "POST",
@@ -724,9 +743,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 			//TRAER LOS CARRITOS DE UN CLIENTE
 			getCustomerCarts: () => {
 				const store = getStore();
+
+				// Verificamos si el ID del usuario está definido
+				if (!store.user || !store.user.id) {
+					console.error("User ID is undefined");
+					return; // Salimos de la función si no hay un user ID
+				}
+
 				const requestOptions = { method: "GET" };
 				fetch(`${process.env.BACKEND_URL}/api/customers_cart/${store.user.id}`, requestOptions)
-					.then((response) => response.json())
+					.then((response) => {
+						if (!response.ok) {
+							throw new Error(`HTTP error! status: ${response.status}`);
+						}
+						return response.json();
+					})
 					.then((data) => {
 						setStore({ customer_carts: data });
 					})
@@ -758,12 +789,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 						alert(`No se pudo vaciar el carrito: ${error.message}`);
 					});
 			},
-			getProducerCart: ()=>{
+			getProducerCart: () => {
 				const requestOptions = {
 					method: "GET",
 				}
 				fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
-				.then((response) => response.json())
+					.then((response) => response.json())
 			}
 			// getMessage: async () => {
 			// 	try{
