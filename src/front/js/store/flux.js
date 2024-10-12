@@ -338,9 +338,9 @@ const getState = ({ getStore, getActions, setStore }) => {
                 fetch(`${process.env.BACKEND_URL}/api/categories/${categoryId}`, {
                     method: "DELETE",
 					headers: {"Content-Type": "application/json"},
-                })
-                .then((response) => {
-					console.log(response.status);
+				})
+					.then((response) => {
+						console.log(response.status);
 					response.json()})
                 .then((result) => {
                     console.log(result);
@@ -636,12 +636,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const store = getStore();
 
 				const newCartItem = {
-					customer_cart_id: parseInt(store.user.id),  // Asegúrate de que este ID sea un número
+					user_id: parseInt(store.user.id),
 					product_id: product.id,
 					quantity: quantity,
 					price: product.price,
 				};
-				fetch(`${process.env.BACKEND_URL}/api/cart`, {
+				fetch(`${process.env.BACKEND_URL}/api/cart_item`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(newCartItem),
@@ -689,20 +689,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 			//SAVE CART/
 			saveCart: () => {
 				const store = getStore();
-				const cartItems = store.cart_items;
-				const cartData = {
-					customer_cart_id: store.user.id, // El ID del cliente
-					items: cartItems.map(item => ({
-						product_id: item.product_id,
-						quantity: item.quantity,
-						price: item.price
-					}))
+				const userData = {
+					user_id: parseInt(store.user.id),
 				};
-				// getActions().getCustomerCarts()
-				fetch(`${process.env.BACKEND_URL}/api/customers_cart`, {
+
+				fetch(`${process.env.BACKEND_URL}/api/customer_cart`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(cartData),
+					body: JSON.stringify(userData),
 				})
 					.then(response => {
 						if (!response.ok) {
