@@ -32,7 +32,16 @@ export const ProducerView = () => {
     const [editCategorie, setEditCategorie] = useState("");
     const [editCategorieId, setEditCategorieId] = useState("");
     const [editCategorieImgUrl, setEditCategorieImgUrl] = useState("");
-    
+    const [status, setStatus] = useState({
+        available: false,
+        lastUnits: false,
+        soon: false,
+    });
+    const [editStatus, setEditStatus] = useState({
+        available: false,
+        lastUnits: false,
+        soon: false,
+    });
 
     const autenticate = store.producerIsLogedIn;
     const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +75,7 @@ export const ProducerView = () => {
         if (!weight && !volume) return "Debes introducir al menos el peso o el volumen.";
         if (weight && volume) return "Debes introducir solo el peso o el volumen.";
         for (let field in product) {
-            if (field !== 'weight' && field !== 'volume' && !product[field]) {
+            if (field !== 'weight' && field !== 'volume' && field !== 'soon' && field !== 'available' && field !== 'lastUnits' && !product[field]) {
                 return `No se han introducido los datos en: ${field}`;
             }
         }
@@ -74,9 +83,9 @@ export const ProducerView = () => {
     };
     const handleSaveProduct = () => {
         const parsePrice = parseFloat(price);
-        const parseWeight = weight ? parseInt(weight) : null; // Convierte a entero o a null si está vacío
-        const parseVolume = volume ? parseInt(volume) : null; // Convierte a entero o a null si está vacío
-        const parseMinimum = minimum ? parseInt(minimum) : null; // Convierte a entero o a null si está vacío
+        const parseWeight = weight ? parseInt(weight) : null;
+        const parseVolume = volume ? parseInt(volume) : null;
+        const parseMinimum = minimum ? parseInt(minimum) : null;
         const newProduct = {
             name: name,
             price: parsePrice,
@@ -88,24 +97,11 @@ export const ProducerView = () => {
             description: description,
             categorie_id: categorieId,
             producer_id: producerId ? parseInt(producerId) : null,
+            available: status.available,
+            lastUnits: status.lastUnits,
+            soon: status.soon,
         };
         console.log("newProduct to be save in store",newProduct);
-       
-        // for (let field in newProduct) {
-        //     // Excluir 'weight' y 'volume' de la validación
-        //     if (field !== 'weight' && field !== 'volume' && !newProduct[field]) {
-        //         alert(`No se han introducido los datos en: ${field}`);
-        //         return;
-        //     }
-        // }
-        // if (parseWeight && parseVolume) {
-        //     alert(`Debes introducir solo el peso o el volumen.`);
-        //     return;
-        // }
-        // if (!parseWeight && !parseVolume) {
-        //     alert(`Debes introducir al menos el peso o el volumen.`);
-        //     return;
-        // }
         console.log("producerId antes de añadir producto:", producerId);
         const error = validateProduct(newProduct);
         if (error) {
@@ -113,22 +109,12 @@ export const ProducerView = () => {
             return;
         }
         actions.addProducts(newProduct);
-        // setName("");
-        // setPrice("");
-        // setOrigin("");
-        // setWeight("");
-        // setVolume("");
-        // setMinimum("");
-        // setBriefDescription("");
-        // setDescription("");
-        // setCategorieId("");
         closeModal();
     };
     const closeModal = () => {
         setShowModal(false);
     };
 
-    // Abre el modal de edición con los datos del producto seleccionado
     const handleEditProduct = (product) => {
         setEditProductId(product.id);
         setEditName(product.name);
@@ -142,6 +128,11 @@ export const ProducerView = () => {
         setEditCategorie(product.selectedCategorie);
         setEditCategorieImgUrl(product.categorie_imageUrl);
         setShowEditModal(true);
+        setEditStatus({
+            available: product.available,
+            lastUnits: product.lastUnits,
+            soon: product.soon,
+        });
     };
 
     const handleSaveEditProduct = () => {
@@ -160,7 +151,10 @@ export const ProducerView = () => {
             brief_description: editBriefDescription,
             description: editDescription,
             categorie_id: editCategorieId,
-            producer_id: producerId ? parseInt(producerId) : null
+            producer_id: producerId ? parseInt(producerId) : null,
+            available: editStatus.available,
+            lastUnits: editStatus.lastUnits,
+            soon: editStatus.soon,
         };
         if (!parseWeight && !parseVolume) {
             alert(`Debes introducir al menos el peso o el volumen.`);
@@ -180,11 +174,37 @@ export const ProducerView = () => {
         actions.modifyProduct(updatedProduct);
         closeEditModal();
     };
-
     const closeEditModal = () => {
         setShowEditModal(false);
     };
-
+    const handleCheckboxChange = (event) => {
+        const { name, checked } = event.target;
+        if (checked) {
+            setStatus({
+                available: name === "available" ? true : false,
+                lastUnits: name === "lastUnits" ? true : false,
+                soon: name === "soon" ? true : false
+            });
+        }
+        setStatus((prevState) => ({
+            ...prevState,
+            [name]: checked,
+        }));
+    };
+    const handleEditCheckboxChange = (event) => {
+        const { name, checked } = event.target;
+        if (checked) {
+            setEditStatus({
+                available: name === "available" ? true : false,
+                lastUnits: name === "lastUnits" ? true : false,
+                soon: name === "soon" ? true : false
+            });
+        }
+        setEditStatus((prevState) => ({
+            ...prevState,
+            [name]: checked,
+        }));
+    };
     return (
         <>
             <div className="container">
@@ -286,13 +306,12 @@ export const ProducerView = () => {
                                                 console.log("selected categorie", selected);
                                                 setCategorieId(selected ? selected.id : "");
                                                 setCategorieImgUrl(selected ? selected.url : "");
-                                                // setSelectedCategorie(e.target.value); // Actualiza el estado al seleccionar una categoría
                                             }}
                                         >
-                                            <option disabled value="">Escoge una categoría</option> {/* Cambia defaultValue a value="" */}
+                                            <option disabled value="">Escoge una categoría</option>
                                             {store.categories?.length > 0 ? (
                                                 store.categories
-                                                    .sort((a, b) => a.categorie.localeCompare(b.categorie)) // Ordena alfabéticamente
+                                                    .sort((a, b) => a.categorie.localeCompare(b.categorie))
                                                     .map((categorie, id) => (
                                                         <option key={id} value={categorie.categorie}>{categorie.categorie}</option>
                                                     ))
@@ -339,11 +358,32 @@ export const ProducerView = () => {
                                     <div className="mb-3">
                                         <label htmlFor="status" className="form-label">Estatus</label>
                                         <div className="mb-3 d-block">
-                                            <input type="checkbox" className="form-check-input me-1" id="available" />
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="available"
+                                                name="available"
+                                                checked={status.available}
+                                                onChange={handleCheckboxChange}
+                                            />
                                             <label className="form-check-label me-4" htmlFor="available">Disponible</label>
-                                            <input type="checkbox" className="form-check-input me-1" id="lastUnits" />
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="lastUnits"
+                                                name="lastUnits"
+                                                checked={status.lastUnits}
+                                                onChange={handleCheckboxChange}
+                                            />
                                             <label className="form-check-label me-4" htmlFor="lastUnits">Últimas unidades</label>
-                                            <input type="checkbox" className="form-check-input me-1" id="soon" />
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="soon"
+                                                name="soon"
+                                                checked={status.soon}
+                                                onChange={handleCheckboxChange}
+                                            />
                                             <label className="form-check-label me-4" htmlFor="soon">Pronto en nuestra página</label>
                                         </div>
                                     </div>
@@ -406,15 +446,6 @@ export const ProducerView = () => {
                                             )}
                                         </div>
                                     </div>
-                                    {/* <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={selectedCategorie} onChange={()=>setcategoria()}>
-                                            <option selected>Selecciona la categoría del producto: </option>
-                                            <option value="1">Frutas</option>
-                                            <option value="2">Verduras</option>
-                                            <option value="3">Ábrol</option>
-                                        </select>
-                                    </div> */}
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
                                         <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setEditOrigin(e.target.value)} value={editOrigin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
@@ -446,11 +477,32 @@ export const ProducerView = () => {
                                     <div className="mb-3">
                                         <label htmlFor="status" className="form-label">Estatus</label>
                                         <div className="mb-3 d-block">
-                                            <input type="checkbox" className="form-check-input me-1" id="available" />
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="available"
+                                                name="available"
+                                                checked={editStatus.available}
+                                                onChange={handleEditCheckboxChange}
+                                            />
                                             <label className="form-check-label me-4" htmlFor="available">Disponible</label>
-                                            <input type="checkbox" className="form-check-input me-1" id="lastUnits" />
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="lastUnits"
+                                                name="lastUnits"
+                                                checked={editStatus.lastUnits}
+                                                onChange={handleEditCheckboxChange}
+                                            />
                                             <label className="form-check-label me-4" htmlFor="lastUnits">Últimas unidades</label>
-                                            <input type="checkbox" className="form-check-input me-1" id="soon" />
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="soon"
+                                                name="soon"
+                                                checked={editStatus.soon}
+                                                onChange={handleEditCheckboxChange}
+                                            />
                                             <label className="form-check-label me-4" htmlFor="soon">Pronto en nuestra página</label>
                                         </div>
                                     </div>
@@ -471,20 +523,3 @@ export const ProducerView = () => {
     );
 };
 
-{/* <button type="button" className="btn btn-danger" onClick={()=> actions.producerLogout()}>Log out</button>
-                {store.producers.map((producer, index) => 
-                <div key={index}>
-                    <h3>Nombre de la compañía: {producer.brand_name || "no brand_name"}</h3>
-                    <h1>Hola, {producer.user_name || "no username"} {producer.user_last_name || "no user_last_name"}!</h1>
-                    <Link to={"/producer/form/" + producer.id}>
-                        <button type="button" className="edit btn btn-warning">Edita tu información o de la empresa aquí</button>
-                    </Link>
-
-                    {store.products.length > 0 ? (
-                        <Product />
-                    ) : (
-                        <button className="btn btn-primary" onClick={()=>navigate(`/producer/dashboard/${producerId}/newproduct`)()}>Añade nuevos productos</button>
-                    )}
-                    </div>
-
-                )}  */}

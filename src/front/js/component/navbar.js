@@ -14,10 +14,6 @@ export const Navbar = () => {
 		actions.producerLogout();
 		navigate("/")
 	}
-	function handleNewProduct () {
-		console.log("Going to add new product");
-		navigate(`/producer/dashboard/${localStorage.getItem("producerId")}/newproduct`)
-	}
 	return (
 		<nav className="navbar navbar-light bg-light">
 			<div className="container">
