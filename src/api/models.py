@@ -1,6 +1,8 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Numeric, DateTime, Integer, String, Boolean
+from enum import Enum
+
 
 db = SQLAlchemy()
 
@@ -83,7 +85,11 @@ class Customer(db.Model):
 #             db.session.add(new_province)
 #     db.session.commit()
 
-
+class ProductStatus(Enum):
+    AVAILABLE = "available"
+    NOT_AVAILABLE = "not_available"
+    LAST_UNITS = "last_units"
+    SOON = "soon"
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -97,10 +103,16 @@ class Product(db.Model):
     brief_description = db.Column(db.String(200), unique=False, nullable=True)
     categorie_id = db.Column(db.Integer, db.ForeignKey('product_categories.id'))
     categorie = db.relationship('ProductCategories', backref='products')
+    available = db.Column(db.Boolean, default=False, nullable=False)
+    last_units = db.Column(db.Boolean, default=False, nullable=False)
+    soon = db.Column(db.Boolean, default=False, nullable=False)
+    not_available = db.Column(db.Boolean, default=False, nullable=False)
     # Nueva columna de clave foránea que vincula con Producer
     producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)
     # Relación inversa con Producer
     producer = db.relationship('Producer', back_populates='products')
+    
+
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -121,7 +133,11 @@ class Product(db.Model):
             "categorie_name": self.categorie.name,
             "categorie_imageUrl": self.categorie.imageUrl,
             "producer_email": self.producer.email if self.producer else None,
-            "producer_brand_name": self.producer.brand_name
+            "producer_brand_name": self.producer.brand_name,
+            "available": self.available,
+            "last_units": self.last_units,
+            "soon": self.soon,
+            "not_available": self.not_available,
         }
 
 class Producer(db.Model):
