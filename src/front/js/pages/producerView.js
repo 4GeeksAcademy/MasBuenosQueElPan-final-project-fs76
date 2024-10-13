@@ -36,11 +36,13 @@ export const ProducerView = () => {
         available: false,
         lastUnits: false,
         soon: false,
+        not_available: false,
     });
     const [editStatus, setEditStatus] = useState({
         available: false,
         lastUnits: false,
         soon: false,
+        not_available: false,
     });
 
     const autenticate = store.producerIsLogedIn;
@@ -75,7 +77,7 @@ export const ProducerView = () => {
         if (!weight && !volume) return "Debes introducir al menos el peso o el volumen.";
         if (weight && volume) return "Debes introducir solo el peso o el volumen.";
         for (let field in product) {
-            if (field !== 'weight' && field !== 'volume' && field !== 'soon' && field !== 'available' && field !== 'lastUnits' && !product[field]) {
+            if (field !== 'weight' && field !== 'volume' && field !== 'soon' && field !== 'available' && field !== 'lastUnits' && field !== 'not_available' && !product[field]) {
                 return `No se han introducido los datos en: ${field}`;
             }
         }
@@ -100,6 +102,7 @@ export const ProducerView = () => {
             available: status.available,
             lastUnits: status.lastUnits,
             soon: status.soon,
+            not_available: status.not_available,
         };
         console.log("newProduct to be save in store",newProduct);
         console.log("producerId antes de añadir producto:", producerId);
@@ -132,6 +135,7 @@ export const ProducerView = () => {
             available: product.available,
             lastUnits: product.lastUnits,
             soon: product.soon,
+            not_available: editStatus.not_available,
         });
     };
 
@@ -155,6 +159,7 @@ export const ProducerView = () => {
             available: editStatus.available,
             lastUnits: editStatus.lastUnits,
             soon: editStatus.soon,
+            not_available: editStatus.not_available,
         };
         if (!parseWeight && !parseVolume) {
             alert(`Debes introducir al menos el peso o el volumen.`);
@@ -166,7 +171,7 @@ export const ProducerView = () => {
         }
         for (let field in updatedProduct) {
             // Excluir 'categorie_id' de la validación
-            if (field !== 'categorie_id' && field !== "weight" && field !== "volume" && !updatedProduct[field]) {
+            if (field !== 'categorie_id' && field !== "weight" && field !== "volume" && field !== 'soon' && field !== 'available' && field !== 'lastUnits' && field !== 'not_available' && !updatedProduct[field]) {
                 alert(`No se han introducido los datos en: ${field}`);
                 return;
             }
@@ -179,13 +184,6 @@ export const ProducerView = () => {
     };
     const handleCheckboxChange = (event) => {
         const { name, checked } = event.target;
-        if (checked) {
-            setStatus({
-                available: name === "available" ? true : false,
-                lastUnits: name === "lastUnits" ? true : false,
-                soon: name === "soon" ? true : false
-            });
-        }
         setStatus((prevState) => ({
             ...prevState,
             [name]: checked,
@@ -195,9 +193,10 @@ export const ProducerView = () => {
         const { name, checked } = event.target;
         if (checked) {
             setEditStatus({
-                available: name === "available" ? true : false,
-                lastUnits: name === "lastUnits" ? true : false,
-                soon: name === "soon" ? true : false
+                available: name === "editAvailable" ? true : false,
+                lastUnits: name === "editLastUnits" ? true : false,
+                soon: name === "editSoon" ? true : false,
+                not_available: name === "editNot_available" ? true : false
             });
         }
         setEditStatus((prevState) => ({
@@ -385,6 +384,15 @@ export const ProducerView = () => {
                                                 onChange={handleCheckboxChange}
                                             />
                                             <label className="form-check-label me-4" htmlFor="soon">Pronto en nuestra página</label>
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="not_available"
+                                                name="not_available"
+                                                checked={status.not_available}
+                                                onChange={handleCheckboxChange}
+                                            />
+                                            <label className="form-check-label me-4" htmlFor="not_available">No disponible</label>
                                         </div>
                                     </div>
                                 </div>
@@ -480,30 +488,39 @@ export const ProducerView = () => {
                                             <input
                                                 type="checkbox"
                                                 className="form-check-input me-1"
-                                                id="available"
-                                                name="available"
+                                                id="editAvailable"
+                                                name="editAvailable"
                                                 checked={editStatus.available}
                                                 onChange={handleEditCheckboxChange}
                                             />
-                                            <label className="form-check-label me-4" htmlFor="available">Disponible</label>
+                                            <label className="form-check-label me-4" htmlFor="editAvailable">Disponible</label>
                                             <input
                                                 type="checkbox"
                                                 className="form-check-input me-1"
-                                                id="lastUnits"
-                                                name="lastUnits"
+                                                id="editLastUnits"
+                                                name="editLastUnits"
                                                 checked={editStatus.lastUnits}
                                                 onChange={handleEditCheckboxChange}
                                             />
-                                            <label className="form-check-label me-4" htmlFor="lastUnits">Últimas unidades</label>
+                                            <label className="form-check-label me-4" htmlFor="editLastUnits">Últimas unidades</label>
                                             <input
                                                 type="checkbox"
                                                 className="form-check-input me-1"
-                                                id="soon"
-                                                name="soon"
+                                                id="editSoon"
+                                                name="editSoon"
                                                 checked={editStatus.soon}
                                                 onChange={handleEditCheckboxChange}
                                             />
-                                            <label className="form-check-label me-4" htmlFor="soon">Pronto en nuestra página</label>
+                                            <label className="form-check-label me-4" htmlFor="editSoon">Pronto en nuestra página</label>
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input me-1"
+                                                id="editNot_available"
+                                                name="editNot_available"
+                                                checked={editStatus.not_available}
+                                                onChange={handleEditCheckboxChange}
+                                            />
+                                            <label className="form-check-label me-4" htmlFor="editNot_available">No disponible</label>
                                         </div>
                                     </div>
                                 </div>

@@ -222,8 +222,12 @@ def add_product():
         weight = data.get('weight')
         volume = data.get('volume')
         minimum = data.get('minimum')
-        categorie_id= data.get('categorie_id')
-        producer_id= data.get('producer_id')
+        categorie_id = data.get('categorie_id')
+        producer_id = data.get('producer_id')
+        available = data.get('available')
+        last_units = data.get('last_units')
+        soon = data.get('soon')
+        not_available = data.get('not_available')
         print(producer_id)
         # categorie_name= data.get('categorie_name')
         # categorie_imageUrl= data.get('categorie_imageUrl')
@@ -263,6 +267,10 @@ def add_product():
             minimum=minimum,
             categorie_id=categorie_id,
             producer_id=producer_id,
+            available=available,
+            last_units=last_units,
+            soon=soon,
+            not_available=not_available
             # categorie_name=categorie_name,
             # categorie_imageUrl=categorie_imageUrl,
             # producer_email=producer_email,
@@ -303,6 +311,10 @@ def edit_product(id):
         minimum = data.get('minimum')
         categorie_id= data.get('categorie_id')
         producer_id= data.get('producer_id')
+        available = data.get('available')
+        last_units = data.get('last_units')
+        soon = data.get('soon')
+        not_available = data.get('not_available')
         #Actualizamos la base de datos
         if name:
             product.name = name
@@ -340,6 +352,15 @@ def edit_product(id):
             product.categorie_id = categorie_id
         if producer_id:
             product.producer_id = producer_id
+        if available:
+            product.available = available
+        if last_units:
+            product.last_units = last_units
+        if soon:
+            product.soon = soon
+        if not_available:
+            product.not_available = not_available
+
         #Guardamos los datos en la base de datos
         db.session.commit()
         return jsonify(product.serialize()),200
@@ -515,26 +536,26 @@ def delete_producer(producer_id):
 
     return jsonify(producer.serialize()), 200
 
-#####EDIT ONE PRODUCER#####
-@api.route('/producerInfo/<int:producer_id>', methods=['PUT'])
-def edit_producer(producer_id):
-    producer_data = request.get_json()
-    print(producer_data)
-    producer = Producer.query.filter_by(id=producer_id).first()
-    if producer is None:
-        return ("error","producer not found")
-    producer.email= producer_data.get("email", producer.email)
-    producer.password= producer_data.get("password", producer.password)
-    producer.brand_name= producer_data.get("brand_name", producer.brand_name)
-    producer.user_name= producer_data.get("user_name", producer.user_name)
-    producer.user_last_name= producer_data.get("user_last_name", producer.user_last_name)
-    producer.cif= producer_data.get("cif", producer.cif)
-    producer.address= producer_data.get("address", producer.address)
-    producer.province= producer_data.get("province", producer.province)
-    producer.zip_code= producer_data.get("zip_code", producer.zip_code)
-    producer.phone= producer_data.get("phone", producer.phone)
-    db.session.commit()
-    return jsonify(producer.serialize()), 200
+# #####EDIT ONE PRODUCER#####
+# @api.route('/producerInfo/<int:producer_id>', methods=['PUT'])
+# def edit_producer(producer_id):
+#     producer_data = request.get_json()
+#     print(producer_data)
+#     producer = Producer.query.filter_by(id=producer_id).first()
+#     if producer is None:
+#         return ("error","producer not found")
+#     producer.email= producer_data.get("email", producer.email)
+#     producer.password= producer_data.get("password", producer.password)
+#     producer.brand_name= producer_data.get("brand_name", producer.brand_name)
+#     producer.user_name= producer_data.get("user_name", producer.user_name)
+#     producer.user_last_name= producer_data.get("user_last_name", producer.user_last_name)
+#     producer.cif= producer_data.get("cif", producer.cif)
+#     producer.address= producer_data.get("address", producer.address)
+#     producer.province= producer_data.get("province", producer.province)
+#     producer.zip_code= producer_data.get("zip_code", producer.zip_code)
+#     producer.phone= producer_data.get("phone", producer.phone)
+#     db.session.commit()
+#     return jsonify(producer.serialize()), 200
 
 @api.route('/producer/<int:producer_id>', methods=['PUT'])
 def add_producer_info(producer_id):
