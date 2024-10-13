@@ -163,20 +163,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// 		.then((response) => response.json())
 			// 		.then((data) => setStore({ products: data }));
 			// },
-			modifyProduct: (newProductInfo) => {
-				const myid = newProductInfo.id
+			modifyProduct: (updatedProduct) => {
+				const store = getStore()
+				const myid = updatedProduct.id
 				const raw = JSON.stringify({
-					"name": newProductInfo.name,
-					"description": newProductInfo.description,
-					"price": newProductInfo.price,
-					"origin": newProductInfo.origin,
-					"weight": newProductInfo.weight,
-					"volume": newProductInfo.volume,
-					"minimum": newProductInfo.minimum,
-					"brief_description": newProductInfo.brief_description,
-					"description": newProductInfo.description,
-					"categorie_id": newProductInfo.categorie_id,
-					"producer_id": newProductInfo.producer_id
+					"name": updatedProduct.name,
+					"description": updatedProduct.description,
+					"price": updatedProduct.price,
+					"origin": updatedProduct.origin,
+					"weight": updatedProduct.weight,
+					"volume": updatedProduct.volume,
+					"minimum": updatedProduct.minimum,
+					"brief_description": updatedProduct.brief_description,
+					"description": updatedProduct.description,
+					"categorie_id": updatedProduct.categorie_id,
+					"producer_id": updatedProduct.producer_id
 				  });
 				  const requestOptions = {
 					method: "PUT",
@@ -194,22 +195,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 							  product.id === updatedProduct.id ? updatedProduct : product
 							)
 						  })
-					}
-						
-						// getActions().getProducts()
-					// getActions().getProducersProducts(data.producer_id)
-					)
+						getActions().getProducersProducts(data.producer_id)
+						return;
+					})
 			},
-			deleteProduct: (id) => {
+			deleteProduct: (productId) => {
+				console.log(productId);
 				const requestOptions = {
 					method: "DELETE",
 				};
-				fetch(`${process.env.BACKEND_URL}/api/product/${id}`, requestOptions)
-					.then((response) => response.text())
+				fetch(`${process.env.BACKEND_URL}/api/product/${productId}`, requestOptions)
+					.then((response) => response.json())
 					.then((result) => {
-						console.log(result),
-							// getActions().getProducts()
-							getActions().getProducersProducts(result.producer_id)
+						console.log("deleted product",result);
+						if (result.producer_id) {
+							// Llama a obtener los productos de ese productor después de la eliminación
+							getActions().getProducersProducts(result.producer_id);
+						}
 					})
 					.catch((error) => console.error(error));
 			},
@@ -251,7 +253,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 			},
 			// Traer los productos de cada productor
-			getProducersProducts:(producerId)=>{
+			getProducersProducts:(producerId) => {
+				const store = getStore()
 				console.log("producerID from flux in ProducerProducts",producerId);
 				const requesOptions = {
 					method: "GET",
@@ -265,39 +268,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return response.json()})
 				.then((data)=> {
 					console.log("producer products:", data);
-					setStore({producerProducts: data})
+					setStore({...store, producerProducts: data})
 				})
 			},
-			// addProducts:(newProduct) => {
-			// 	const store = setStore();
-			//     const raw = JSON.stringify(newProduct)
-			//     // const raw = JSON.stringify({
-			//     //     "origin": newProduct.origin,
-			//     //     "description": newProduct.description,
-			//     //     "name": newProduct.name,
-			//     //     "price": newProduct.price
-			//     //   });
-
-			//       const requestOptions = {
-			//         method: "POST",
-			//         body: raw,
-			//         headers: {
-			//             "Content-type": "application/json",
-			//         }
-			//       };
-
-			//       fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
-			//         .then((response) => response.json())
-			//         .then((result) => {
-			// 			console.log(result);
-			// 			setStore({products: [...store.products, newProduct]});
-			// 			console.log("data from flux Signup",result);
-			// 			console.log("id from flux Signup",result.id);
-			// 			// return result.id;
-			//             // getActions().getProducts()
-			// 		})
-			//         .catch((error) => console.error(error));
-			// },
 			//Estos son categorías!!
 			getCategories: () => {
 				const store = getStore()

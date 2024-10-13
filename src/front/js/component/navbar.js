@@ -38,7 +38,6 @@ export const Navbar = () => {
 								<button className="btn btn-primary">categories</button>
 							</Link>
 						</div>
-
 						{/* Activar esta parte cuando se necesite renderizar lo que verá en el navbar el customer */}
 						{/* {store.customerIsLogedIn === true ? */}
 
@@ -48,9 +47,7 @@ export const Navbar = () => {
 								<button className="btn btn-primary">Carrito</button>
 							</Link>
 						</div>
-
 						<div className="ml-auto">
-
 							<Link to="/product" className="mx-2">
 								<button className="btn btn-primary">View Products</button>
 							</Link>
@@ -68,19 +65,12 @@ export const Navbar = () => {
 					: ""
 				}
 				{store.producerIsLogedIn === true ?
-					<>
-						<div className="d-flex justify-content-end w-100">
-							<button type="button" className="btn btn-primary" onClick={handleNewProduct}>Nuevo producto</button>
-						</div>
-						<div className="d-flex justify-content-end w-100">
-							<button type="button" className="btn btn-danger" onClick={handleLogout}>Cerrar sesión</button>
-						</div>
-					</>
-					: ""
+					<div className="d-flex justify-content-end w-100">
+						<button type="button" className="btn btn-danger" onClick={handleLogout}>Cerrar sesión</button>
+					</div>
+				: ""
 				}
 				<div className="dropdown" style={{ position: "relative", display: "inline-block" }}>
-					{/* {store.token ? (
-						<> */}
 					<button
 						className="btn dropdown-toggle"
 						type="button"
@@ -139,40 +129,40 @@ export const Navbar = () => {
 							</Link>
 						</li>
 						<hr />
-								<li>
-									<Link 
-										to="/producer/cart" 
-										className="dropdown-item" 
-										style={{ 
-											padding: "10px 20px", 
-											color: "#333", 
-											fontSize: "14px", 
-											textDecoration: "none"  // Elimina el subrayado del texto
-										}}
-										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
-										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-									>
-										Carrito
-									</Link>
-								</li>
-								<hr/>
-								<li>
-									<button 
-										className="dropdown-item" 
-										onClick={handleLogout}
-										href="#" 
-										style={{ 
-											padding: "5px 20px", 
-											color: "#ff0000", 
-											fontSize: "14px" 
-										}}
-										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
-										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-									>
-										LogOut
-									</button>
-								</li>
-							</ul>
+						<li>
+							<Link 
+								to="/producer/cart" 
+								className="dropdown-item" 
+								style={{ 
+									padding: "10px 20px", 
+									color: "#333", 
+									fontSize: "14px", 
+									textDecoration: "none"  // Elimina el subrayado del texto
+								}}
+								onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+								onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+							>
+								Carrito
+							</Link>
+						</li>
+						<hr/>
+						<li>
+							<button 
+								className="dropdown-item" 
+								onClick={handleLogout}
+								href="#" 
+								style={{ 
+									padding: "5px 20px", 
+									color: "#ff0000", 
+									fontSize: "14px" 
+								}}
+								onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+								onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+							>
+								LogOut
+							</button>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</nav>

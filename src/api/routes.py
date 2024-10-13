@@ -325,7 +325,7 @@ def edit_product(id):
                 product.volume = int(volume)
             except ValueError:
                 return jsonify({"msg":"El precio debe ser un número"}), 400
-            product.volume = wevolumeight
+            product.volume = volume
         if minimum:
             try:
                 product.minimum = int(minimum)
@@ -350,20 +350,30 @@ def edit_product(id):
 
 #####DELETE Products#####
 
-@api.route('/product/<int:id>', methods=['DELETE'])
-def delete_product(id):
+@api.route('/product/<int:productId>', methods=['DELETE'])
+def delete_product(productId):
     try:
         #Seleccionamos el producto que queremos eliminar
-        product = Product.query.get(id)
+        product = Product.query.get(productId)
         if not product:
             return jsonify({"msg": "Producto no encontrado"}), 404
         #Eliminamos el producto
         db.session.delete(product)
         db.session.commit()
-        return jsonify({"msg":"se ha eliminado el producto"}), 200
+        return jsonify({"msg":"se ha eliminado el producto", "producer_id": product.producer_id}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+    
+# @api.route('/producer/<int:producer_id>', methods=['DELETE'])
+# def delete_producer(producer_id):
+#     producer = Producer.query.filter_by(id=producer_id).first()
+#     if producer is None:
+#         return jsonify("ERROR: Could not delete the account. Maybe it doesn't exist"), 404
+#     db.session.delete(producer)
+#     db.session.commit()
+
+#     return jsonify(producer.serialize()), 200
 
 ####GET PRODUCERS PRODUCTS####
 @api.route("/producer/product/<int:producerId>", methods=["GET"])

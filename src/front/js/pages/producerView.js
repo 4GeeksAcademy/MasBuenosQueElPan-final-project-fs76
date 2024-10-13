@@ -35,30 +35,22 @@ export const ProducerView = () => {
     
 
     const autenticate = store.producerIsLogedIn;
-    const [isLoading, setIsLoading] = useState(true)
-
-    // console.log("checking infor of producers in producerView",store.producers);
-    // console.log("checking infor of producersInfo in producerView",store.producersInfo);
+    const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
         actions.checkToken().then(() => {
             setIsLoading(false)
-            
         });
-        // actions.getCategorieImg();
         actions.getProducer(producerId);
-        actions.getProducersProducts(producerId)
-        // actions.getProducts();
         actions.getCategories();
+        actions.getProducersProducts(producerId)
     }, []);
     if (isLoading) {
         return <div>Cargando...</div>;
     }
-
     if (!autenticate) {
         return <Navigate to="/producer/login" />;
     }
-
     const handleCautionDelete = () => {
         setCautionDeleting(true)
     }
@@ -69,7 +61,17 @@ export const ProducerView = () => {
     const openModal = () => {
         setShowModal(true);
     };
-
+    const validateProduct = (product) => {
+        const { weight, volume } = product;
+        if (!weight && !volume) return "Debes introducir al menos el peso o el volumen.";
+        if (weight && volume) return "Debes introducir solo el peso o el volumen.";
+        for (let field in product) {
+            if (field !== 'weight' && field !== 'volume' && !product[field]) {
+                return `No se han introducido los datos en: ${field}`;
+            }
+        }
+        return null;
+    };
     const handleSaveProduct = () => {
         const parsePrice = parseFloat(price);
         const parseWeight = weight ? parseInt(weight) : null; // Convierte a entero o a null si está vacío
@@ -88,29 +90,38 @@ export const ProducerView = () => {
             producer_id: producerId ? parseInt(producerId) : null,
         };
         console.log("newProduct to be save in store",newProduct);
-        
-        for (let field in newProduct) {
-            // Excluir 'weight' y 'volume' de la validación
-            if (field !== 'weight' && field !== 'volume' && !newProduct[field]) {
-                alert(`No se han introducido los datos en: ${field}`);
-                return;
-            }
-        }
-        if (!parseWeight && !parseVolume) {
-            alert(`Debes introducir al menos el peso o el volumen.`);
+       
+        // for (let field in newProduct) {
+        //     // Excluir 'weight' y 'volume' de la validación
+        //     if (field !== 'weight' && field !== 'volume' && !newProduct[field]) {
+        //         alert(`No se han introducido los datos en: ${field}`);
+        //         return;
+        //     }
+        // }
+        // if (parseWeight && parseVolume) {
+        //     alert(`Debes introducir solo el peso o el volumen.`);
+        //     return;
+        // }
+        // if (!parseWeight && !parseVolume) {
+        //     alert(`Debes introducir al menos el peso o el volumen.`);
+        //     return;
+        // }
+        console.log("producerId antes de añadir producto:", producerId);
+        const error = validateProduct(newProduct);
+        if (error) {
+            alert(error);
             return;
         }
-        console.log("producerId antes de añadir producto:", producerId);
         actions.addProducts(newProduct);
-        setName("");
-        setPrice("");
-        setOrigin("");
-        setWeight("");
-        setVolume("");
-        setMinimum("");
-        setBriefDescription("");
-        setDescription("");
-        setCategorieId("");
+        // setName("");
+        // setPrice("");
+        // setOrigin("");
+        // setWeight("");
+        // setVolume("");
+        // setMinimum("");
+        // setBriefDescription("");
+        // setDescription("");
+        // setCategorieId("");
         closeModal();
     };
     const closeModal = () => {
@@ -126,9 +137,10 @@ export const ProducerView = () => {
         setEditWeight(product.weight);
         setEditVolume(product.volume);
         setEditMinimum(product.minimum);
-        setEditBriefDescription(product.briefDescription);
+        setEditBriefDescription(product.brief_description);
         setEditDescription(product.description);
         setEditCategorie(product.selectedCategorie);
+        setEditCategorieImgUrl(product.categorie_imageUrl);
         setShowEditModal(true);
     };
 
@@ -154,24 +166,18 @@ export const ProducerView = () => {
             alert(`Debes introducir al menos el peso o el volumen.`);
             return;
         }
+        if (parseWeight && parseVolume) {
+            alert(`Debes introducir solo el peso o el volumen.`);
+            return;
+        }
         for (let field in updatedProduct) {
             // Excluir 'categorie_id' de la validación
-            if (field !== 'categorie_id' && !updatedProduct[field]) {
+            if (field !== 'categorie_id' && field !== "weight" && field !== "volume" && !updatedProduct[field]) {
                 alert(`No se han introducido los datos en: ${field}`);
                 return;
             }
         }
-
         actions.modifyProduct(updatedProduct);
-        setEditName("")
-        setEditPrice("")
-        setEditOrigin("")
-        setEditWeight("")
-        setEditVolume("")
-        setEditMinimum("")
-        setEditBriefDescription("")
-        setEditDescription("")
-        setEditCategorie("")
         closeEditModal();
     };
 
@@ -179,32 +185,6 @@ export const ProducerView = () => {
         setShowEditModal(false);
     };
 
-    const handleDelete = (id) => {
-        actions.deleteProduct(id);
-    };
-    // console.log("user name from producersInfo producerView", store.producersInfo.user_name)
-    // console.log(store.producers)
-    // console.log(producerId)
-    // return (
-    //     <>
-    //     <h1 className="my-3">This is the producer view</h1>
-    //     {/* <div>
-    //         <img src={imageUrls[currentIndex]} alt="Descripción de la imagen" style={{ maxWidth: '100%', height: 'auto' }} />
-    //         <button onClick={changeImage}>Cambiar Imagen</button>
-    //     </div> */}
-    //     {store.producers.map((producer, index) => 
-    //     <div key={index}>
-    //         <h3>Nombre de la compañía: {producer.brand_name || "no brand_name"}</h3>
-    //         <h1>Hola, {producer.user_name || "no username"} {producer.user_last_name || "no user_last_name"}!</h1>
-    //         <Link to={"/producer/form/" + producer.id}>
-    //             <button type="button" className="edit btn btn-warning">Edita tu información o de la empresa aquí</button>
-    //         </Link>
-
-    //         {store.products.length > 0 ? (
-    //             <Product />
-    //         ) : (
-    //             <button className="btn btn-primary" onClick={()=>handleGoToAddProduct()}>Añade nuevos productos</button>
-    //         )}
     return (
         <>
             <div className="container">
@@ -228,7 +208,7 @@ export const ProducerView = () => {
                                 transition: "transform 0.3s ease-in-out",
                                 cursor: "pointer",
                             }}>
-                                <img src={product.categorie_imageUrl} className="card-img-top" alt="..." style={{ height: "200px", objectFit: "cover" }} />
+                                <img src={product.categorie_imageUrl} className="card-img-top" alt="Cargando imagen..." style={{ height: "200px", objectFit: "cover" }} />
                                 <div className="card-body" style={{ padding: "20px" }}>
                                     <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</h5>
                                     <p className="card-text" style={{color:"#777", fontSize: "14px"}}>Categoría: {product.categorie_name}</p>
@@ -239,7 +219,7 @@ export const ProducerView = () => {
                                         type="button" 
                                         className="btn btn-danger" 
                                         style={{ borderRadius: "10px", backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", transition: "background-color 0.3s ease" }} 
-                                        onClick={() => handleDelete(product.id)}
+                                        onClick={() => actions.deleteProduct(product.id)}
                                     >
                                         Eliminar producto
                                     </button>
@@ -328,29 +308,6 @@ export const ProducerView = () => {
                                             )}
                                         </div>
                                     </div>
-                                    {/* {displayAddcategorie &&
-                                        <div className="mt-3">
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="Añade aquí la nueva categoría"
-                                                value={newCategorieName} // Controlamos el estado del input
-                                                onChange={(e) => setNewCategorieName(e.target.value)}
-                                            />
-                                            <button className="btn btn-success my-2" onClick={() => handleAddcategorie()}>
-                                                Nueva categoría
-                                            </button>
-                                        </div>
-                                    } */}
-                                    {/* <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Categoría</span>
-                                        <select className="form-select" aria-label="Default select example" value={categoria} onChange={()=>setcategoria()}>
-                                            <option defaultValue>Selecciona la categoría del producto: </option>
-                                            <option value="1">Frutas</option>
-                                            <option value="2">Verduras</option>
-                                            <option value="3">Ábrol</option>
-                                        </select>
-                                    </div> */}
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="origin" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
                                         <input type="text" className="form-control" placeholder="ej: Valencia" onChange={(e) => setOrigin(e.target.value)} value={origin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
@@ -425,6 +382,7 @@ export const ProducerView = () => {
                                                 const selected = store.categories.find(cat => cat.categorie === e.target.value);
                                                 console.log("selected categorie", selected);
                                                 setEditCategorieId(selected ? selected.id : "");
+                                                setEditCategorie(selected ? selected.categorie : "");
                                                 setEditCategorieImgUrl(selected ? selected.url : "");
                                                 // setSelectedCategorie(e.target.value); // Actualiza el estado al seleccionar una categoría
                                             }}
@@ -484,6 +442,17 @@ export const ProducerView = () => {
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="priceEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
                                         <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setEditPrice(e.target.value)} value={editPrice} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="status" className="form-label">Estatus</label>
+                                        <div className="mb-3 d-block">
+                                            <input type="checkbox" className="form-check-input me-1" id="available" />
+                                            <label className="form-check-label me-4" htmlFor="available">Disponible</label>
+                                            <input type="checkbox" className="form-check-input me-1" id="lastUnits" />
+                                            <label className="form-check-label me-4" htmlFor="lastUnits">Últimas unidades</label>
+                                            <input type="checkbox" className="form-check-input me-1" id="soon" />
+                                            <label className="form-check-label me-4" htmlFor="soon">Pronto en nuestra página</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="modal-footer" style={{ borderTop: "none", paddingTop: "10px" }}>
