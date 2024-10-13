@@ -10,8 +10,8 @@ export const ProducerProfile = () => {
     const {producerId} = useParams()
     const [email, setEmail] = useState("")
     const [name, setName] = useState("")
-    const [lastName, setlastName] = useState("")
-    const [brandName, setbrandName] = useState("")
+    const [lastName, setLastName] = useState("")
+    const [brandName, setBrandName] = useState("")
     const [cif, setCif] = useState("")
     const [address, setAddress] = useState("")
     const [phone, setPhone] = useState("")
@@ -20,14 +20,15 @@ export const ProducerProfile = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     useEffect(()=>{
+        actions.checkToken()
         actions.getProducer(producerId)
         fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
         .then((response)=> response.json())
         .then((data)=>{
             setEmail(data.email)
             setName(data.user_name)
-            setlastName(data.user_last_name)
-            setbrandName(data.brand_name)
+            setLastName(data.user_last_name)
+            setBrandName(data.brand_name)
             setCif(data.cif)
             setAddress(data.address)
             setPhone(data.phone)
@@ -38,7 +39,7 @@ export const ProducerProfile = () => {
     },[producerId])
     const handleSaveEditInfo = (event) =>{
         event.preventDefault()
-        const newData={
+        const updatedInfo={
             brand_name: brandName,
             user_name: name,
             user_last_name: lastName,
@@ -48,7 +49,7 @@ export const ProducerProfile = () => {
             zip_code: zipcode,
             phone: phone,
         }
-        actions.editProducer(producerId, newData)
+        actions.editProducer(producerId, updatedInfo)
         setLoading(true)
         setTimeout(() => {
             setLoading(false);
@@ -91,7 +92,7 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="lastNameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Apellidos</label>
-                        <input type="text" className="form-control" id="lastNameInput" value={lastName} onChange={(e) => setlastName(e.target.value)} placeholder="Tus apellidos"
+                        <input type="text" className="form-control" id="lastNameInput" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Tus apellidos"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
@@ -109,7 +110,7 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="brandNameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Nombre de Empresa</label>
-                        <input type="text" className="form-control" id="brandNameInput" value={brandName} onChange={(e) => setbrandName(e.target.value)} placeholder="Nombre de tu empresa"
+                        <input type="text" className="form-control" id="brandNameInput" value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="Nombre de tu empresa"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">

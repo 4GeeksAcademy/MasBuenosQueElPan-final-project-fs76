@@ -9,7 +9,7 @@ export const CustomerProductList = () => {
     // Obtener productos y categorías al montar el componente
     useEffect(() => {
         actions.getProducts();
-        actions.getCategories();
+        actions.getcategories();
         console.log(store.categories); // Para verificar si las categorías están siendo cargadas
     }, []);
 
@@ -24,7 +24,7 @@ export const CustomerProductList = () => {
                     borderRadius: "5px"
                 }}
             >
-                <h2>Categories List</h2>
+                <h2>categories List</h2>
                 <div className="list-group">
                     {store.categories.length > 0 ? (
                         store.categories.map((categorie, index) => (

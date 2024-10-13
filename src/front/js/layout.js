@@ -4,7 +4,7 @@ import ScrollToTop from "./component/scrollToTop";
 import { BackendURL } from "./component/backendURL";
 
 import { Home } from "./pages/home";
-import { Categories } from "./pages/categories";
+import { categories } from "./pages/categories";
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import { Producers } from "./pages/producers";
@@ -49,12 +49,13 @@ const Layout = () => {
                         <Route element={<ProducerView />} path="/producer/dashboard/:producerId" />
                         <Route element={<ProducerInfoForm />} path="/producer/form/:producerId" />
                         <Route element={<AddProduct />} path="/producer/dashboard/:producerId/newproduct" />
-                        <Route element={<Categories />} path="/categories" />
+                        <Route element={<categories />} path="/categories" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<CustomerProductList />} path="/productlist" />
                         <Route element={<CustomerProductView />} path="/product/:product_id" />
                         <Route element={<CartItems />} path="/cart" />
-                        <Route element={<Product />} path="/product" />
+                        <Route element={<CustomerSignUp />} path="/customer/singUp" />
+                        {/* <Route element={<Product />} path="/product" /> */}
                         <Route element={<CustomerLoginUpview />} path="/customer/Login" />
                         <Route element={<CustomerSignUp />} path="/customer/singUp" />
                         <Route element={<HomeCustView />} path="/customer/home" />
