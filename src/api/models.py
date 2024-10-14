@@ -25,15 +25,16 @@ class User(db.Model):
 ####CUSTOMER####
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), unique=False, nullable = False)
-    last_name = db.Column(db.String(60), unique=False, nullable = False)
+    name = db.Column(db.String(60), unique=False, nullable = True)
+    last_name = db.Column(db.String(60), unique=False, nullable = True)
     email = db.Column(db.String(120), unique = True, nullable = False)
     password = db.Column (db.String(400), unique = False, nullable = False)
-    address = db.Column(db.String(60), unique = False, nullable = False)
-    province = db.Column (db.String(40), unique=False, nullable=False)
-    zipcode = db.Column (db.String(14), unique = False, nullable = False)
-    phone = db.Column (db.String(20), unique = False, nullable = False)
-    country = db.Column (db.String(20), unique = False, nullable = False)
+    address = db.Column(db.String(60), unique = False, nullable = True)
+    province = db.Column (db.String(40), unique=False, nullable=True)
+    city = db.Column (db.String(40), unique=False, nullable=True)
+    zipcode = db.Column (db.String(14), unique = False, nullable = True)
+    phone = db.Column (db.String(20), unique = False, nullable = True)
+    country = db.Column (db.String(20), unique = False, nullable = True)
     is_active = db.Column (db.Boolean, default=True, nullable=False)
     #Representación básica
     def __repr__(self):
@@ -150,8 +151,9 @@ class Producer(db.Model):
     cif = db.Column(db.String(120), unique=True, nullable=True)
     address = db.Column(db.String(300), unique=False, nullable=True)
     province = db.Column(db.String(120), unique=False, nullable=True)
+    city = db.Column(db.String(60), unique=False, nullable=True)
     zip_code = db.Column(db.String(10), unique=False, nullable=True)  # Usar String para códigos postales
-    phone = db.Column(db.String(15), unique=True, nullable=True)  # Usar String para números de teléfono
+    phone = db.Column(db.String(15), unique=False, nullable=True)  # Usar String para números de teléfono
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     # Relación con Product
     products = db.relationship('Product', back_populates='producer', lazy=True)
@@ -171,6 +173,7 @@ class Producer(db.Model):
             "address": self.address,
             "province": self.province,
             "zip_code": self.zip_code,
+            "city": self.city,
             "phone": self.phone,
             "products": [product.serialize() for product in self.products]
         }

@@ -89,9 +89,6 @@ export const MainHome = () => {
             </button>
           </div>
 
-
-
-
             {/* <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "90vh", backgroundColor: "#f7f7f7" }}>
             <div className="card p-5 shadow-lg" style={{ width: "100%", maxWidth: "900px", borderRadius: "20px", backgroundColor: "#fff" }}>
                 <div className="text-center">
@@ -176,7 +173,7 @@ export const MainHome = () => {
                   </div>
                   </>
                   :
-                <p>Mostrando productos</p>
+                <p className="text-center mt-2">Actualmente no hay productos para mostrar</p>
                 )
                 }
         </>

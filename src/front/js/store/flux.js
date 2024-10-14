@@ -18,6 +18,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					initial: "white"
 				}
 			],
+			customerInfo: [
+
+			],
 			producers: [],
 			// producerCart: [],
 			producersInfo: [],
@@ -58,7 +61,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 				id: "123",
 				name: "Usuario Test"
 			},
-			producers: [],
 			displayLogin: false,
 		},
 		actions: {
@@ -76,6 +78,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			setToken: (token) => {
 				setStore({ token: token })
+				setStore({customerIsLogedIn: true})
 			},
 			setTokenProducer: (token) => {
 				setStore({ tokenProducer: token })
@@ -102,25 +105,65 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			logOut: () => {
 				setStore({ token: null })
+				setStore({customerIsLogedIn: false})
 			},
 			updateProducerCart: (updatedCart) => {
-				const store = getStore();
-				setStore({
-					...store,
-					producerCart: updatedCart
+                const store = getStore();
+                setStore({
+                    ...store,
+                    producerCart: updatedCart 
+                });
+            },
+			get_One_customer: (customer_id) =>{
+				const requestOptions = {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				};
+				fetch(`${process.env.BACKEND_URL}/api/customer/${customer_id}`, requestOptions)
+					.then((response) => response.json())
+					.then((data) => {
+						console.log(data);
+						setStore({customerInfo:data})
+					})
+					.catch((error) => console.error("Error al obtener los datos:", error));
+			},
+			edit_customer: (customer_id, newData) => {
+				const raw = JSON.stringify({
+					name: newData.customer_name,
+					last_name: newData.customer_lastname,
+					email: newData.customer_email,
+					address: newData.customer_address,
+					province: newData.customer_province,
+					city: newData.customer_city,
+					zipcode: newData.customer_zipcode,
+					phone: newData.customer_phone,
+					country: newData.customer_country,
 				});
+			
+				const requestOptions = {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: raw
+				};
+			
+				fetch(`${process.env.BACKEND_URL}/api/customer/${customer_id}`, requestOptions)
+					.then((response) => response.json())
+					.then((data) => {
+						console.log("Customer updated:", data);
+						getActions().get_One_customer(data.id);
+					})
+					.catch((error) => {
+						console.error("Error al actualizar el cliente:", error);
+					});
 			},
 			createCustomer: (newCustomer) => {
 				const raw = JSON.stringify({
-					"name": newCustomer.name,
-					"last_name": newCustomer.last_name,
 					"email": newCustomer.email,
 					"password": newCustomer.password,
-					"address": newCustomer.address,
-					"province": newCustomer.province,
-					"zipcode": newCustomer.zipcode,
-					"phone": newCustomer.phone,
-					"country": newCustomer.country
 				});
 				console.log("La información a mandar es la siguiente:", newCustomer)
 				const requestOptions = {

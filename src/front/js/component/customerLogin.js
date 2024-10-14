@@ -30,8 +30,8 @@ export const CustomerLoginUp = () => {
 		.then((data)=>{
 			if (data.access_token){
 				actions.setToken(data.access_token)
-				alert("Inicio de sessión exitoso")
-				navigate("/customer/home");
+                localStorage.setItem("customer_id", data.user_id)
+				navigate(`/customer/home/${data.user_id}`);
 			}
 			else {
 				return alert("Usuario o contraseña incorrectas")
@@ -44,7 +44,6 @@ export const CustomerLoginUp = () => {
 		// .finally(() => {
 		// 	setLoading(false); 
 		// });
-	
 	}
 
     return (

@@ -18,18 +18,15 @@ export const SingUp = () => {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
 
+    useEffect(()=>{
+        fetch()
+    },[])
+    
     const sendData=(event)=>{
         event.preventDefault();
         const newCustomer = {
-            name: name,
             email: email,
             password: password,
-            last_name: lastName,
-            address: address,
-            province: province,
-            country: country,
-            phone: phone,
-            zipcode: zipcode
         };
         let allFieldsFilled = true; 
         for (const key in newCustomer) {
@@ -43,77 +40,143 @@ export const SingUp = () => {
             actions.createCustomer(newCustomer);
             alert("Se ha creado el nuevo usuario")
             setLoading(true);
-            setName("");
             setEmail("");
             setPassword("");
-            setLastName("");
-            setaddress("");
-            setProvince("");
-            setCountry("");
-            setZipcode("");
-            setPhone("")
-
             setTimeout(() => {
                 setLoading(false);
-                navigate("/customer/Login");
+                navigate("/");
             }, 2000);
         };
     }
 
 	return (
-        <div className = "col 12 mt-4">
-            <form className="row g-3" onSubmit={sendData}>
+        <div className="col-12 mt-4 d-flex justify-content-center">
+            <form className="row g-3 p-4 shadow-lg rounded-3" onSubmit={sendData} style={{ maxWidth: "800px", backgroundColor: "#ffffff", border: "1px solid #e0e0e0", boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)" }}>
+                <h2 className="text-center mb-4" style={{ color: "#007bff", fontWeight: "bold", letterSpacing: "0.5px", fontSize: "1.8rem", textTransform: "uppercase" }}>Crea una cuenta nueva</h2>
+
                 <div className="col-md-6">
-                    <label htmlFor="inputEmail4" className="form-label">Email</label>
-                    <input type="email" className="form-control" id="inputEmail4" value = {email} onChange={(event)=> setEmail(event.target.value)}/>
+                    <label htmlFor="inputEmail4" className="form-label" style={{ fontWeight: "500", fontSize: "14px", color: "#6b6b6b" }}>Email</label>
+                    <input 
+                        type="email" 
+                        className="form-control shadow-sm" 
+                        id="inputEmail4" 
+                        value={email} 
+                        onChange={(event) => setEmail(event.target.value)} 
+                        style={{ 
+                            borderRadius: "12px", 
+                            border: "1px solid #dcdcdc", 
+                            padding: "12px", 
+                            backgroundColor: "#f4f4f4",
+                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
+                            transition: "all 0.3s ease",
+                            fontSize: "15px"
+                        }} 
+                    />
                 </div>
+
                 <div className="col-md-6">
-                    <label htmlFor="inputPassword4" className="form-label">Contraseña</label>
-                    <input type="password" className="form-control" id="inputPassword4" value = {password} onChange={(event)=>setPassword(event.target.value)} />
+                    <label htmlFor="inputPassword4" className="form-label" style={{ fontWeight: "500", fontSize: "14px", color: "#6b6b6b" }}>Contraseña</label>
+                    <input 
+                        type="password" 
+                        className="form-control shadow-sm" 
+                        id="inputPassword4" 
+                        value={password} 
+                        onChange={(event) => setPassword(event.target.value)} 
+                        style={{ 
+                            borderRadius: "12px", 
+                            border: "1px solid #dcdcdc", 
+                            padding: "12px", 
+                            backgroundColor: "#f4f4f4",
+                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
+                            transition: "all 0.3s ease",
+                            fontSize: "15px"
+                        }} 
+                    />
                 </div>
-                <div className="col-md-6">
-                    <label htmlFor="inputName" className="form-label">Nombre</label>
-                    <input type="text" className="form-control" id="inputName" value={name} onChange={(event)=>setName(event.target.value)}/>
+
+                <div className="col-12 d-flex justify-content-between">
+                    <button 
+                        type="submit" 
+                        className="btn btn-primary px-5 py-2" 
+                        style={{ 
+                            borderRadius: "12px", 
+                            backgroundColor: "#007bff", 
+                            border: "none", 
+                            padding: "12px 30px", 
+                            fontSize: "16px", 
+                            fontWeight: "600", 
+                            boxShadow: "0px 4px 15px rgba(0, 123, 255, 0.3)",
+                            transition: "background-color 0.3s ease" 
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
+                    >
+                        Crear Cuenta
+                    </button>
+                    <Link to="/">
+                        <button 
+                            className="btn btn-secondary px-5 py-2" 
+                            style={{ 
+                                borderRadius: "12px", 
+                                backgroundColor: "#6c757d", 
+                                border: "none", 
+                                padding: "12px 30px", 
+                                fontSize: "16px", 
+                                fontWeight: "600",
+                                boxShadow: "0px 4px 15px rgba(108, 117, 125, 0.3)", 
+                                transition: "background-color 0.3s ease" 
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#5a6268"}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#6c757d"}
+                        >
+                            Volver
+                        </button>
+                    </Link>
                 </div>
-                <div className="col-md-6">
-                    <label htmlFor="inputLastName" className="form-label">Apellido</label>
-                    <input type="text" className="form-control" id="inputLastName" value={lastName} onChange={(event)=>setLastName(event.target.value)}/>
-                </div>
-                <div className="col-12">
-                    <label htmlFor="inputAddress" className="form-label">Calle</label>
-                    <input type="text" className="form-control" id="inputAddress" placeholder="1234 Main St" value={address} onChange={(event)=>setaddress(event.target.value)}/>
-                </div>
-                <div className="col-12">
-                    <label htmlFor="inputProvince" className="form-label">Provincia</label>
-                    <input type="text" className="form-control" id="inputProvince" placeholder="Navarra..." value={province} onChange={(event)=> setProvince(event.target.value)}/>
-                </div>
-                <div className="col-md-6">
-                    <label htmlFor="inputCountry" className="form-label">País</label>
-                    <input type="text" className="form-control" id="inputCountry" placeholder="España..." value={country} onChange={(event)=>setCountry(event.target.value)}/>
-                </div>
-                <div className="col-md-4">
-                    <label htmlFor="inputPhone" className="form-label">Teléfono</label>
-                    <input type="text" className="form-control" id="inputPhone" value={phone} onChange={(event)=>setPhone(event.target.value)}/>
-                </div>
-                <div className="col-md-2">
-                    <label htmlFor="inputZip" className="form-label">Código Postal</label>
-                    <input type="text" className="form-control" id="inputZip" value={zipcode} onChange={(event)=>setZipcode(event.target.value)}/>
-                </div>
-                <div className="col-12">
-                    <button type="submit" className="btn btn-primary">Guardar Cambios</button>
-                </div>
-                <Link to="/customer/login" className="mx-2">
-						<button className="btn btn-primary">Atrás</button>
-				</Link>
-            </form>
-            {/* Mostrar rueda de carga condicionalmente */}
-            {loading && (
-                <div className="d-flex justify-content-center mt-3">
-                    <div className="spinner-border" role="status">
-                        <span className="visually-hidden">Cargando...</span>
+
+                {loading && (
+                    <div className="d-flex justify-content-center mt-3">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Cargando...</span>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </form>
         </div>
 	);
 }
+
+{/* <div className="col-md-6">
+                    <label htmlFor="inputName" className="form-label" style={{ fontWeight: "500" }}>Nombre</label>
+                    <input type="text" className="form-control shadow-sm" id="inputName" value={name} onChange={(event) => setName(event.target.value)} style={{ borderRadius: "8px" }} />
+                </div>
+
+                <div className="col-md-6">
+                    <label htmlFor="inputLastName" className="form-label" style={{ fontWeight: "500" }}>Apellido</label>
+                    <input type="text" className="form-control shadow-sm" id="inputLastName" value={lastName} onChange={(event) => setLastName(event.target.value)} style={{ borderRadius: "8px" }} />
+                </div>
+
+                <div className="col-12">
+                    <label htmlFor="inputAddress" className="form-label" style={{ fontWeight: "500" }}>Calle</label>
+                    <input type="text" className="form-control shadow-sm" id="inputAddress" placeholder="1234 Main St" value={address} onChange={(event) => setaddress(event.target.value)} style={{ borderRadius: "8px" }} />
+                </div>
+
+                <div className="col-12">
+                    <label htmlFor="inputProvince" className="form-label" style={{ fontWeight: "500" }}>Provincia</label>
+                    <input type="text" className="form-control shadow-sm" id="inputProvince" placeholder="Navarra..." value={province} onChange={(event) => setProvince(event.target.value)} style={{ borderRadius: "8px" }} />
+                </div>
+
+                <div className="col-md-6">
+                    <label htmlFor="inputCountry" className="form-label" style={{ fontWeight: "500" }}>País</label>
+                    <input type="text" className="form-control shadow-sm" id="inputCountry" placeholder="España..." value={country} onChange={(event) => setCountry(event.target.value)} style={{ borderRadius: "8px" }} />
+                </div>
+
+                <div className="col-md-4">
+                    <label htmlFor="inputPhone" className="form-label" style={{ fontWeight: "500" }}>Teléfono</label>
+                    <input type="text" className="form-control shadow-sm" id="inputPhone" value={phone} onChange={(event) => setPhone(event.target.value)} style={{ borderRadius: "8px" }} />
+                </div>
+
+                <div className="col-md-2">
+                    <label htmlFor="inputZip" className="form-label" style={{ fontWeight: "500" }}>Código Postal</label>
+                    <input type="text" className="form-control shadow-sm" id="inputZip" value={zipcode} onChange={(event) => setZipcode(event.target.value)} style={{ borderRadius: "8px" }} />
+                </div> */}

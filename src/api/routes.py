@@ -45,6 +45,14 @@ def get_customers():
         return jsonify({"msg": "No existen datos"}), 200
     return jsonify(result), 200
 
+#####GET ONE PRODUCER####
+@api.route('/customer/<int:customer_id>', methods=["GET"])
+def get_one_customer(customer_id):
+    customer = Customer.query.filter_by(id=customer_id).first()
+    if not customer:
+        return jsonify({"msg": "No existen usuarios creados"}), 404
+    return jsonify(customer.serialize()), 200
+
 
 #####POST Customer#####
 @api.route('/customers', methods=['POST'])
@@ -55,33 +63,33 @@ def create_customer():
         if not data:
             return jsonify({"msg": "No se han proporcionado datos"}), 400
         # Validar campos obligatorios
-        required_fields = ['name', 'last_name', 'email', 'password', 'address', 'province', 'zipcode', 'phone', 'country']
+        required_fields = [ 'email', 'password']
         for field in required_fields:
             if not data.get(field):
                 return jsonify({"msg": f"Falta el campo {field}"}), 400
         # Asigno los datos
-        name = data.get('name')
-        last_name = data.get('last_name')
+        # name = data.get('name')
+        # last_name = data.get('last_name')
         email = data.get('email')
         password = data.get('password')
-        address = data.get('address')
-        province = data.get('province')
-        zipcode = data.get('zipcode')
-        phone = data.get('phone')
-        country = data.get('country')
+        # address = data.get('address')
+        # province = data.get('province')
+        # zipcode = data.get('zipcode')
+        # phone = data.get('phone')
+        # country = data.get('country')
         # Hashear la contraseña antes de almacenar
         hashed_password = generate_password_hash(password)
         # Añadir el nuevo cliente
         new_customer = Customer(
-            name=name,
-            last_name=last_name,
+            # name=name,
+            # last_name=last_name,
             email=email,
             password=hashed_password,
-            address=address,
-            province=province,
-            zipcode=zipcode,
-            phone=phone,
-            country=country
+            # address=address,
+            # province=province,
+            # zipcode=zipcode,
+            # phone=phone,
+            # country=country
         )
         # Actualizar la base de datos
         db.session.add(new_customer)
@@ -106,7 +114,7 @@ def edit_customer(id):
         last_name = data.get('last_name')
         email = data.get('email')
         password = data.get('password')
-        adress = data.get('adress')
+        address = data.get('address')
         # province_name = data.get ('province')
         province = data.get('province')
         zipcode = data.get ('zipcode')
@@ -121,8 +129,8 @@ def edit_customer(id):
             customer.email = email
         if password:
             customer.password = password
-        if adress:
-            customer.adress = adress
+        if address:
+            customer.address = address
         if province:
             customer.province = province
         if zipcode:
@@ -167,7 +175,7 @@ def customer_login():
         password = data.get('password')
         print(email)
         print(password)
-        #Busco el usuario con el amail recibido
+        #Busco el usuario con el email recibido
         user = Customer.query.filter_by(email=email).first()
         #Verificamos para hacer el login
         if user and check_password_hash(user.password, password):
@@ -200,9 +208,6 @@ def view_product(product_id):
         return jsonify (message="Product not found"), 404
         
     return jsonify(product.serialize()), 200
-
-        
-    
 
 #####POST Products#####
 
@@ -536,26 +541,27 @@ def delete_producer(producer_id):
 
     return jsonify(producer.serialize()), 200
 
-# #####EDIT ONE PRODUCER#####
-# @api.route('/producerInfo/<int:producer_id>', methods=['PUT'])
-# def edit_producer(producer_id):
-#     producer_data = request.get_json()
-#     print(producer_data)
-#     producer = Producer.query.filter_by(id=producer_id).first()
-#     if producer is None:
-#         return ("error","producer not found")
-#     producer.email= producer_data.get("email", producer.email)
-#     producer.password= producer_data.get("password", producer.password)
-#     producer.brand_name= producer_data.get("brand_name", producer.brand_name)
-#     producer.user_name= producer_data.get("user_name", producer.user_name)
-#     producer.user_last_name= producer_data.get("user_last_name", producer.user_last_name)
-#     producer.cif= producer_data.get("cif", producer.cif)
-#     producer.address= producer_data.get("address", producer.address)
-#     producer.province= producer_data.get("province", producer.province)
-#     producer.zip_code= producer_data.get("zip_code", producer.zip_code)
-#     producer.phone= producer_data.get("phone", producer.phone)
-#     db.session.commit()
-#     return jsonify(producer.serialize()), 200
+#####EDIT ONE PRODUCER#####
+@api.route('/producerInfo/<int:producer_id>', methods=['PUT'])
+def edit_producer(producer_id):
+    producer_data = request.get_json()
+    print(producer_data)
+    producer = Producer.query.filter_by(id=producer_id).first()
+    if producer is None:
+        return ("error","producer not found")
+    producer.email= producer_data.get("email", producer.email)
+    producer.password= producer_data.get("password", producer.password)
+    producer.brand_name= producer_data.get("brand_name", producer.brand_name)
+    producer.user_name= producer_data.get("user_name", producer.user_name)
+    producer.user_last_name= producer_data.get("user_last_name", producer.user_last_name)
+    producer.cif= producer_data.get("cif", producer.cif)
+    producer.address= producer_data.get("address", producer.address)
+    producer.province= producer_data.get("province", producer.province)
+    producer.zip_code= producer_data.get("zip_code", producer.zip_code)
+    producer.phone= producer_data.get("phone", producer.phone)
+    producer.city= producer_data.get("city", producer.city)
+    db.session.commit()
+    return jsonify(producer.serialize()), 200
 
 @api.route('/producer/<int:producer_id>', methods=['PUT'])
 def add_producer_info(producer_id):
@@ -574,6 +580,7 @@ def add_producer_info(producer_id):
     producer.province= producer_data.get("province", producer.province)
     producer.zip_code= producer_data.get("zip_code", producer.zip_code)
     producer.phone= producer_data.get("phone", producer.phone)
+    producer.city= producer_data.get("city", producer.city)
     db.session.commit()
     return jsonify(producer.serialize()), 200
 
