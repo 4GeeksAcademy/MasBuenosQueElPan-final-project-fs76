@@ -58,9 +58,9 @@ def upgrade():
                existing_nullable=True)
 
     with op.batch_alter_table('product_categories', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('category', sa.String(length=40), nullable=False))
+        batch_op.add_column(sa.Column('categorie', sa.String(length=40), nullable=False))
         batch_op.drop_constraint('product_categories_categorie_key', type_='unique')
-        batch_op.create_unique_constraint(None, ['category'])
+        batch_op.create_unique_constraint(None, ['categorie'])
         batch_op.drop_column('categorie')
 
     # ### end Alembic commands ###
@@ -72,7 +72,7 @@ def downgrade():
         batch_op.add_column(sa.Column('categorie', sa.VARCHAR(length=40), autoincrement=False, nullable=False))
         batch_op.drop_constraint(None, type_='unique')
         batch_op.create_unique_constraint('product_categories_categorie_key', ['categorie'])
-        batch_op.drop_column('category')
+        batch_op.drop_column('categorie')
 
     with op.batch_alter_table('producer', schema=None) as batch_op:
         batch_op.alter_column('phone',

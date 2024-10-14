@@ -11,8 +11,8 @@ export const ProducerProfile = () => {
     const {producerId} = useParams()
     const [email, setEmail] = useState("")
     const [name, setName] = useState("")
-    const [lastName, setlastName] = useState("")
-    const [brandName, setbrandName] = useState("")
+    const [lastName, setLastName] = useState("")
+    const [brandName, setBrandName] = useState("")
     const [cif, setCif] = useState("")
     const [address, setAddress] = useState("")
     const [phone, setPhone] = useState("")
@@ -22,26 +22,42 @@ export const ProducerProfile = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     useEffect(()=>{
+        actions.checkToken()
         actions.getProducer(producerId)
-        fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
-        .then((response)=> response.json())
-        .then((data)=>{
-            setEmail(data.email)
-            setName(data.user_name)
-            setlastName(data.user_last_name)
-            setbrandName(data.brand_name)
-            setCif(data.cif)
-            setAddress(data.address)
-            setPhone(data.phone)
-            setZipcode(data.zip_code)
-            setCity(data.city)
-            setProvince(data.province)
+        // fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`)
+        // .then((response)=> response.json())
+        // .then((data)=>{
+        //     setEmail(data.email)
+        //     setName(data.user_name)
+        //     setLastName(data.user_last_name)
+        //     setBrandName(data.brand_name)
+        //     setCif(data.cif)
+        //     setAddress(data.address)
+        //     setPhone(data.phone)
+        //     setZipcode(data.zip_code)
+        //     setProvince(data.province)
     
-        })
+        // })
     },[producerId])
+    useEffect(() => {
+        const producer = store.producersInfo; // Asegúrate de que esto sea un objeto, no un array
+        console.log(producer);
+        
+        if (producer) {
+            setEmail(producer.email);
+            setName(producer.user_name);
+            setLastName(producer.user_last_name);
+            setBrandName(producer.brand_name);
+            setCif(producer.cif);
+            setAddress(producer.address);
+            setPhone(producer.phone);
+            setZipcode(producer.zip_code);
+            setProvince(producer.province);
+        }
+    }, [store.producersInfo]);
     const handleSaveEditInfo = (event) =>{
         event.preventDefault()
-        const newData={
+        const updatedInfo={
             brand_name: brandName,
             user_name: name,
             user_last_name: lastName,
@@ -52,7 +68,7 @@ export const ProducerProfile = () => {
             phone: phone,
             city: city
         }
-        actions.editProducer(producerId, newData)
+        actions.editProducer(producerId, updatedInfo)
         setLoading(true)
         setTimeout(() => {
             setLoading(false);
@@ -63,8 +79,10 @@ export const ProducerProfile = () => {
 
 	return (
 		<div className="container mt-5">
-            <h1 className="text-center mb-4" style={{ fontSize: "32px", fontWeight: "bold", color: "#007bff" }}>
-                Bienvenido a tu perfil, <span>{store.producersInfo.user_name}</span>
+            {store.producersInfo.map((producer, index) => 
+            <>
+            <h1 className="text-center mb-4" key={index} style={{ fontSize: "32px", fontWeight: "bold", color: "#007bff" }}>
+                Hola, <span>{producer.user_name}</span>, aquí puedes editar tu información y la de tu empresa.
             </h1>
             <div className="card" style={{ padding: "20px", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
                 {/* Información de usuario */}
@@ -75,7 +93,7 @@ export const ProducerProfile = () => {
                 <form onSubmit={handleSaveEditInfo}>
                     <div className="mb-4">
                         <label htmlFor="emailInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Email</label>
-                        <input type="email" className="form-control" id="emailInput" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@ejemplo.com"
+                        <input type="email" className="form-control" id="emailInput" value={producer.email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@ejemplo.com"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", transition: "box-shadow 0.3s" }}
                             onFocus={(e) => e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)'}
                             onBlur={(e) => e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'}/>
@@ -90,17 +108,17 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="nameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Nombre</label>
-                        <input type="text" className="form-control" id="nameInput" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre"
+                        <input type="text" className="form-control" id="nameInput" value={producer.user_name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="lastNameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Apellidos</label>
-                        <input type="text" className="form-control" id="lastNameInput" value={lastName} onChange={(e) => setlastName(e.target.value)} placeholder="Tus apellidos"
+                        <input type="text" className="form-control" id="lastNameInput" value={producer.user_last_name} onChange={(e) => setLastName(e.target.value)} placeholder="Tus apellidos"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="phoneInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Número de teléfono</label>
-                        <input type="text" className="form-control" id="phoneInput" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Tu número de teléfono"
+                        <input type="text" className="form-control" id="phoneInput" value={producer.phone} onChange={(e) => setPhone(e.target.value)} placeholder="Tu número de teléfono"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
 
@@ -113,7 +131,7 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="brandNameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Nombre de Empresa</label>
-                        <input type="text" className="form-control" id="brandNameInput" value={brandName} onChange={(e) => setbrandName(e.target.value)} placeholder="Nombre de tu empresa"
+                        <input type="text" className="form-control" id="brandNameInput" value={producer.brand_name} onChange={(e) => setBrandName(e.target.value)} placeholder="Nombre de tu empresa"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
@@ -123,7 +141,7 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="addressInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Dirección</label>
-                        <input type="text" className="form-control" id="addressInput" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Dirección de la empresa"
+                        <input type="text" className="form-control" id="addressInput" value={producer.address} onChange={(e) => setAddress(e.target.value)} placeholder="Dirección de la empresa"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
@@ -133,12 +151,12 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="zipcodeInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Código Postal</label>
-                        <input type="text" className="form-control" id="zipcodeInput" value={zipcode} onChange={(e) => setZipcode(e.target.value)} placeholder="Código postal"
+                        <input type="text" className="form-control" id="zipcodeInput" value={producer.zip_code} onChange={(e) => setZipcode(e.target.value)} placeholder="Código postal"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="provinceInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Provincia</label>
-                        <input type="text" className="form-control" id="provinceInput" value={province} onChange={(e) => setProvince(e.target.value)} placeholder="Provincia"
+                        <input type="text" className="form-control" id="provinceInput" value={producer.province} onChange={(e) => setProvince(e.target.value)} placeholder="Provincia"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="d-flex justify-content-between">
@@ -153,6 +171,8 @@ export const ProducerProfile = () => {
                     </div>
                 </form>
             </div>
+            </>
+            )}
         </div>
 	);
 };

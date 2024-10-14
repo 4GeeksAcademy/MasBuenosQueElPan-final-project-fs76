@@ -3,45 +3,45 @@ import { Link } from "react-router-dom";
 
 import { Context } from "../store/appContext";
 
-export const Categories = () => {
+export const categories = () => {
 	const { store, actions } = useContext(Context);
-	const [newCategoryName, setNewCategoryName] = useState("");
-	const [editingCategoryId, setEditingCategoryId] = useState(null);
-	const [updatedCategoryName, setUpdatedCategoryName] = useState("");
+	const [newcategorieName, setNewcategorieName] = useState("");
+	const [editingcategorieId, setEditingcategorieId] = useState(null);
+	const [updatedcategorieName, setUpdatedcategorieName] = useState("");
 	console.log(store.categories)
 	useEffect(() => {
-		const loadCategories = async () => {
-			await actions.getCategories();
+		const loadcategories = async () => {
+			await actions.getcategories();
 		};
-		loadCategories();
+		loadcategories();
 	}, []);
 
-	const handleAddCategory = () => {
+	const handleAddcategorie = () => {
 		// Validación básica: asegurarse de que el campo no esté vacío
-		if (newCategoryName.trim() === "") {
+		if (newcategorieName.trim() === "") {
 			alert("El nombre de la categoría no puede estar vacío");
 			return;
 		}
 		// Llamar a la función que añadirá la categoría
-		actions.addCategory(newCategoryName);
+		actions.addcategorie(newcategorieName);
 		// Limpiar el campo de entrada
-		setNewCategoryName("");
+		setNewcategorieName("");
 	};
 	// Esto inicia la edición de la categoría .
-	const startEditing = (category) => {
-		setEditingCategoryId(category.id);
-		setUpdatedCategoryName(category.categorie);
+	const startEditing = (categorie) => {
+		setEditingcategorieId(categorie.id);
+		setUpdatedcategorieName(categorie.categorie);
 	};
 	// Función para guardar los cambios en la categoría
-	const handleSave = (categoryId) => {
-		actions.updateCategory(categoryId, updatedCategoryName);
-		setEditingCategoryId(null); // Salir del modo de edición
+	const handleSave = (categorieId) => {
+		actions.updatecategorie(categorieId, updatedcategorieName);
+		setEditingcategorieId(null); // Salir del modo de edición
 	};
 
 	// Función para cancelar la edición
 	const cancelEditing = () => {
-		setEditingCategoryId(null);
-		setUpdatedCategoryName("");
+		setEditingcategorieId(null);
+		setUpdatedcategorieName("");
 	};
 
 	return (
@@ -53,18 +53,18 @@ export const Categories = () => {
 						return (
 							<li key={index} className="list-group-item d-flex justify-content-between align-items-center">
 
-								{editingCategoryId === item.id ? (
+								{editingcategorieId === item.id ? (
 									<input
 										type="text"
 										className="form-control"
-										value={updatedCategoryName}
-										onChange={(e) => setUpdatedCategoryName(e.target.value)}
+										value={updatedcategorieName}
+										onChange={(e) => setUpdatedcategorieName(e.target.value)}
 									/>
 								) : (
 									<span>{item.categorie}</span> // Mostrar el nombre si no está en modo edición
 								)}
 								<div className="ml-auto">
-									{editingCategoryId === item.id ? (
+									{editingcategorieId === item.id ? (
 										<>
 											<button className="btn btn-success m-2" onClick={() => handleSave(item.id)}>
 												Guardar
@@ -80,7 +80,7 @@ export const Categories = () => {
 											</button>
 											<button
 												className="btn btn-danger m-2"
-												onClick={() => actions.deleteCategory(item.id)}
+												onClick={() => actions.deletecategorie(item.id)}
 											>
 												Borrar
 											</button>
@@ -101,10 +101,10 @@ export const Categories = () => {
 					type="text"
 					className="form-control"
 					placeholder="Añade aquí la nueva categoría"
-					value={newCategoryName} // Controlamos el estado del input
-					onChange={(e) => setNewCategoryName(e.target.value)}
+					value={newcategorieName} // Controlamos el estado del input
+					onChange={(e) => setNewcategorieName(e.target.value)}
 				/>
-				<button className="btn btn-success my-2" onClick={handleAddCategory}>
+				<button className="btn btn-success my-2" onClick={handleAddcategorie}>
 					Nueva categoría
 				</button>
 			</div>

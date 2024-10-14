@@ -13,34 +13,6 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from werkzeug.security import check_password_hash , generate_password_hash
 
-from cloudinary import CloudinaryImage
-from cloudinary.api import resources
-import cloudinary
-import cloudinary.uploader
-from cloudinary.utils import cloudinary_url
-
-
-
-# Configuration       
-cloudinary.config( 
-    cloud_name = "dw5sqtvsd", 
-    api_key = "214752669141281", 
-    api_secret = "WPEPv_-AdZNmjbMCkv9k7opE3V8", # Click 'View API Keys' above to copy your API secret
-    secure=True
-)
-
-# Upload an image
-upload_result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
-                                           public_id="shoes")
-print(upload_result["secure_url"])
-
-# Optimize delivery by resizing and applying auto-format and auto-quality
-optimize_url, _ = cloudinary_url("shoes", fetch_format="auto", quality="auto")
-print(optimize_url)
-
-# Transform the image: auto-crop to square aspect_ratio
-autocrop_url, _ = cloudinary_url("shoes", width=500, height=500, crop="auto", gravity="auto")
-print(autocrop_url)
 
 api = Blueprint('api', __name__)
 
@@ -218,34 +190,17 @@ def customer_login():
 
 #####GET Products#####
 @api.route('/products', methods=['GET'])
-def view_products():
-    all_products = Product.query.all()
-    result = list(map(lambda product: product.serialize(), all_products))
-    if not result:
-        response_body = {
-            "msg": "No existen datos"
-        }
-        return jsonify(response_body),200
-    return jsonify(result), 200
+def get_products():
+    products = Product.query.all()
+    result = list(map(lambda product: product.serialize(), products))
 
-#####GET Product: Para cuando podamos obtener los productos que haya añadido cada productor, revisar ruta#####
-@api.route('/product', methods=['GET'])
-def view_producer_products():
-    producer_id = request.args.get('producerId')
-    print(producer_id)
-    if producer_id:
-        all_products = Product.query.filter_by(producer_id=producer_id).all()  # Filtrar productos por producer_id
-    else:
-        return {"msg": "No existen datos"}  # Obtener todos los productos si no se proporciona producer_id
-    result = list(map(lambda product: product.serialize(), all_products))
-    if not result:
-        response_body = {
-            "msg": "No existen datos"
-        }
-        return jsonify(response_body), 200
     return jsonify(result), 200
+# @api.route('/products', methods=['GET'])
+# def get_products():
+#     products = Product.query.all()
+#     return jsonify([product.serialize() for product in products]), 200
 
-#####POST Products#####
+#####GET Product#####
 @api.route('/product/<int:product_id>', methods=['GET'])
 def view_product(product_id):
     product = Product.query.get(product_id)
@@ -260,6 +215,7 @@ def view_product(product_id):
 def add_product():
     try:
         data = request.get_json()
+        print(data)
         if not data:
             return jsonify({"msg":"No se han proporcionado datos"}), 400 
         ##Body Obtener respuesta
@@ -267,10 +223,36 @@ def add_product():
         price = data.get('price')
         description = data.get('description')
         origin = data.get('origin')
-        producer_id=data.get('producer_id')
+        brief_description = data.get('brief_description')
+        weight = data.get('weight')
+        volume = data.get('volume')
+        minimum = data.get('minimum')
+        categorie_id = data.get('categorie_id')
+        producer_id = data.get('producer_id')
+        available = data.get('available')
+        last_units = data.get('last_units')
+        soon = data.get('soon')
+        not_available = data.get('not_available')
+        print(producer_id)
+        # categorie_name= data.get('categorie_name')
+        # categorie_imageUrl= data.get('categorie_imageUrl')
+        # producer_email= data.get('producer_email')
+        # producer_brand_name= data.get('producer_brand_name')
+
         #Validación de la respuesta
-        if not name or not price or not description or not origin:
+        if not name or not price or not description or not origin or not brief_description or not minimum:
             return jsonify({"msg": "Faltan datos"}), 400
+        weight = data.get('weight')
+        volume = data.get('volume')
+
+        if (weight and volume) or (not weight and not volume):
+            return jsonify({"msg": "Debes proporcionar solo uno de los campos: weight o volume."}), 400
+
+        # Asegúrate de convertir weight y volume a enteros si están presentes
+        if weight:
+            weight = int(weight) if weight else None
+        if volume:
+            volume = int(volume) if volume else None
         #Hago verificación de que el precio sea número
         try:
             price = float(price)
@@ -283,9 +265,23 @@ def add_product():
             name=name,
             price=price,
             description=description,
-            origin=origin, 
+            brief_description=brief_description,
+            origin=origin,
+            weight=weight,
+            volume=volume,
+            minimum=minimum,
+            categorie_id=categorie_id,
             producer_id=producer_id,
+            available=available,
+            last_units=last_units,
+            soon=soon,
+            not_available=not_available
+            # categorie_name=categorie_name,
+            # categorie_imageUrl=categorie_imageUrl,
+            # producer_email=producer_email,
+            # producer_brand_name=producer_brand_name,
         )
+        print("nuevo producto desde routes",new_product)
         #Actualizar la base de datos
         db.session.add(new_product)
         db.session.commit()
@@ -309,11 +305,21 @@ def edit_product(id):
         data = request.get_json()
         if not data:
             return jsonify({"msg":"No se han proporcionado datos"}), 400
-        name = data.get("name")
-        price = data.get("price")
-        description = data.get("description")
-        origin = data.get("origin")
-        producer_id=data.get("producer_id")
+        
+        name = data.get('name')
+        price = data.get('price')
+        description = data.get('description')
+        origin = data.get('origin')
+        brief_description = data.get('brief_description')
+        weight = data.get('weight')
+        volume = data.get('volume')
+        minimum = data.get('minimum')
+        categorie_id= data.get('categorie_id')
+        producer_id= data.get('producer_id')
+        available = data.get('available')
+        last_units = data.get('last_units')
+        soon = data.get('soon')
+        not_available = data.get('not_available')
         #Actualizamos la base de datos
         if name:
             product.name = name
@@ -323,12 +329,43 @@ def edit_product(id):
             except ValueError:
                 return jsonify({"msg":"El precio debe ser un número"}), 400
             product.price = price
-        if description:
-            product.description = description
         if origin:
             product.origin = origin
+        if weight:
+            try:
+                product.weight = int(weight)
+            except ValueError:
+                return jsonify({"msg":"El precio debe ser un número"}), 400
+            product.weight = weight
+        if volume:
+            try:
+                product.volume = int(volume)
+            except ValueError:
+                return jsonify({"msg":"El precio debe ser un número"}), 400
+            product.volume = volume
+        if minimum:
+            try:
+                product.minimum = int(minimum)
+            except ValueError:
+                return jsonify({"msg":"El precio debe ser un número"}), 400
+            product.minimum = minimum
+        if brief_description:
+            product.brief_description = brief_description
+        if description:
+            product.description = description
+        if categorie_id:
+            product.categorie_id = categorie_id
         if producer_id:
             product.producer_id = producer_id
+        if available:
+            product.available = available
+        if last_units:
+            product.last_units = last_units
+        if soon:
+            product.soon = soon
+        if not_available:
+            product.not_available = not_available
+
         #Guardamos los datos en la base de datos
         db.session.commit()
         return jsonify(product.serialize()),200
@@ -339,20 +376,30 @@ def edit_product(id):
 
 #####DELETE Products#####
 
-@api.route('/product/<int:id>', methods=['DELETE'])
-def delete_product(id):
+@api.route('/product/<int:productId>', methods=['DELETE'])
+def delete_product(productId):
     try:
         #Seleccionamos el producto que queremos eliminar
-        product = Product.query.get(id)
+        product = Product.query.get(productId)
         if not product:
             return jsonify({"msg": "Producto no encontrado"}), 404
         #Eliminamos el producto
         db.session.delete(product)
         db.session.commit()
-        return jsonify({"msg":"se ha eliminado el producto"}), 200
+        return jsonify({"msg":"se ha eliminado el producto", "producer_id": product.producer_id}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+    
+# @api.route('/producer/<int:producer_id>', methods=['DELETE'])
+# def delete_producer(producer_id):
+#     producer = Producer.query.filter_by(id=producer_id).first()
+#     if producer is None:
+#         return jsonify("ERROR: Could not delete the account. Maybe it doesn't exist"), 404
+#     db.session.delete(producer)
+#     db.session.commit()
+
+#     return jsonify(producer.serialize()), 200
 
 ####GET PRODUCERS PRODUCTS####
 @api.route("/producer/product/<int:producerId>", methods=["GET"])
@@ -364,6 +411,7 @@ def get_producer_products(producerId):
         return jsonify({"message": "No se encontraron productos para este productor."}), 404
 
     return jsonify([product.serialize() for product in producer_products]), 200
+
 
 ####PRODUCER SINGUP #####
 @api.route('/producer/signup', methods=['POST'])
@@ -379,9 +427,10 @@ def handle_signup():
     # zip_code = request.json["zip_code"]
     # phone = request.json["phone"]
     print(email,password)
+    hashed_password = generate_password_hash(password)
     new_producer = Producer(
         email=email,
-        password=password,
+        password=hashed_password,
         # brand_name=brand_name,
         # user_name=user_name,
         # user_last_name=user_last_name,
@@ -438,8 +487,7 @@ def view_users():
 def handle_login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
-    # brand_name = request.json.get("brand_name", None)
-    # print(brand_name)
+
     producer = Producer.query.filter_by(email=email).first()
     if producer is None:
         print("email does not exist")
@@ -447,13 +495,20 @@ def handle_login():
     if producer.email != email:
         print("incorrect email")
         return jsonify({"msg": "Password or email incorrect"}), 401
-    if producer.password != password:
-        print("incorrect password")
-        return jsonify({"msg": "Password or email incorrect"}), 401
-    access_token = create_access_token(identity=email)
-    is_fill = producer.brand_name is not None and producer.brand_name != ""
-    # if producer.brand_name is None:
-    return jsonify(access_token=access_token, is_verify=True, is_fill=is_fill, producer_id=producer.id, brand_name=producer.brand_name)
+    if not check_password_hash(producer.password, password):
+        print("Incorrect password")
+        return jsonify({"msg": "Incorrect password"}), 401
+    
+    access_token = create_access_token(identity=producer.id)
+    is_fill = bool(producer.brand_name)
+    # is_fill = producer.brand_name is not None and producer.brand_name != ""
+        # if producer.brand_name is None:
+    return jsonify({"access_token": access_token,
+                    "is_verify": True,
+                    "is_fill": is_fill,
+                    "producer_id": producer.id,
+                    "brand_name": producer.brand_name})
+
     # return jsonify(access_token=access_token, is_verify=True, is_fill=True, producer_id=producer.id, brand_name=producer.brand_name)
 
 # Protect a route with jwt_required, which will kick out requests
@@ -529,25 +584,26 @@ def add_producer_info(producer_id):
     db.session.commit()
     return jsonify(producer.serialize()), 200
 
-#####GET CATEGORIES#####
+#####GET categorieS#####
 @api.route('/categories', methods=['GET'])
 def get_categories():
     all_categories= ProductCategories.query.all()    
-    results = list (map(lambda categorie: categorie.serialize (), all_categories)) 
+    results = list (map(lambda categorie: categorie.serialize (), all_categories))
+    print(results)
     return jsonify(results), 200
 
 
-####GET ONE CATEGORIE#####
+####GET ONE categorie#####
 @api.route('/categories/<int:categorie_id>', methods=['GET'])
 def get_categorie(categorie_id):
-    print(f"Fetching category with ID: {categorie_id}")
+    print(f"Fetching categorie with ID: {categorie_id}")
     categorie = ProductCategories.query.filter_by(id=categorie_id).first()
-    print(f"Category fetched: {categorie}")
+    print(f"categorie fetched: {categorie}")
     if categorie is None:
-        return jsonify({"msg": "Category not found"}), 404
+        return jsonify({"msg": "categorie not found"}), 404
     return jsonify(categorie.serialize()), 200
 
-#####DELETE ONE CATEGORIE####
+#####DELETE ONE categorie####
 @api.route('/categories/<int:categorie_id>', methods=['DELETE'])
 def delete_categorie(categorie_id):
     print(categorie_id)
@@ -558,40 +614,52 @@ def delete_categorie(categorie_id):
     db.session.commit()
     return jsonify({'message': f' Has  borrado la categoría {categorie_id}'}), 200
 
-#### POST CETEGORIES#####
+#### GET categorieS#####
 @api.route('/images', methods=['GET'])
 def get_images():
     try:
-        resources = cloudinary.api.resources(type="upload", max_results=30)
-        print("devolución resources cloudinary", resources)
-        images = [{'url': resource['secure_url'], 'public_id': resource['public_id']} for resource in resources['resources']]
+        categories = ProductCategories.query.all()
+        images = [{'url': categorie.imageUrl, 'categorie': categorie.name, 'id': categorie.id} for categorie in categories]
         return jsonify(images), 200
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'error': str(e)}), 500
+#### GET categorie#####  
+@api.route('/images/<int:categorie_id>', methods=['GET'])
+def get_image_by_categorie(categorie_id):
+    try:
+        categorie = ProductCategories.query.get(categorie_id)
+        if categorie:
+            image = {'imageUrl': categorie.imageUrl, 'categorie': categorie.categorie}
+            return jsonify(image), 200
+        else:
+            return jsonify({'error': 'Categoría no encontrada'}), 404
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
     
-@api.route('/categories', methods=['POST'])
-def create_categories():
-    categories = [
-        ProductCategories(categorie='Cereales', imageUrl= "beneficios-cereales-integrales-para-ninos_ae7vap"),
-        ProductCategories(categorie='Verduras', imageUrl='Cesta-de-verdura-ecologica_wzxave'),
-        # ProductCategories(categorie='Frutas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutas-de-temporada_rkivoj'),
-        # ProductCategories(categorie='Frutos secos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutos_secos_31-blog-rrss-fb_rp9ggm'),
-        # ProductCategories(categorie='Carnes', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/carne_plgsnd'),
-        # ProductCategories(categorie='Productos del mar', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/mar_ntg96i'),
-        # ProductCategories(categorie='Productos lácteos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/lácteos_chisrm'),
-        # ProductCategories(categorie='Hierbas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/hierbas_gcgf3v'),
-        # ProductCategories(categorie='Especias', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/especias-y-el-mundo-de-la-gastronomia_fezicb'),
-        # ProductCategories(categorie='Vinos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/VINO-TUMBADAS_uqiaxc')
-    ]
-    for category in categories:
-        if not ProductCategories.query.filter_by(categorie=category.categorie).first():
-            db.session.add(category)
-    serialized_categories = [{'categorie': cat.categorie, 'imageUrl': cat.imageUrl} for cat in categories]
+# @api.route('/categories', methods=['POST'])
+# def create_categories():
+#     categories = [
+#         ProductCategories(categorie='Cereales', imageUrl= "beneficios-cereales-integrales-para-ninos_ae7vap"),
+#         ProductCategories(categorie='Verduras', imageUrl='Cesta-de-verdura-ecologica_wzxave'),
+#         # ProductCategories(categorie='Frutas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutas-de-temporada_rkivoj'),
+#         # ProductCategories(categorie='Frutos secos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/frutos_secos_31-blog-rrss-fb_rp9ggm'),
+#         # ProductCategories(categorie='Carnes', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/carne_plgsnd'),
+#         # ProductCategories(categorie='Productos del mar', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/mar_ntg96i'),
+#         # ProductCategories(categorie='Productos lácteos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/lácteos_chisrm'),
+#         # ProductCategories(categorie='Hierbas', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/hierbas_gcgf3v'),
+#         # ProductCategories(categorie='Especias', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/especias-y-el-mundo-de-la-gastronomia_fezicb'),
+#         # ProductCategories(categorie='Vinos', imageUrl='https://res.cloudinary.com/dw5sqtvsd/image/upload/v1/VINO-TUMBADAS_uqiaxc')
+#     ]
+#     for categorie in categories:
+#         if not ProductCategories.query.filter_by(categorie=categorie.categorie).first():
+#             db.session.add(categorie)
+#     serialized_categories = [{'categorie': cat.categorie, 'imageUrl': cat.imageUrl} for cat in categories]
 
-    db.session.commit()
+#     db.session.commit()
 
-    return jsonify("Categorías creadas exitosamente.", serialized_categories), 200
+#     return jsonify("Categorías creadas exitosamente.", serialized_categories), 200
 
 # @api.route('/categories', methods=['POST'])
 # def add_categorie():
@@ -611,7 +679,7 @@ def create_categories():
 #     response_body ={
 #         "msg":"Se ha añadido la categoría"
 #     }
-##### POST CATEGORIES#####
+##### POST categorieS#####
 # @api.route('/categories', methods=['POST'])
 # def add_categorie():
 #     body = request.get_json()
@@ -630,7 +698,7 @@ def create_categories():
 #     return jsonify(response_body), 200
 
 
-##### PUT CATEGORIES#####
+##### PUT categorieS#####
 @api.route('/categories/<int:categorie_id>', methods=['PUT'])
 def update_categorie(categorie_id):
     categorie_data = request.get_json()
@@ -760,27 +828,59 @@ def clear_cart(user_id):
         # Manejo de errores y rollback
         db.session.rollback()
         return jsonify({"message": f"Error al vaciar el carrito: {str(e)}"}), 500
-# @api.route('/cart/<int:user_id>', methods=['DELETE'])
-# def clear_cart(user_id):
-#     CartItem.query.filter_by(customer_cart_id=user_id).delete()
-#     db.session.commit()
-#     return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+
+# @api.route('/upload-image', methods=['POST'])
+# @jwt_required()
+# def upload_image():
+#     # Obtener el archivo subido
+#     file = request.files.get('file')
     
+#     if not file:
+#         return jsonify({"ERROR": "No se proporcionó un archivo."}), 400
 
-    # body = request.get_json()
-
-    # categorie = ProductCategories.query.get(categorie_id)
-    # if categorie is None:
-    #     return jsonify({"error": "La categoría no existe"}), 404
-
-    # if 'categorie' not in body:
-    #     return jsonify({"error": "Indica el nombre de la categoría"}), 400
-    # if body['categorie'] == '':
-    #     return jsonify({"error": "El nombre de la categoría es obligatorio"}), 400
-
-    # categorie.name = body['categorie']
+#     # Verificar si el archivo es una imagen
+#     if not file.filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
+#         return jsonify({"ERROR": "Solo se permiten archivos de imagen"}), 400
     
-    # db.session.commit()
+#     # Verificar el tamaño del archivo
+#     file.seek(0, 2)  # Mover el cursor al final del archivo para obtener el tamaño
+#     if file.tell() > 1024 * 1024 * 5:  # 5MB
+#         return jsonify({"ERROR": "El archivo es demasiado grande"}), 400
+#     file.seek(0)  # Volver al inicio del archivo
 
-    # return jsonify({"msg": f"La categoría {categorie_id} ha sido actualizada"}), 200
+#     try:
+#         # DEBUG: Imprimir el archivo recibido
+#         print(f"Archivo recibido: {file.filename}")
+
+#         # Subir la imagen a Cloudinary
+#         upload_result = cloudinary.uploader.upload(file)
+        
+#         # Obtener el ID del usuario que está subiendo la imagen
+#         producer_id = get_jwt_identity()
+#         producer = Producer.query.get(producer_id)
+
+#         # Verificar cuántas imágenes ya tiene el usuario
+#         if Imagenes.query.filter_by(usuario_id=usuario_id).count() >= 5:
+#             return jsonify({"ERROR": "No se pueden subir más de 5 imágenes por usuario."}), 400
+
+#         # Crear una nueva entrada de imagen
+#         nueva_imagen = Imagenes(
+#             url=upload_result['secure_url'],  # Almacenar la URL de la imagen
+#             public_id=upload_result['public_id'],  # Almacenar el public_id
+#             usuario_id=usuario_id
+#         )
+#         db.session.add(nueva_imagen)
+#         db.session.commit()
+        
+#         # DEBUG: Imprimir la URL de la imagen subida
+#         print(f"Imagen subida con éxito: {upload_result['secure_url']}")
+
+#         # Devolver la URL de la imagen subida
+#         return jsonify({
+#             "message": "Imagen subida con éxito",
+#             "url": upload_result['secure_url']
+#         }), 201
+#     except Exception as e:
+#         print(f"Error al subir imagen: {e}")  # Loggear el error exacto
+#         return jsonify({"error": str(e)}), 500
 
