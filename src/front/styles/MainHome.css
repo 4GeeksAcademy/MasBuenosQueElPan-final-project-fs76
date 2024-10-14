@@ -1,0 +1,16 @@
+#carouselExampleDark {
+    margin-top: 3%;
+    width: 75%;
+    margin-left: 15%;
+    height: 30%;
+}
+
+.carousel-item img {
+    height: 400px;
+    object-fit: cover;
+    width: 100%;
+    opacity: 0.7;
+}
+#campo2 {
+    opacity: 0.5;
+}
