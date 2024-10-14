@@ -4,6 +4,7 @@ import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
 import { Link, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { scryRenderedComponentsWithType } from "react-dom/test-utils";
 
 export const ProducerProfile = () => {
 	const { store, actions } = useContext(Context);
@@ -17,6 +18,7 @@ export const ProducerProfile = () => {
     const [phone, setPhone] = useState("")
     const [zipcode, setZipcode] = useState("")
     const [province, setProvince] = useState("")
+    const [city, setCity] = useState("")
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     useEffect(()=>{
@@ -32,6 +34,7 @@ export const ProducerProfile = () => {
             setAddress(data.address)
             setPhone(data.phone)
             setZipcode(data.zip_code)
+            setCity(data.city)
             setProvince(data.province)
     
         })
@@ -47,6 +50,7 @@ export const ProducerProfile = () => {
             province: province,
             zip_code: zipcode,
             phone: phone,
+            city: city
         }
         actions.editProducer(producerId, newData)
         setLoading(true)
@@ -120,6 +124,11 @@ export const ProducerProfile = () => {
                     <div className="mb-4">
                         <label htmlFor="addressInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Dirección</label>
                         <input type="text" className="form-control" id="addressInput" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Dirección de la empresa"
+                            style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="addressInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Ciudad</label>
+                        <input type="text" className="form-control" id="addressInput" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nombre de la ciudad/pueblo"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">

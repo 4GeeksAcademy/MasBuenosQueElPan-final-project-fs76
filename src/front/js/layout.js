@@ -27,6 +27,7 @@ import { CustomerLoginUpview } from "./pages/customerLoginview";
 import { CustomerSignUp } from "./pages/customerSingUp";
 import { HomeCustView } from "./pages/homeCustView"
 import { MainHome } from "./pages/MainHome";
+import { CustomerInfoForm } from "./pages/customerInfoForm";
 
 const Layout = () => {
     const basename = process.env.BASENAME || "";
@@ -44,6 +45,7 @@ const Layout = () => {
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Producers />} path="/producer/login" />
                         <Route element={<ProducerProfile/>} path="/producer/profile/:producerId" />
+                        <Route element={<CustomerInfoForm/>} path="/customer/profile/:customer_id" />
                         <Route element={<EditProducer />} path="/producer/edit/:producerId" />
                         <Route element={<ProducerSignup />} path="/producer/signup" />
                         <Route element={<ProducerView />} path="/producer/dashboard/:producerId" />
@@ -57,7 +59,7 @@ const Layout = () => {
                         <Route element={<Product />} path="/product" />
                         <Route element={<CustomerLoginUpview />} path="/customer/Login" />
                         <Route element={<CustomerSignUp />} path="/customer/singUp" />
-                        <Route element={<HomeCustView />} path="/customer/home" />
+                        <Route element={<HomeCustView />} path="/customer/home/:customer_id" />
                         <Route element={<ProducerCartView />} path="/producer/cart" />
                         <Route element={<ProducerCartDescriptio />} path="/producer/cart/description/:customer_id" />
                         <Route element={<h1>Not found!</h1>} />

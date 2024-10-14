@@ -16,10 +16,15 @@ export const Navbar = () => {
 		actions.producerLogout();
 		navigate("/")
 	}
+	function handleLogOutCustomer() {
+		actions.logOut()
+		navigate("/")
+	}
 	function handleNewProduct () {
 		console.log("Going to add new product");
 		navigate(`/producer/dashboard/${localStorage.getItem("producerId")}/newproduct`)
 	}
+	console.log(store.token)
 	return (
 		<nav className="navbar navbar-light bg-light">
 			<div className="container">
@@ -69,6 +74,7 @@ export const Navbar = () => {
 				</>
 				 : ""		
 				}
+				{/* Botón dropdown */}
 				<div className="dropdown" style={{ position: "relative", display: "inline-block" }}>
 					{/* {store.token ? (
 						<> */}
@@ -113,7 +119,7 @@ export const Navbar = () => {
 										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
 										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
 									>
-										Perfíl
+										Perfil
 									</Link>
 								</li>
 								<li>
@@ -156,7 +162,95 @@ export const Navbar = () => {
 						<button>Hola nuevos weys</button>
 					</>
 					} */}
-				</div>					
+				</div>	
+				<div className="dropdown" style={{ position: "relative", display: "inline-block" }}>
+					{/* {store.token ? (
+						<> */}
+							<button 
+								className="btn dropdown-toggle" 
+								type="button" 
+								data-bs-toggle="dropdown" 
+								aria-expanded="false"
+								style={{
+									backgroundColor: "#007bff", 
+									color: "#fff", 
+									borderRadius: "10px", 
+									padding: "10px 20px", 
+									border: "none", 
+									boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+									fontWeight: "bold"
+								}}
+							>
+								Profile Customer
+							</button>
+							<ul 
+								className="dropdown-menu" 
+								style={{
+									backgroundColor: "#fff", 
+									borderRadius: "10px", 
+									padding: "10px 0", 
+									boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)", 
+									border: "none",
+									marginTop: "5px"
+								}}
+							>
+								<li>
+									{/* to=`/producer/profile/${localStorage.getItem("producerId")}` */}
+									<Link to={`/customer/profile/${localStorage.getItem("customer_id")}`}
+										className="dropdown-item" 
+										href="#" 
+										style={{ 
+											padding: "10px 20px", 
+											color: "#333", 
+											fontSize: "14px" 
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										Perfil
+									</Link>
+								</li>
+								<li>
+									<Link 
+										to="/producer/cart" 
+										className="dropdown-item" 
+										style={{ 
+											padding: "10px 20px", 
+											color: "#333", 
+											fontSize: "14px", 
+											textDecoration: "none"  // Elimina el subrayado del texto
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										Carrito
+									</Link>
+								</li>
+								<hr/>
+								<li>
+									<button 
+										className="dropdown-item" 
+										onClick={handleLogout}
+										href="#" 
+										style={{ 
+											padding: "5px 20px", 
+											color: "#ff0000", 
+											fontSize: "14px" 
+										}}
+										onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+										onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+									>
+										LogOut
+									</button>
+								</li>
+							</ul>
+						{/* </>)
+					:
+					<>
+						<button>Hola nuevos weys</button>
+					</>
+					} */}
+				</div>				
 			</div>
 		</nav>
 	);
