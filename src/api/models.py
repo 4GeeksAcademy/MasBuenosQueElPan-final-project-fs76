@@ -35,6 +35,10 @@ class Customer(db.Model):
     phone = db.Column (db.String(20), unique = False, nullable = False)
     country = db.Column (db.String(20), unique = False, nullable = False)
     is_active = db.Column (db.Boolean, default=True, nullable=False)
+
+    customer_carts = db.relationship('CustomerCart', back_populates='customer')
+    cart_items = db.relationship('CartItem', back_populates='customer') 
+
     #Representación básica
     def __repr__(self):
         return f'<Customer {self.name}>'
@@ -111,8 +115,8 @@ class Product(db.Model):
     producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)
     # Relación inversa con Producer
     producer = db.relationship('Producer', back_populates='products')
+    cart_items = db.relationship('CartItem', back_populates='product')
     
-
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -153,8 +157,9 @@ class Producer(db.Model):
     zip_code = db.Column(db.String(10), unique=False, nullable=True)  # Usar String para códigos postales
     phone = db.Column(db.String(15), unique=True, nullable=True)  # Usar String para números de teléfono
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-    # Relación con Product
     products = db.relationship('Product', back_populates='producer', lazy=True)
+    cart_items = db.relationship('CartItem', back_populates='producer')
+    customer_cart = db.relationship('CustomerCart', back_populates='producer')
 
     def __repr__(self):
         return f'<Producer {self.email}>'
@@ -208,52 +213,78 @@ class CartProduct(db.Model):
 
 class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    customer_cart_id = db.Column(Integer, unique=False, nullable=False)
-    product_id = db.Column(Integer, unique=False, nullable=False)
     quantity = db.Column(Integer, unique=False, nullable=False)  # Cambiar a Integer
     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     subtotal = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+    # total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)  # Fecha de creación
     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)  # Fecha de actualización
+    product_id = db.Column(Integer, db.ForeignKey('product.id'), nullable=False)
+    customer_cart_id = db.Column(Integer, db.ForeignKey('customer_cart.id'), nullable=False)
+    producer_id = db.Column(Integer, db.ForeignKey('producer.id'), nullable=False)
+    customer_id= db.Column(Integer, db.ForeignKey('customer.id'), nullable=False)
 
+    product = db.relationship('Product', back_populates='cart_items')
+    customer_cart = db.relationship('CustomerCart', back_populates='cart_items')
+    producer = db.relationship('Producer', back_populates='cart_items')
+    customer = db.relationship('Customer', back_populates='cart_items')
+    
     def __repr__(self):
         return f'<CartItem {self.product_id}>'
 
     def serialize(self):
         return {
             "id": self.id,
-            "customer_cart_id": self.customer_cart_id,
-            "product_id": self.product_id,
             "quantity": self.quantity,
             "price": float(self.price),
             "subtotal": float(self.subtotal),
-            "total_price": float(self.total_price)
+            # "total_price": float(self.total_price),
+            "created_at":self.created_at,
+            "updated_at":self.updated_at,
+            "product_id": self.product_id,
+            "customer_cart_id": self.customer_cart_id,
+            "producer_id":self.producer_id,
+            "customer_id":self.customer_id
+
         }
 
 class CustomerCart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(Integer, unique=False, nullable=False)
     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    status = db.Column(String(50), unique=False, nullable=False)
+    new = db.Column(String(50), unique=False, nullable=False)
+    received = db.Column(String(50), unique=False, nullable=False)
+    processing= db.Column(String(50), unique=False, nullable=False)
+    shipped = db.Column(String(50), unique=False, nullable=False)
+    producer_id = db.Column(Integer, db.ForeignKey('producer.id'), nullable=False)
+    customer_id = db.Column(Integer, db.ForeignKey('customer.id'), nullable=False)
+
+    producer = db.relationship('Producer', back_populates='customer_cart')
+    cart_items = db.relationship('CartItem', back_populates='customer_cart')
+    customer = db.relationship('Customer', back_populates='customer_carts')
+    
+
 
     def __repr__(self):
-        return f'<CustomerCart {self.user_id}>'
+        return f'<CustomerCart {self.customer_id}>'
 
     def serialize(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
+            "customer_id": self.customer_id,
             "created_at": self.created_at.isoformat(),  # Formato ISO para serialización
             "updated_at": self.updated_at.isoformat(),  # Formato ISO para serialización
             "total_price": float(self.total_price),
-            "status": self.status
+            "new": self.new,
+            "received": self.received,
+            "processing": self.processing,
+            "shipped": self.shipped,
         }
            
             
 
   
+
 
 

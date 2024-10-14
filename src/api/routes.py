@@ -712,39 +712,97 @@ def get_cart_items():
     results = list(map(lambda cart_item: cart_item.serialize(), all_cart_items)) 
     return jsonify(results), 200
 
-@api.route('/cart', methods=['POST'])
-def add_cart_item():
-       try:
-           data = request.get_json()
-           if not data:
-               return jsonify({"msg": "No se han proporcionado datos"}), 400
+# @api.route('/cart', methods=['POST'])
+# def add_cart_item():
+#        try:
+           
+#            data = request.get_json()
+#            print(data)
+           
+#            if not data:
+#                return jsonify({"msg": "No se han proporcionado datos"}), 400
 
-           customer_cart_id = data.get('customer_cart_id')
-           product_id = data.get('product_id')
-           quantity = data.get('quantity')
-           price = data.get('price')
+#            customer_cart_id = data.get('customer_cart_id')
+#            product_id = data.get('product_id')
+#            quantity = data.get('quantity')
+#            price = data.get('price')
 
-           if not customer_cart_id or not product_id or not quantity or not price:
-               return jsonify({"msg": "Faltan datos requeridos"}), 400
+#            if not customer_cart_id or not product_id or not quantity or not price:
+#                return jsonify({"msg": "Faltan datos requeridos"}), 400
+#            print(customer_cart_id )
+#            print(product_id )
+#            print(quantity)
+#            print(price)
+#            # Crear un nuevo item en el carrito
+#            new_cart_item = CartItem(
+#                customer_cart_id=customer_cart_id,
+#                product_id=product_id,
+#                quantity=quantity,
+#                price=price,
+#                subtotal=Decimal(price) * Decimal(quantity),  # Calculado
+#                total_price=Decimal(price) * Decimal(quantity)  # Calculado
+#            )
 
-           # Crear un nuevo item en el carrito
-           new_cart_item = CartItem(
-               customer_cart_id=customer_cart_id,
-               product_id=product_id,
-               quantity=quantity,
-               price=price,
-               subtotal=Decimal(price) * Decimal(quantity),  # Calculado
-               total_price=Decimal(price) * Decimal(quantity)  # Calculado
-           )
+#            db.session.add(new_cart_item)
+#            db.session.commit()
 
-           db.session.add(new_cart_item)
-           db.session.commit()
+#            return jsonify(new_cart_item.serialize()), 201
+#        except Exception as e:
+#            db.session.rollback()
+#            print(f"Error al añadir al carrito: {str(e)}")  # Para inspeccionar errores
+#            return jsonify({"error": str(e)}), 500
 
-           return jsonify(new_cart_item.serialize()), 201
-       except Exception as e:
-           db.session.rollback()
-           print(f"Error al añadir al carrito: {str(e)}")  # Para inspeccionar errores
-           return jsonify({"error": str(e)}), 500
+@api.route('/cart_item', methods=['POST'])
+def add_item_to_cart():
+    try:
+        data = request.get_json()
+        print (data)
+        if not data:
+            return jsonify({"msg": "No se han proporcionado datos"}), 400
+
+        customer_id = data.get('customer_id')
+        product_id = data.get('product_id')
+        quantity = data.get('quantity')
+        price = data.get('price')
+        print (customer_id)
+        print (product_id)
+        print (quantity)
+        print (price)
+        if not customer_id or not product_id or not quantity or not price:
+            return jsonify({"msg": "Faltan datos requeridos"}), 400
+        
+        cart = CustomerCart.query.filter_by(customer_id=customer_id, new = 'new').first()
+        if cart is None:
+            producer_id = data.get('producer_id')  # Asegúrate de recibir también este ID
+            if producer_id is None:
+                return jsonify({"msg": "El producer_id es requerido para crear un carrito."}), 400
+            cart = CustomerCart(
+                customer_id=customer_id,
+                new='new',
+                total_price = 0,
+                producer_id=producer_id
+            )
+            db.session.add(cart)
+            db.session.commit()
+
+        new_cart_item = CartItem(
+            customer_cart_id = cart.id,
+            product_id = product_id,
+            quantity = quantity,
+            price = price,
+            subtotal = Decimal(price) * Decimal(quantity), 
+            total_price = Decimal(price) * Decimal(quantity),
+            producer_id=producer_id 
+        )
+
+        db.session.add(new_cart_item)
+        db.session.commit()
+
+        return jsonify(new_cart_item.serialize()), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error al añadir al carrito: {str(e)}")  # Para inspeccionar errores
+        return jsonify({"error": str(e)}), 500
        
 @api.route('/cart/<int:product_id>', methods=['DELETE'])
 def remove_cart_item(product_id):
@@ -765,15 +823,15 @@ def remove_cart_item(product_id):
 def save_cart():
     try:
         data = request.get_json()
-        user_id = data.get('customer_cart_id')  # ID del cliente
+        customer_id = data.get('customer_cart_id')  # ID del cliente
         items = data.get('items')  # Ítems del carrito
 
-        if not user_id or not items:
+        if not customer_id or not items:
             return jsonify({"msg": "Faltan datos requeridos"}), 400
 
         # Crear un nuevo carrito con estado 'finalizado'
         new_cart = CustomerCart(
-            user_id=user_id,
+            customer_id=customer_id,
             total_price=sum(item['price'] * item['quantity'] for item in items),
             status='finalizado'
         )
@@ -801,19 +859,19 @@ def save_cart():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
     
-@api.route('/customers_cart/<int:user_id>', methods=['GET'])
-def get_customer_carts(user_id):
+@api.route('/customers_cart/<int:customer_id>', methods=['GET'])
+def get_customer_carts(customer_id):
     try:
-        carts = CustomerCart.query.filter_by(user_id=user_id).all()  # Filtra carritos por user_id
+        carts = CustomerCart.query.filter_by(customer_id=customer_id).all()  # Filtra carritos por user_id
         return jsonify([cart.serialize() for cart in carts]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@api.route('/cart_item/<int:user_id>', methods=['DELETE'])
-def clear_cart(user_id):
+@api.route('/cart_item/<int:customer_id>', methods=['DELETE'])
+def clear_cart(customer_id):
     try:
         # Filtrar y eliminar los elementos del carrito asociados al usuario
-        CartItem.query.filter_by(customer_cart_id=user_id).delete()
+        CartItem.query.filter_by(customer_cart_id=customer_id).delete()
         db.session.commit()
 
         return jsonify({"message": "Carrito vaciado exitosamente."}), 200
