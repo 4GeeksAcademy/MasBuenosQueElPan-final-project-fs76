@@ -186,7 +186,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"brief_description": updatedProduct.brief_description,
 					"description": updatedProduct.description,
 					"categorie_id": updatedProduct.categorie_id,
-					"producer_id": updatedProduct.producer_id
+					"producer_id": updatedProduct.producer_id,
+					"available": updatedProduct.available,
+					"lastUnits": updatedProduct.lastUnits,
+					"soon": updatedProduct.soon,
+					"not_available": updatedProduct.not_available,
 				  });
 				  const requestOptions = {
 					method: "PUT",
@@ -237,6 +241,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 					"minimum": newProduct.minimum,
 					"categorie_id": newProduct.categorie_id,
 					"producer_id": newProduct.producer_id,
+					"available": newProduct.available,
+					"lastUnits": newProduct.lastUnits,
+					"soon": newProduct.soon,
+					"not_available": newProduct.not_available,
 				});
 				console.log("raw product", raw)
 				const requestOptions = {
@@ -447,9 +455,36 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			editProducer: (producerId, updatedInfo) => {
 				const store = getStore();
+				// const raw = JSON.stringify({
+				// "name": updatedInfo.name,
+				// "email": updatedInfo.email,
+				// "brand_name": updatedInfo.brand_name,
+				// "user_name": updatedInfo.user_name,
+				// "user_last_name": updatedInfo.user_last_name,
+				// "cif": updatedInfo.cif,
+				// "address": updatedInfo.address,
+				// "province": updatedInfo.province,
+				// "zip_code": updatedInfo.zip_code,
+				// "phone": updatedInfo.phone,
+				//   });
+				//   const requestOptions = {
+				// 	method: "PUT",
+				// 	headers: {
+				// 		"Content-type": "application/json",
+				// 	},
+				// 	body: raw,
+				// };
 				// Si producersInfo es un objeto, no uses find
-				const currentProducer = store.producersInfo; // Accedes al objeto directamente
-				if (!currentProducer || currentProducer.id !== parseInt(producerId)) {
+				// const currentProducer = store.producersInfo; // Accedes al objeto directamente
+				// if (!currentProducer || currentProducer.id !== parseInt(producerId)) {
+				// 	console.error("Producer not found");
+				// 	return;
+				// }
+				// Obtener el productor actual desde el estado
+				const currentProducer = store.producersInfo.find(producer => producer.id === parseInt(producerId));
+				console.log("currentProducer in edition", currentProducer);
+			
+				if (!currentProducer) {
 					console.error("Producer not found");
 					return;
 				}
