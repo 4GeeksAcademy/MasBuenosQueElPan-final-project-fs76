@@ -15,12 +15,12 @@ export const Navbar = () => {
 		navigate("/")
 	}
 	return (
-		<nav className="navbar navbar-light bg-light">
+		<nav className="navbar bg-dark border-bottom border-body" data-bs-theme="dark">
 			<div className="container">
 				<Link to="/">
-					<span className="navbar-brand mb-0 h1">¡Más Buenos que el Pan!</span>
+					<span className="navbar-brand mb-0 h1 text-secondary">¡Más Buenos que el Pan!</span>
 				</Link>
-				{store.producerIsLogedIn === false
+				{/* {store.producerIsLogedIn === false
 					// && customerIsLogedIn === false 
 					?
 					<>
@@ -33,12 +33,12 @@ export const Navbar = () => {
 							<Link to="/categories">
 								<button className="btn btn-primary">categories</button>
 							</Link>
-						</div>
+						</div> */}
 						{/* Activar esta parte cuando se necesite renderizar lo que verá en el navbar el customer */}
 						{/* {store.customerIsLogedIn === true ? */}
 
 						{/* : ""} */}
-						<div className="ml-auto">
+						{/* <div className="ml-auto">
 							<Link to="/cart">
 								<button className="btn btn-primary">Carrito</button>
 							</Link>
@@ -59,13 +59,15 @@ export const Navbar = () => {
 						</div>
 					</>
 					: ""
-				}
+				} */}
+				
 				{store.producerIsLogedIn === true ?
 					<div className="d-flex justify-content-end w-100">
 						<button type="button" className="btn btn-danger" onClick={handleLogout}>Cerrar sesión</button>
 					</div>
 				: ""
 				}
+				{store.producerIsLogedIn === true ?
 				<div className="dropdown" style={{ position: "relative", display: "inline-block" }}>
 					<button
 						className="btn dropdown-toggle"
@@ -84,22 +86,20 @@ export const Navbar = () => {
 					>
 						Perfil
 					</button>
-					<ul
+					
+						<ul
 						className="dropdown-menu"
 						style={{
 							backgroundColor: "#fff",
 							borderRadius: "10px",
-							padding: "10px 0",
 							boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
 							border: "none",
-							marginTop: "5px"
 						}}
 					>
 						<li>
 						<Link to={`/producer/profile/${localStorage.getItem("producerId")}`}
 								className="dropdown-item"
 								style={{
-									padding: "10px 20px",
 									color: "#333",
 									fontSize: "14px",
 									textDecoration: "none"  // Elimina el subrayado del texto
@@ -114,7 +114,6 @@ export const Navbar = () => {
 								to="/producer/cart"
 								className="dropdown-item"
 								style={{
-									padding: "10px 20px",
 									color: "#333",
 									fontSize: "14px",
 									textDecoration: "none"  // Elimina el subrayado del texto
@@ -124,13 +123,11 @@ export const Navbar = () => {
 							>
 							</Link>
 						</li>
-						<hr />
 						<li>
 							<Link 
 								to="/producer/cart" 
 								className="dropdown-item" 
 								style={{ 
-									padding: "10px 20px", 
 									color: "#333", 
 									fontSize: "14px", 
 									textDecoration: "none"  // Elimina el subrayado del texto
@@ -141,14 +138,12 @@ export const Navbar = () => {
 								Carrito
 							</Link>
 						</li>
-						<hr/>
 						<li>
 							<button 
 								className="dropdown-item" 
 								onClick={handleLogout}
 								href="#" 
 								style={{ 
-									padding: "5px 20px", 
 									color: "#ff0000", 
 									fontSize: "14px" 
 								}}
@@ -158,8 +153,18 @@ export const Navbar = () => {
 								LogOut
 							</button>
 						</li>
-					</ul>
-				</div>
+						</ul>
+					</div>
+					:
+					<>
+					<button type="button" onClick={()=> actions.setDisplayLogin(true)} className="btn btn-black">
+						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" className="bi bi-person-circle" viewBox="0 0 16 16">
+						<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+						<path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+				 		</svg>
+					</button>
+				  	</>
+					}
 			</div>
 		</nav>
 	);

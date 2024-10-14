@@ -59,12 +59,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 				name: "Usuario Test"
 			},
 			producers: [],
+			displayLogin: false,
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			// exampleFunction: () => {
 			// 	getActions().changeColor(0, "green");
 			// },
+			setDisplayLogin: () => {
+				const store = getStore();
+				if (store.displayLogin===false)
+					setStore({ displayLogin: true })
+				else {
+					setStore({ displayLogin: false })
+				}
+			},
 			setToken: (token) => {
 				setStore({ token: token })
 			},
@@ -253,6 +262,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.then((result) => 
 						{console.log("new product added", result)
 						// getActions().getProducts()
+						setStore({products: [...store.products, result]});
 						setStore({producerProducts: [...store.producerProducts, result]});
 						return;
 						// getActions().getProducersProducts(result.producer_id)
