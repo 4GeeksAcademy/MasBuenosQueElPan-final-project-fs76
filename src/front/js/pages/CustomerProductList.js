@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
 import rigoImageUrl from "../../img/rigo-baby.jpg";
+import "../../styles/customerProductList.css";
 
 export const CustomerProductList = () => {
     const { store, actions } = useContext(Context);
@@ -9,7 +10,7 @@ export const CustomerProductList = () => {
     // Obtener productos y categorías al montar el componente
     useEffect(() => {
         actions.getProducts();
-        actions.getcategories();
+        actions.getCategories();
         console.log(store.categories); // Para verificar si las categorías están siendo cargadas
     }, []);
 
@@ -24,7 +25,7 @@ export const CustomerProductList = () => {
                     borderRadius: "5px"
                 }}
             >
-                <h2>categories List</h2>
+                <h2>Categorías</h2>
                 <div className="list-group">
                     {store.categories.length > 0 ? (
                         store.categories.map((categorie, index) => (
@@ -42,19 +43,23 @@ export const CustomerProductList = () => {
 
             {/* Div de Productos */}
             <div className="products-list ml-4" style={{ width: "75%" }}>
-                <h2>Product List</h2>
+                <h2>Nuestros productos</h2>
                 <div className="d-flex flex-wrap gap-3">
                     {store.products.length > 0 ? (
                         store.products.map((product, index) => (
                             <div key={index}>
                                 <div className="card" style={{ width: "18rem" }}>
-                                    <img src={rigoImageUrl} />
+                                    <img className="class" src={product.categorie_imageUrl} />
                                     <div className="card-body">
                                         <h5 className="card-title">{product.name}</h5>
+                                        <p className="Producer">Productor:</p>
+                                        <h4 className="brand-name">{product.producer_brand_name}</h4>
+                                        <p className="card-title">{product.brief_description}</p>
+                                        <p className="card-title">{product.price}€</p>
                                         {/* Cambiar button por Link para la navegación */}
-                                        <Link to={"/product/" + product.id} className="btn btn-primary">
+                                        <Link to={"/product/" + product.id} className="btn btn-blue" style={{ margin: "0 auto" }}>
 
-                                            {product.price}
+                                            Comprar
                                         </Link>
                                     </div>
                                 </div>

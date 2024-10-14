@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+
+
+.btn-blue {
+    background-color: #4b6a54;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: "DM Serif Display", serif;
+}
+
+.btn-blue:hover {
+    background-color: #2f5136;
+    transition: background-color 0.3s ease;
+    color: white;
+}
+h2{
+    color: rgb(45, 103, 83);
+    font-family: "DM Serif Display", serif;
+    
+}
+h5{
+    color: rgb(51, 68, 57);
+    font-family: "DM Serif Display", serif;
+}
+.brand-name {
+    text-align: left; 
+    width: 100%;
+    color: rgb(95, 134, 104);
+}
+.Producer{
+    font-size: 14px;
+    color: rgb(74, 73, 73);
+    font-family: "DM Serif Display", serif;
+}
+.card {
+    background-color: #eff0f0; 
+    border-radius: 10px; 
+}
+.image-class {
+    border-top-left-radius: 10px;   /* Redondear esquina superior izquierda */
+    border-top-right-radius: 10px;  /* Redondear esquina superior derecha */
+}
+h4{
+    text-align: left; 
+    width: 100%;
+    color: rgb(95, 134, 104);
+    font-family: "DM Serif Display", serif;
+}

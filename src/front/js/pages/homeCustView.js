@@ -9,18 +9,18 @@ import { CustomerProductView } from "./CustomerProductView";
 export const HomeCustView = () => {
 	const { store, actions } = useContext(Context);
 	const navigate = useNavigate();
-	const handleLogOut =() =>{
+	const handleLogOut = () => {
 		actions.logOut()
 		if (!store.token) {
 			navigate("/customer/Login");
-		} 
+		}
 	}
 	return (
 		<div className="text-center mt-5">
-			<h1>DIOOOOOSSSS ESTO FUNCIONA!</h1>
+			<h1>Del campo a tu mesa, sin intermediarios.</h1>
 			<CustomerProductList />
 			<CustomerProductView />
-			<button className="btn btn-danger" onClick={()=>handleLogOut()}>LogOut</button>
+			<button className="btn btn-danger" onClick={() => handleLogOut()}>LogOut</button>
 		</div>
 	);
 };

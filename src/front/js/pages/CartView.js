@@ -1,6 +1,7 @@
 import React, { useEffect, useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
+// import "../../styles/customerProductList.css";
 
 export const CartItems = () => {
     const { store, actions } = useContext(Context);
