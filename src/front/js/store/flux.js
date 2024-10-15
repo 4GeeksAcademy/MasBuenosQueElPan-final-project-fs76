@@ -84,6 +84,15 @@ const getState = ({ getStore, getActions, setStore }) => {
 			setTokenProducer: (token) => {
 				setStore({ tokenProducer: token })
 			},
+			verifyCustomerToken: () => {
+                const store = getStore();
+                const token = localStorage.getItem("token");
+                if (token) {
+                    setStore({ token: token,  customerIsLogedIn: true });
+                } else {
+                    setStore({ customerIsLogedIn: false });
+                }
+            },
 			checkToken: () => {
 				return new Promise((resolve, reject) => {
 					const token = localStorage.getItem("token");
@@ -181,20 +190,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 					)
 					.catch((error) => console.error(error));
 			},
-			//Estos son productos!! fetch(process.env.BACKEND_URL + "/api/producers")
-			// getProducts: () => {
-			// 	const store = getStore();
-			// 	const requestOptions = {
-			// 		method: "GET",
-			// 	};
-			// 	fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
-			// 		.then((response) => response.json())
-			// 		.then((data) => {
-			// 			console.log("getting products", data);
-						
-			// 			// setStore({ products: data })
-			// 		})
-			// },
+			//Estos son productos!!
+			getProduct: (productId) => {
+				const store = getStore();
+				const requestOptions = {
+					method: "GET",
+				};
+				fetch(process.env.BACKEND_URL + `/api/product/${productId}`, requestOptions)
+					.then((response) => response.json())
+					.then((data) => {
+						console.log("getting product", data);
+						// setStore({ products: data })
+					})
+			},
 			getProducts: () => {
 				const store = getStore()
 				const requestOptions = {
@@ -422,7 +430,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				})
 				.then((result) => {
 					console.log("Products by category:", result);
-					setStore({ productsByCategory: result });
+					setStore({ productsByCategorie: result.data });
 				})
 				.catch((error) => {
 					console.error(error);

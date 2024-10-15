@@ -1,5 +1,5 @@
 //Nuevo nabvbar:
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -14,10 +14,13 @@ export const Navbar = () => {
 		console.log("Loging out");
 		localStorage.clear();
 		actions.producerLogout();
+		actions.verifyCustomerToken();
 		navigate("/");
-	
-
 	}
+
+	useEffect(()=>{
+        actions.verifyCustomerToken()
+    },[])
 
 	// Menú desplegable común para Producers y Customers
 	const DropdownMenu = ({ profileLink }) => (

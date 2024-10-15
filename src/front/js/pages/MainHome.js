@@ -23,9 +23,9 @@ export const MainHome = () => {
       actions.getProducts();
       // actions.getProductsByCategorie();
   }, []);
-  const handleCategoryClick = (categorieId) => {
-    actions.getProductsByCategorie(categorieId); // Asegúrate de implementar esta acción
-};
+//   const handleCategoryClick = (categorieId) => {
+//     actions.getProductsByCategorie(categorieId); // Asegúrate de implementar esta acción
+// };
 
 
     return (
@@ -148,7 +148,13 @@ export const MainHome = () => {
                             <div className="row">
                                 {store.categories.map((categorie) => (
                                     <div key={categorie.id} className="col-sm-6 col-md-4 col-lg-3 mb-4">
-                                        <div className="card" onClick={() => handleCategoryClick(categorie.id)}>
+                                        <div className="card"
+                                        onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"}
+                                        onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+                                        style={{cursor: "pointer"}}
+                                        onClick={() => navigate(`productByCategorie/${categorie.id}/products`)}
+                                        // onClick={() => actions.getProductsByCategorie(categorie.id)}
+                                        >
                                             <img src={categorie.url} className="card-img-top" alt={categorie.categorie} />
                                             <div className="card-body">
                                                 <h5 className="card-title">{categorie.categorie}</h5>
@@ -186,7 +192,7 @@ export const MainHome = () => {
                                                 <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Origen: {product.origin}</p>
                                                 <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.brief_description}</p>
                                                 <p className="card-text text-black" style={{ fontSize: "14px" }}>{product.producer_brand_name}</p>
-                                                <button type="button" className="btn btn-info d-inline-flex" style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}>
+                                                <button type="button" className="btn btn-info d-inline-flex" onClick={()=> navigate(`/product/${product.id}`)} style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}>
                                                     Details
                                                 </button>
                                                 <button

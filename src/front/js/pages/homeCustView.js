@@ -13,6 +13,11 @@ export const HomeCustView = () => {
     const [customer_name, setCustomerName] = useState(null);
     const [last_name, setLastName] = useState("");
     const [view, setView] = useState("list")
+
+    useEffect(()=>{
+        actions.verifyCustomerToken()
+    },[])
+
     const handleLogOut = () => {
         actions.logOut();
         if (!store.token) {
