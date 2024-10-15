@@ -86,7 +86,7 @@ export const HomeCustView = () => {
                                             <img src={producto.image || rigoImageUrl} className="card-img-top" alt={producto.name} style={{ height: "200px", objectFit: "cover", borderRadius: "15px 15px 0 0" }} />
                                             <div className="card-body">
                                                 <h5 className="card-title" style={{ fontWeight: "600" }}>{producto.name}</h5>
-                                                <p className="card-text">Categoría: {producto.category || "Desconocida"}</p>
+                                                <p className="card-text">Categoría: {producto.categorie_name || "Desconocida"}</p>
                                                 <p className="card-text">Precio: {producto.price} €/kg</p>
                                                 <p className="card-text">Origen: {producto.origin}</p>
                                                 <p className="card-text">Descripción: {producto.description}</p>

@@ -3,6 +3,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 		store: {
 			message: null,
 			products: [],
+			productsByCategorie: [],
 			token: null,
 			producerProducts: [],
 			tokenProducer: null,
@@ -406,6 +407,26 @@ const getState = ({ getStore, getActions, setStore }) => {
 						setStore({ categories: updatedcategories });
 					})
 					.catch((error) => console.error(error));
+			},
+			// obtener productos por categoría
+			getProductsByCategorie: (categorieId) => {
+				const requestOptions = {
+					method: "GET",
+				};
+				fetch(`${process.env.BACKEND_URL}/api/categorie/${categorieId}/products`, requestOptions)
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error('Error al obtener productos por categoría');
+					}
+					return response.json();
+				})
+				.then((result) => {
+					console.log("Products by category:", result);
+					setStore({ productsByCategory: result });
+				})
+				.catch((error) => {
+					console.error(error);
+				});
 			},
 			//Estos son productores!!
 			producerSignup: (email, password) => {

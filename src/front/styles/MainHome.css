@@ -1,7 +1,7 @@
 #carouselExampleDark {
     margin-top: 3%;
-    width: 75%;
-    margin-left: 15%;
+    width: 90%;
+    margin-left: 5%;
     height: 30%;
 }
 
@@ -9,8 +9,93 @@
     height: 400px;
     object-fit: cover;
     width: 100%;
-    opacity: 0.7;
+    /* opacity: 0.7; */
+    border-radius: 7px;
 }
-#campo2 {
-    opacity: 0.5;
+
+.row {
+    margin-left: 5%;
+    width: 90%;
 }
+
+/* From Uiverse.io by satyamchaudharydev */ 
+.producerSignup, .customerSignup {
+    --primary-color: #15a25b;
+    --secondary-color: #fff;
+    --hover-color: #111;
+    --arrow-width: 10px;
+    --arrow-stroke: 2px;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 20px;
+    color: var(--secondary-color);
+    padding: 1em 1.8em;
+    /* margin-left: 20%; */
+    background: var(--primary-color);
+    display: flex;
+    transition: 0.2s background;
+    align-items: center;
+    gap: 0.6em;
+    font-weight: bold;
+  }
+
+.customerSignup {
+    --primary-color: #159ba2;
+    --secondary-color: #fff;
+    --hover-color: #111;
+    --arrow-width: 10px;
+    --arrow-stroke: 2px;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 20px;
+    color: var(--secondary-color);
+    padding: 1em 1.8em;
+    /* margin-left: 20%; */
+    background: var(--primary-color);
+    display: flex;
+    transition: 0.2s background;
+    align-items: center;
+    gap: 0.6em;
+    font-weight: bold;
+  }
+  
+  .producerSignup, .customerSignup .arrow-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .producerSignup .arrow , .customerSignup .arrow {
+    margin-top: 1px;
+    width: var(--arrow-width);
+    background: var(--primary-color);
+    height: var(--arrow-stroke);
+    position: relative;
+    transition: 0.2s;
+  }
+  
+  .producerSignup .arrow::before, .customerSignup .arrow::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    border: solid var(--secondary-color);
+    border-width: 0 var(--arrow-stroke) var(--arrow-stroke) 0;
+    display: inline-block;
+    top: -3px;
+    right: 3px;
+    transition: 0.2s;
+    padding: 3px;
+    transform: rotate(-45deg);
+  }
+  
+  .producerSignup:hover, .customerSignup:hover {
+    background-color: var(--hover-color);
+  }
+  
+  .producerSignup:hover .arrow, .customerSignup:hover .arrow {
+    background: var(--secondary-color);
+  }
+  
+  .producerSignup:hover .arrow:before, .customerSignup:hover .arrow:before{
+    right: 0;
+  }

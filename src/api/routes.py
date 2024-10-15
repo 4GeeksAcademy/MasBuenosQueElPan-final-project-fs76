@@ -697,6 +697,23 @@ def get_image_by_categorie(categorie_id):
 #     }
 #     return jsonify(response_body), 200
 
+#GET products by CATEGORY
+@api.route('/categorie/<int:categorie_id>/products', methods=['GET'])
+def get_products_by_category(categorie_id):
+    try:
+        products = Product.query.filter_by(categorie_id=categorie_id).all()
+        
+        if not products:
+            return jsonify({"message": "No hay productos para esta categoría."}), 404
+        
+        result = [product.serialize() for product in products]
+        return jsonify({
+            "message": "Productos obtenidos con éxito.",
+            "data": result
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": "Ocurrió un error al procesar la solicitud.", "error": str(e)}), 500
 
 ##### PUT categorieS#####
 @api.route('/categories/<int:categorie_id>', methods=['PUT'])

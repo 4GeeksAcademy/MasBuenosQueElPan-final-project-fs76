@@ -16,16 +16,25 @@ export const ProducerSignup = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+        
+        setShowEmptyInputs(false);
+        setShowAt(false);
+        setShowExists(false);
+        setShowSuccessMessage(false);
+
         if (!email || !password) {
             setShowEmptyInputs(true)
+            return;
         }
         if (!email.includes("@")) {
             setShowAt(true)
+            return;
         }
     
         const producerExists = await actions.checkProducerExists(email);
             if (producerExists) {
                 setShowExists(true)
+                return;
             }
             try {
                 await actions.producerSignup(email, password); 
@@ -45,7 +54,7 @@ export const ProducerSignup = () => {
         <>
         <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
             <div className="card shadow-lg p-5" style={{ width: "100%", maxWidth: "500px", borderRadius: "15px", backgroundColor: "#ffffff" }}>
-                <h2 className="text-center mb-4" style={{ color: "#28a745", fontWeight: "bold" }}>Regístrate como Productor</h2>
+                <h2 className="text-center mb-4" style={{ color: "#15a25b", fontWeight: "bold" }}>Regístrate como Productor</h2>
                 
                 {showEmptyInputs && (
                     <div className="alert alert-warning alert-dismissible fade show text-center" role="alert">

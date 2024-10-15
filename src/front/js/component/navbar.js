@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import { Context } from "../store/appContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import "../../styles/navbar.css";
 
 export const Navbar = () => {
 	const { store, actions } = useContext(Context);
@@ -72,10 +73,10 @@ export const Navbar = () => {
 	);
 
 	return (
-		<nav className="navbar bg-dark border-bottom border-body" data-bs-theme="dark">
+		<nav className="navbar border-bottom border-body" id="navbar">
 			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1 text-secondary">¡Más Buenos que el Pan!</span>
+				<Link to="/" className="text-decoration-none">
+					<span className="navbar-brand mb-0 h1">¡Más Buenos que el Pan!</span>
 				</Link>
 
 				{/* Si el producer está logeado */}
@@ -93,12 +94,27 @@ export const Navbar = () => {
 					<DropdownMenu profileLink={`/customer/profile/${customerId}`} />
 				) : (
 					<>
-						<button type="button" onClick={() => actions.setDisplayLogin(true)} className="btn btn-black">
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" className="bi bi-person-circle" viewBox="0 0 16 16">
-								<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-								<path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
-							</svg>
+					<div className="btn-group">
+						<button type="button" className="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" className="bi bi-person-circle" viewBox="0 0 16 16">
+							<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+							<path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+						</svg>
 						</button>
+						<ul className="dropdown-menu">
+							<li><a className="dropdown-item" style={{cursor: "pointer"}} onClick={()=> navigate("/producer/signup")}>Regístrate como productor</a></li>
+							<li><a className="dropdown-item" style={{cursor: "pointer"}} onClick={()=> navigate("customer/signUp")}>Regístrate como comprador</a></li>
+							{/* <li><a class="dropdown-item" href="#">Something else here</a></li> */}
+							<li><hr className="dropdown-divider"/></li>
+							<li><a className="dropdown-item" href="#">Sobre nosotros</a></li>
+						</ul>
+					</div>
+						{/* <button type="button" onClick={() => actions.setDisplayLogin(true)} className="btn btn-black">
+						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" className="bi bi-person-circle" viewBox="0 0 16 16">
+							<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+							<path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+						</svg>
+						</button> */}
 					</>
 				)}
 			</div>

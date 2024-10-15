@@ -1,0 +1,13 @@
+#navbar {
+    background-color: #15a25b;
+}
+
+.navbar-brand {
+    color: rgb(255, 255, 255);
+    /* margin-left: 3%; */
+}
+.navbar-brand:hover {
+    color: rgb(32, 55, 29);
+    /* margin-left: 3%; */
+}
+
