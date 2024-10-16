@@ -12,14 +12,19 @@ export const HomeCustView = () => {
     const [name, setName] = useState("");
     const [customer_name, setCustomerName] = useState(null);
     const [last_name, setLastName] = useState("");
-    const [view, setView] = useState("list")
+    const [view, setView] = useState("list");
+    // Estado para las cantidades de cada producto, fuera de map
+    const [quantities, setQuantities] = useState({});
+    useEffect(()=>{
+        actions.verifyCustomerToken()
+    },[])
+    console.log(store.customerIsLogedIn)
     const handleLogOut = () => {
         actions.logOut();
         if (!store.token) {
             navigate("/");
         }
     };
-
     const newData = (event) => {
         event.preventDefault();
         const raw = JSON.stringify({
@@ -37,7 +42,7 @@ export const HomeCustView = () => {
         fetch(`${process.env.BACKEND_URL}/api/customer/${customer_id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
-                setCustomerName(data.name),
+                setCustomerName(data.name);
                 actions.get_One_customer(customer_id);
             })
             .catch((error) => console.error("Error al actualizar los datos:", error));
@@ -49,7 +54,6 @@ export const HomeCustView = () => {
     }, [customer_id]);
 
     useEffect(() => {
-        // Si ya tienes customerInfo en el store, usa eso para llenar los campos del formulario
         if (store.customerInfo) {
             setName(store.customerInfo.customer_name || "");
             setLastName(store.customerInfo.customer_lastname || "");
@@ -57,6 +61,36 @@ export const HomeCustView = () => {
         }
     }, [store.customerInfo]);
 
+    const handleQuantityChange = (index, value) => {
+        setQuantities({
+            ...quantities,
+            [index]: value
+        });
+    };
+    const handlePurchase = (producto, quantity) => {
+        const purchaseData = {
+            product_id: producto.id,
+            quantity: quantity,
+            customer_id: customer_id, 
+            price: producto.price * quantity,
+            producer_id: producto.producer_id  
+        };
+        fetch(process.env.BACKEND_URL + "/api/ordencompra", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(purchaseData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Compra realizada con éxito");
+            console.log(data); 
+        })
+        .catch(error => console.error("Error al realizar la compra:", error));
+    };
+
+    console.log(store.producers)
     return (
         <div className="container mt-5">
             <div className="d-flex justify-content-end mb-4">
@@ -80,20 +114,42 @@ export const HomeCustView = () => {
 
                         {store.products.length > 0 ? (
                             <div className="row">
-                                {store.products.map((producto, index) => (
-                                    <div key={index} className="col-md-4 mb-4">
-                                        <div className="card h-100 shadow-sm" style={{ borderRadius: "15px" }}>
-                                            <img src={producto.image || rigoImageUrl} className="card-img-top" alt={producto.name} style={{ height: "200px", objectFit: "cover", borderRadius: "15px 15px 0 0" }} />
-                                            <div className="card-body">
-                                                <h5 className="card-title" style={{ fontWeight: "600" }}>{producto.name}</h5>
-                                                <p className="card-text">Categoría: {producto.category || "Desconocida"}</p>
-                                                <p className="card-text">Precio: {producto.price} €/kg</p>
-                                                <p className="card-text">Origen: {producto.origin}</p>
-                                                <p className="card-text">Descripción: {producto.description}</p>
+                                {store.products.map((producto, index) => {
+                                    const quantity = quantities[index] || 1;  
+                                    return (
+                                        <div key={index} className="col-md-4 mb-4">
+                                            <div className="card h-100 shadow-sm" style={{ borderRadius: "15px" }}>
+                                                <img src={producto.categorie_imageUrl} className="card-img-top" alt={producto.name} style={{ height: "200px", objectFit: "cover", borderRadius: "15px 15px 0 0" }} />
+                                                <div className="card-body">
+                                                    <h5 className="card-title" style={{ fontWeight: "600" }}>{producto.name}</h5>
+                                                    <p className="card-text">Categoría: {producto.categorie_name }</p>
+                                                    <p className="card-text">Precio: {producto.price} €/kg</p>
+                                                    <p className="card-text">Origen: {producto.origin}</p>
+                                                    <p className="card-text">Descripción: {producto.description}</p>
+
+                                                    {/* Casilla para seleccionar la cantidad */}
+                                                    <div className="mb-3">
+                                                        <label htmlFor={`quantity-${index}`} className="form-label">Cantidad</label>
+                                                        <input
+                                                            type="number"
+                                                            id={`quantity-${index}`}
+                                                            className="form-control"
+                                                            value={quantity}
+                                                            onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                                            min="1"
+                                                            style={{ width: "100px" }}
+                                                        />
+                                                    </div>
+
+                                                    {/* Botón para comprar */}
+                                                    <button className="btn btn-success w-100" onClick={() => handlePurchase(producto, quantity)}>
+                                                        Comprar
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div className="alert alert-info" role="alert">

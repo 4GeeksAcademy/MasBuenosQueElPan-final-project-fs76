@@ -1,5 +1,5 @@
 //Nuevo nabvbar:
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -13,13 +13,16 @@ export const Navbar = () => {
 		console.log("Loging out");
 		localStorage.clear();
 		actions.producerLogout();
+		actions.verifyCustomerToken();
+		actions.costumerLogout()
 		navigate("/");
-	
-
 	}
+	useEffect(()=>{
+        actions.verifyCustomerToken()
+    },[])
 
 	// Menú desplegable común para Producers y Customers
-	const DropdownMenu = ({ profileLink }) => (
+	const DropdownMenu = ({ profileLink, CartLink }) => (
 		<div className="dropdown" style={{ position: "relative", display: "inline-block" }}>
 			<button
 				className="btn dropdown-toggle"
@@ -36,7 +39,7 @@ export const Navbar = () => {
 					fontWeight: "bold"
 				}}
 			>
-				Perfil
+				Usuario
 			</button>
 			<ul
 				className="dropdown-menu"
@@ -53,7 +56,7 @@ export const Navbar = () => {
 					</Link>
 				</li>
 				<li>
-					<Link to="/producer/cart" className="dropdown-item" style={{ color: "#333", fontSize: "14px" }}>
+					<Link to={CartLink} className="dropdown-item" style={{ color: "#333", fontSize: "14px" }}>
 						Carrito
 					</Link>
 				</li>
@@ -61,7 +64,7 @@ export const Navbar = () => {
 				<li>
 					<button
 						className="dropdown-item"
-						onClick={handleLogout}
+						onClick={()=>handleLogout()}
 						style={{ color: "#ff0000", fontSize: "14px" }}
 					>
 						LogOut
@@ -81,16 +84,13 @@ export const Navbar = () => {
 				{/* Si el producer está logeado */}
 				{store.producerIsLogedIn ? (
 					<>
-						<div className="d-flex justify-content-end w-100">
-							<button type="button" className="btn btn-danger" onClick={handleLogout}>Cerrar sesión</button>
-						</div>
-						<DropdownMenu profileLink={`/producer/profile/${localStorage.getItem("producerId")}`} />
+						<DropdownMenu profileLink={`/producer/profile/${localStorage.getItem("producerId")}`} CartLink={`/producer/cart/${localStorage.getItem("producerId")}`} />
 					</>
 				) : ""}
 
 				{/* Si el customer está logeado */}
 				{store.customerIsLogedIn ? (
-					<DropdownMenu profileLink={`/customer/profile/${customerId}`} />
+					<DropdownMenu profileLink={`/customer/profile/${localStorage.getItem("customer_id")}`} CartLink={`/customer/cart/${localStorage.getItem("customer_id")}`} />
 				) : (
 					<>
 						<button type="button" onClick={() => actions.setDisplayLogin(true)} className="btn btn-black">

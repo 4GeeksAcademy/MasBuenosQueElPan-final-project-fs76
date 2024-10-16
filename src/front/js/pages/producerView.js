@@ -112,6 +112,7 @@ export const ProducerView = () => {
             return;
         }
         actions.addProducts(newProduct);
+        actions.getProducersProducts()
         closeModal();
     };
     const closeModal = () => {

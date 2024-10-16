@@ -2,10 +2,11 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Producer, ProductCategories, Product, CartItem, CartProduct, CustomerCart, Customer
+from api.models import db, User, Producer, ProductCategories, Product, Customer, OrderStatus, Order, OrderItem
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from decimal import Decimal
+from datetime import datetime
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -412,43 +413,51 @@ def get_producer_products(producerId):
 
     return jsonify([product.serialize() for product in producer_products]), 200
 
-
-####PRODUCER SINGUP #####
+####PRODUCER SIGNUP####
 @api.route('/producer/signup', methods=['POST'])
 def handle_signup():
     email = request.json["email"]
     password = request.json["password"]
-    # brand_name = request.json["brand_name"]
-    # user_name = request.json["user_name"]
-    # user_last_name = request.json["user_last_name"]
-    # cif = request.json["cif"]
-    # address = request.json["address"]
-    # province = request.json["province"]
-    # zip_code = request.json["zip_code"]
-    # phone = request.json["phone"]
-    print(email,password)
+
+    # Verificar si el email ya existe antes de proceder
+    existing_producer = Producer.query.filter_by(email=email).first()
+    if existing_producer:
+        return jsonify(exists=True, message="Email already exists"), 400
+
+    # Generar el hash de la contraseña
     hashed_password = generate_password_hash(password)
+    
     new_producer = Producer(
         email=email,
         password=hashed_password,
-        # brand_name=brand_name,
-        # user_name=user_name,
-        # user_last_name=user_last_name,
-        # cif=cif,
-        # address=address,
-        # province=province,
-        # zip_code=zip_code,
-        # phone=phone,
         is_active=True
-        )
-    if email:
-        existing_producer = Producer.query.filter_by(email=email).first()
-        if existing_producer:
-            return jsonify(exists=True, message="Email already exists"), 400
-    print("New producer", new_producer)
+    )
+
     db.session.add(new_producer)
     db.session.commit()
     return jsonify(new_producer.serialize()), 201
+
+
+# ####PRODUCER SINGUP #####
+# @api.route('/producer/signup', methods=['POST'])
+# def handle_signup():
+#     email = request.json["email"]
+#     password = request.json["password"]
+#     print(email,password)
+#     hashed_password = generate_password_hash(password)
+#     new_producer = Producer(
+#         email=email,
+#         password=hashed_password,
+#         is_active=True
+#         )
+#     if email:
+#         existing_producer = Producer.query.filter_by(email=email).first()
+#         if existing_producer:
+#             return jsonify(exists=True, message="Email already exists"), 400
+#     print("New producer", new_producer)
+#     db.session.add(new_producer)
+#     db.session.commit()
+#     return jsonify(new_producer.serialize()), 201
 
 ####CHECK IF PRODUCER EXIST####
 @api.route('/checkProducer', methods=['POST'])
@@ -496,8 +505,8 @@ def handle_login():
         print("incorrect email")
         return jsonify({"msg": "Password or email incorrect"}), 401
     if not check_password_hash(producer.password, password):
-        print("Incorrect password")
-        return jsonify({"msg": "Incorrect password"}), 401
+        print("Contraseña incorrecta")
+        return jsonify({"msg": "Contraseña incorrecta"}), 401
     
     access_token = create_access_token(identity=producer.id)
     is_fill = bool(producer.brand_name)
@@ -637,7 +646,222 @@ def get_image_by_categorie(categorie_id):
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+####Aquí meto todo lo que tenga que ver con la compra y órdenes de compra###
+####Generar una orden de compra. Es decir, el customer va añadiendo items al carrito####
+@api.route("/ordencompra", methods=["POST"], endpoint="create_purchase")
+def customer_create_purchase():
+    data = request.get_json()
+    new_order = Order(
+        customer_id=data.get("customer_id"),
+        producer_id=data.get("producer_id"),
+        total_price=data.get("price"),
+        status=OrderStatus.RECEIVED  
+    )
+    db.session.add(new_order)
+    db.session.commit()
+
+    new_order_item = OrderItem(
+        order_id=new_order.id,
+        product_id=data.get('product_id'),
+        quantity=data.get('quantity'),
+        price=data.get('price')
+    )
+    db.session.add(new_order_item)
+    db.session.commit()
+
+    return jsonify({"msg": "Compra realizada con éxito", "order_id": new_order.id}), 200
+#####Guardamos el nuevo estado de los productos que ha finalizado de comprar el customer####
+@api.route("/finalize_purchase", methods=["POST"], endpoint="finalize_purchase_order")
+def finalize_purchase():
+    data = request.get_json()
+    customer_id = data.get("customer_id")
+    # Obtener todas las órdenes "received" del cliente y cambiarlas a "shipped"
+    orders = Order.query.filter_by(customer_id=customer_id, status=OrderStatus.RECEIVED).all()
+    if not orders:
+        return jsonify({"msg": "No hay órdenes pendientes de envío"}), 404
+    for order in orders:
+        # Cambiamos el estado de la orden a "shipped"
+        order.status = OrderStatus.SHIPPED
+        db.session.add(order)
+    db.session.commit()  # Confirmamos los cambios en la base de datos
+    return jsonify({"msg": "Todas las órdenes han sido marcadas como enviadas", "orders_updated": [order.id for order in orders]}), 200
+
+####GET CART FROM A CUSTOMER RECIVED####
+@api.route('/customer/orders/received/<int:customer_id>', methods=['GET'])
+def get_received_orders(customer_id):
+    # Obtener todas las órdenes "received" del cliente
+    orders = Order.query.filter_by(customer_id=customer_id, status=OrderStatus.RECEIVED).all()
+    if not orders:
+        return jsonify({"msg": "No se encontraron órdenes recibidas para este cliente"}), 404
+    # Crear una lista para las órdenes recibidas
+    received_orders = []
+    for order in orders:
+        items = OrderItem.query.filter_by(order_id=order.id).all()
+        order_items = []
+        for item in items:
+            product = Product.query.get(item.product_id)
+            order_items.append({
+                "product_id": item.product_id,
+                "product_name": product.name, 
+                "quantity": item.quantity,
+                "price": item.price
+            })
+        received_orders.append({
+            "order_id": order.id,
+            "date_created": order.order_date,
+            "producer_id": order.producer_id,
+            "total_price": order.total_price,
+            "status": order.status.value,
+            "items": order_items
+        })
+    return jsonify({"received_orders": received_orders}), 200
+
+####GET CART FROM A CUSTOMER Shipped####
+@api.route('/customer/orders/shipped/<int:customer_id>', methods=['GET'])
+def get_shipped_orders(customer_id):
+    # Obtener todas las órdenes "shipped" del cliente
+    orders = Order.query.filter_by(customer_id=customer_id, status=OrderStatus.SHIPPED).all()
     
+    if not orders:
+        return jsonify({"msg": "No se encontraron órdenes enviadas para este cliente"}), 404
+
+    # Crear una lista para las órdenes enviadas
+    shipped_orders = []
+    
+    for order in orders:
+        items = OrderItem.query.filter_by(order_id=order.id).all()
+        order_items = []
+        for item in items:
+            product = Product.query.get(item.product_id)
+            order_items.append({
+                "product_id": item.product_id,
+                "product_name": product.name, 
+                "quantity": item.quantity,
+                "price": item.price
+            })
+        customer = Customer.query.get(order.customer_id)
+        shipped_orders.append({
+            "order_id": order.id,
+            "date_created": order.order_date,
+            "customer_name": customer.name,
+
+            "producer_id": order.producer_id,
+            "total_price": order.total_price,
+            "status": order.status.value,
+            "items": order_items
+        })
+    
+    return jsonify({"shipped_orders": shipped_orders}), 200
+
+
+####Orden de carrito del productor####
+@api.route('/producer/orders/<int:producer_id>', methods=['GET'])
+def get_producer_orders(producer_id):
+    # Obtener todas las órdenes que contengan productos de este productor
+    order_items = OrderItem.query.join(Product, OrderItem.product_id == Product.id).filter(Product.producer_id == producer_id).all()
+    if not order_items:
+        return jsonify({"msg": "No se encontraron órdenes para este productor"}), 404
+    # Recopilamos los pedidos asociados a esos productos
+    producer_orders = {}
+    for item in order_items:
+        order = item.order
+        product = Product.query.get(item.product_id)
+        if order.id not in producer_orders:
+            producer_orders[order.id] = {
+                "order_id": order.id,
+                "date_created": order.order_date,
+                "customer_id": order.customer_id,
+                "total_price": order.total_price,
+                "status": order.status.value,
+                "items": []
+            }
+        producer_orders[order.id]["items"].append({
+            "product_id": product.id,
+            "product_name": product.name,
+            "quantity": item.quantity,
+            "price": item.price
+        })
+    return jsonify({"producer_orders": list(producer_orders.values())}), 200
+
+###PASAR LA ORDEN A DONE####
+@api.route('/producer/order/done/<int:order_id>', methods=['PUT'])
+def mark_order_as_done(order_id):
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({"msg": "Order not found"}), 404
+    # Cambiar el estado del pedido a "done"
+    order.status = OrderStatus.DONE
+    db.session.commit()
+    return jsonify({"msg": "Order marked as done", "order_id": order.id}), 200
+
+####DEVUELVE LOS PEDIDOS EN FORMATO DONE####
+@api.route('/producer/orders/done/<int:producer_id>', methods=['GET'])
+def get_done_orders(producer_id):
+    # Filtrar pedidos que están en estado "done" para un productor específico
+    done_orders = Order.query.filter_by(producer_id=producer_id, status=OrderStatus.DONE).all()
+
+    if not done_orders:
+        return jsonify({"msg": "No se encontraron pedidos completados"}), 404
+
+    done_orders_list = []
+    for order in done_orders:
+        customer = Customer.query.get(order.customer_id)  # Obtener nombre del cliente
+        items = OrderItem.query.filter_by(order_id=order.id).all()
+        order_items = []
+        for item in items:
+            product = Product.query.get(item.product_id)
+            order_items.append({
+                "product_id": item.product_id,
+                "product_name": product.name,
+                "quantity": item.quantity,
+                "price": item.price
+            })
+        done_orders_list.append({
+            "order_id": order.id,
+            "date_created": order.order_date,
+            "customer_id": order.customer_id,
+            "customer_name": customer.name,  # Añadir nombre del cliente
+            "producer_id": order.producer_id,
+            "total_price": order.total_price,
+            "status": order.status.value,
+            "items": order_items
+        })
+
+    return jsonify({"done_orders": done_orders_list}), 200
+####GENERAR ORDEN DE CARRITO####
+@api.route('/finalize_purchase', methods=['POST'])
+def finalize_purchase():
+    data = request.get_json()
+    customer_id = data.get('customer_id')
+    orders = data.get('orders')
+
+    # Creo la orden principal
+    for order in orders:
+        new_order = Order(
+            customer_id=customer_id,
+            producer_id=order.get('producer_id'),
+            total_price=order.get('total_price'),
+            status=OrderStatus.RECEIVED  
+        )
+        db.session.add(new_order)
+        db.session.commit()
+
+        # Creo los items para la orden
+        for item in order['items']:
+            new_order_item = OrderItem(
+                order_id=new_order.id,
+                product_id=item['product_id'],
+                quantity=item['quantity'],
+                price=item['price']
+            )
+            db.session.add(new_order_item)
+        db.session.commit()
+
+    return jsonify({"msg": "Compra finalizada con éxito"}), 200
+
+
 # @api.route('/categories', methods=['POST'])
 # def create_categories():
 #     categories = [
@@ -712,175 +936,175 @@ def update_categorie(categorie_id):
     db.session.commit()
     return jsonify(categorie.serialize()), 200
 
-#####GET CART ITEMS#####
-@api.route('/cart', methods=['GET'])
-def get_cart_items():
-    all_cart_items = CartItem.query.all()    
-    results = list(map(lambda cart_item: cart_item.serialize(), all_cart_items)) 
-    return jsonify(results), 200
+# #####GET CART ITEMS#####
+# @api.route('/cart', methods=['GET'])
+# def get_cart_items():
+#     all_cart_items = CartItem.query.all()    
+#     results = list(map(lambda cart_item: cart_item.serialize(), all_cart_items)) 
+#     return jsonify(results), 200
 
-@api.route('/cart', methods=['POST'])
-def add_cart_item():
-       try:
-           data = request.get_json()
-           if not data:
-               return jsonify({"msg": "No se han proporcionado datos"}), 400
+# @api.route('/cart', methods=['POST'])
+# def add_cart_item():
+#        try:
+#            data = request.get_json()
+#            if not data:
+#                return jsonify({"msg": "No se han proporcionado datos"}), 400
 
-           customer_cart_id = data.get('customer_cart_id')
-           product_id = data.get('product_id')
-           quantity = data.get('quantity')
-           price = data.get('price')
+#            customer_cart_id = data.get('customer_cart_id')
+#            product_id = data.get('product_id')
+#            quantity = data.get('quantity')
+#            price = data.get('price')
 
-           if not customer_cart_id or not product_id or not quantity or not price:
-               return jsonify({"msg": "Faltan datos requeridos"}), 400
+#            if not customer_cart_id or not product_id or not quantity or not price:
+#                return jsonify({"msg": "Faltan datos requeridos"}), 400
 
-           # Crear un nuevo item en el carrito
-           new_cart_item = CartItem(
-               customer_cart_id=customer_cart_id,
-               product_id=product_id,
-               quantity=quantity,
-               price=price,
-               subtotal=Decimal(price) * Decimal(quantity),  # Calculado
-               total_price=Decimal(price) * Decimal(quantity)  # Calculado
-           )
+#            # Crear un nuevo item en el carrito
+#            new_cart_item = CartItem(
+#                customer_cart_id=customer_cart_id,
+#                product_id=product_id,
+#                quantity=quantity,
+#                price=price,
+#                subtotal=Decimal(price) * Decimal(quantity),  # Calculado
+#                total_price=Decimal(price) * Decimal(quantity)  # Calculado
+#            )
 
-           db.session.add(new_cart_item)
-           db.session.commit()
+#            db.session.add(new_cart_item)
+#            db.session.commit()
 
-           return jsonify(new_cart_item.serialize()), 201
-       except Exception as e:
-           db.session.rollback()
-           print(f"Error al añadir al carrito: {str(e)}")  # Para inspeccionar errores
-           return jsonify({"error": str(e)}), 500
+#            return jsonify(new_cart_item.serialize()), 201
+#        except Exception as e:
+#            db.session.rollback()
+#            print(f"Error al añadir al carrito: {str(e)}")  # Para inspeccionar errores
+#            return jsonify({"error": str(e)}), 500
        
-@api.route('/cart/<int:product_id>', methods=['DELETE'])
-def remove_cart_item(product_id):
-    try:
-       
-        cart_item = CartItem.query.filter_by(product_id=product_id).first()
-        if cart_item is None:
-            return jsonify({"msg": "Item no encontrado"}), 404
-
-        db.session.delete(cart_item)
-        db.session.commit()
-        return jsonify({"msg": "Item eliminado del carrito"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-    
-@api.route('/customers_cart', methods=['POST'])
-def save_cart():
-    try:
-        data = request.get_json()
-        user_id = data.get('customer_cart_id')  # ID del cliente
-        items = data.get('items')  # Ítems del carrito
-
-        if not user_id or not items:
-            return jsonify({"msg": "Faltan datos requeridos"}), 400
-
-        # Crear un nuevo carrito con estado 'finalizado'
-        new_cart = CustomerCart(
-            user_id=user_id,
-            total_price=sum(item['price'] * item['quantity'] for item in items),
-            status='finalizado'
-        )
-
-        db.session.add(new_cart)
-        db.session.commit()
-
-        # Guardar los ítems en el carrito
-        for item in items:
-            new_cart_item = CartItem(
-                customer_cart_id=new_cart.id,  # ID del carrito recién creado
-                product_id=item['product_id'],  # ID del producto
-                quantity=item['quantity'],  # Cantidad
-                price=item['price'],  # Precio unitario
-                subtotal=Decimal(item['price']) * Decimal(item['quantity']),
-                total_price=Decimal(item['price']) * Decimal(item['quantity'])
-            )
-            db.session.add(new_cart_item)
-
-        db.session.commit()
-
-        return jsonify({"msg": "Carrito guardado exitosamente!"}), 201
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-    
-@api.route('/customers_cart/<int:user_id>', methods=['GET'])
-def get_customer_carts(user_id):
-    try:
-        carts = CustomerCart.query.filter_by(user_id=user_id).all()  # Filtra carritos por user_id
-        return jsonify([cart.serialize() for cart in carts]), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@api.route('/cart_item/<int:user_id>', methods=['DELETE'])
-def clear_cart(user_id):
-    try:
-        # Filtrar y eliminar los elementos del carrito asociados al usuario
-        CartItem.query.filter_by(customer_cart_id=user_id).delete()
-        db.session.commit()
-
-        return jsonify({"message": "Carrito vaciado exitosamente."}), 200
-    except Exception as e:
-        # Manejo de errores y rollback
-        db.session.rollback()
-        return jsonify({"message": f"Error al vaciar el carrito: {str(e)}"}), 500
-
-# @api.route('/upload-image', methods=['POST'])
-# @jwt_required()
-# def upload_image():
-#     # Obtener el archivo subido
-#     file = request.files.get('file')
-    
-#     if not file:
-#         return jsonify({"ERROR": "No se proporcionó un archivo."}), 400
-
-#     # Verificar si el archivo es una imagen
-#     if not file.filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
-#         return jsonify({"ERROR": "Solo se permiten archivos de imagen"}), 400
-    
-#     # Verificar el tamaño del archivo
-#     file.seek(0, 2)  # Mover el cursor al final del archivo para obtener el tamaño
-#     if file.tell() > 1024 * 1024 * 5:  # 5MB
-#         return jsonify({"ERROR": "El archivo es demasiado grande"}), 400
-#     file.seek(0)  # Volver al inicio del archivo
-
+# @api.route('/cart/<int:product_id>', methods=['DELETE'])
+# def remove_cart_item(product_id):
 #     try:
-#         # DEBUG: Imprimir el archivo recibido
-#         print(f"Archivo recibido: {file.filename}")
+       
+#         cart_item = CartItem.query.filter_by(product_id=product_id).first()
+#         if cart_item is None:
+#             return jsonify({"msg": "Item no encontrado"}), 404
 
-#         # Subir la imagen a Cloudinary
-#         upload_result = cloudinary.uploader.upload(file)
-        
-#         # Obtener el ID del usuario que está subiendo la imagen
-#         producer_id = get_jwt_identity()
-#         producer = Producer.query.get(producer_id)
-
-#         # Verificar cuántas imágenes ya tiene el usuario
-#         if Imagenes.query.filter_by(usuario_id=usuario_id).count() >= 5:
-#             return jsonify({"ERROR": "No se pueden subir más de 5 imágenes por usuario."}), 400
-
-#         # Crear una nueva entrada de imagen
-#         nueva_imagen = Imagenes(
-#             url=upload_result['secure_url'],  # Almacenar la URL de la imagen
-#             public_id=upload_result['public_id'],  # Almacenar el public_id
-#             usuario_id=usuario_id
-#         )
-#         db.session.add(nueva_imagen)
+#         db.session.delete(cart_item)
 #         db.session.commit()
-        
-#         # DEBUG: Imprimir la URL de la imagen subida
-#         print(f"Imagen subida con éxito: {upload_result['secure_url']}")
-
-#         # Devolver la URL de la imagen subida
-#         return jsonify({
-#             "message": "Imagen subida con éxito",
-#             "url": upload_result['secure_url']
-#         }), 201
+#         return jsonify({"msg": "Item eliminado del carrito"}), 200
 #     except Exception as e:
-#         print(f"Error al subir imagen: {e}")  # Loggear el error exacto
+#         db.session.rollback()
 #         return jsonify({"error": str(e)}), 500
+    
+# @api.route('/customers_cart', methods=['POST'])
+# def save_cart():
+#     try:
+#         data = request.get_json()
+#         user_id = data.get('customer_cart_id')  # ID del cliente
+#         items = data.get('items')  # Ítems del carrito
+
+#         if not user_id or not items:
+#             return jsonify({"msg": "Faltan datos requeridos"}), 400
+
+#         # Crear un nuevo carrito con estado 'finalizado'
+#         new_cart = CustomerCart(
+#             user_id=user_id,
+#             total_price=sum(item['price'] * item['quantity'] for item in items),
+#             status='finalizado'
+#         )
+
+#         db.session.add(new_cart)
+#         db.session.commit()
+
+#         # Guardar los ítems en el carrito
+#         for item in items:
+#             new_cart_item = CartItem(
+#                 customer_cart_id=new_cart.id,  # ID del carrito recién creado
+#                 product_id=item['product_id'],  # ID del producto
+#                 quantity=item['quantity'],  # Cantidad
+#                 price=item['price'],  # Precio unitario
+#                 subtotal=Decimal(item['price']) * Decimal(item['quantity']),
+#                 total_price=Decimal(item['price']) * Decimal(item['quantity'])
+#             )
+#             db.session.add(new_cart_item)
+
+#         db.session.commit()
+
+#         return jsonify({"msg": "Carrito guardado exitosamente!"}), 201
+
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"error": str(e)}), 500
+    
+# @api.route('/customers_cart/<int:user_id>', methods=['GET'])
+# def get_customer_carts(user_id):
+#     try:
+#         carts = CustomerCart.query.filter_by(user_id=user_id).all()  # Filtra carritos por user_id
+#         return jsonify([cart.serialize() for cart in carts]), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+    
+# @api.route('/cart_item/<int:user_id>', methods=['DELETE'])
+# def clear_cart(user_id):
+#     try:
+#         # Filtrar y eliminar los elementos del carrito asociados al usuario
+#         CartItem.query.filter_by(customer_cart_id=user_id).delete()
+#         db.session.commit()
+
+#         return jsonify({"message": "Carrito vaciado exitosamente."}), 200
+#     except Exception as e:
+#         # Manejo de errores y rollback
+#         db.session.rollback()
+#         return jsonify({"message": f"Error al vaciar el carrito: {str(e)}"}), 500
+
+# # @api.route('/upload-image', methods=['POST'])
+# # @jwt_required()
+# # def upload_image():
+# #     # Obtener el archivo subido
+# #     file = request.files.get('file')
+    
+# #     if not file:
+# #         return jsonify({"ERROR": "No se proporcionó un archivo."}), 400
+
+# #     # Verificar si el archivo es una imagen
+# #     if not file.filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
+# #         return jsonify({"ERROR": "Solo se permiten archivos de imagen"}), 400
+    
+# #     # Verificar el tamaño del archivo
+# #     file.seek(0, 2)  # Mover el cursor al final del archivo para obtener el tamaño
+# #     if file.tell() > 1024 * 1024 * 5:  # 5MB
+# #         return jsonify({"ERROR": "El archivo es demasiado grande"}), 400
+# #     file.seek(0)  # Volver al inicio del archivo
+
+# #     try:
+# #         # DEBUG: Imprimir el archivo recibido
+# #         print(f"Archivo recibido: {file.filename}")
+
+# #         # Subir la imagen a Cloudinary
+# #         upload_result = cloudinary.uploader.upload(file)
+        
+# #         # Obtener el ID del usuario que está subiendo la imagen
+# #         producer_id = get_jwt_identity()
+# #         producer = Producer.query.get(producer_id)
+
+# #         # Verificar cuántas imágenes ya tiene el usuario
+# #         if Imagenes.query.filter_by(usuario_id=usuario_id).count() >= 5:
+# #             return jsonify({"ERROR": "No se pueden subir más de 5 imágenes por usuario."}), 400
+
+# #         # Crear una nueva entrada de imagen
+# #         nueva_imagen = Imagenes(
+# #             url=upload_result['secure_url'],  # Almacenar la URL de la imagen
+# #             public_id=upload_result['public_id'],  # Almacenar el public_id
+# #             usuario_id=usuario_id
+# #         )
+# #         db.session.add(nueva_imagen)
+# #         db.session.commit()
+        
+# #         # DEBUG: Imprimir la URL de la imagen subida
+# #         print(f"Imagen subida con éxito: {upload_result['secure_url']}")
+
+# #         # Devolver la URL de la imagen subida
+# #         return jsonify({
+# #             "message": "Imagen subida con éxito",
+# #             "url": upload_result['secure_url']
+# #         }), 201
+# #     except Exception as e:
+# #         print(f"Error al subir imagen: {e}")  # Loggear el error exacto
+# #         return jsonify({"error": str(e)}), 500
 

@@ -11,9 +11,6 @@ export const MapView = () => {
   useEffect(()=>{
     actions.getProducers()
   }, [])
-  console.log("Debajo están los producers")
-  console.log(store.producers)
-
   useEffect(() => {
     if (store.producers.length === 0) return;
     mapboxgl.accessToken = 'pk.eyJ1IjoibWFyY29zZXN0cGFtOTYiLCJhIjoiY20yOHZzb29nMDlnazJwcXlvMHlhMmR4MyJ9.JrzaE1n_HbLNC5s5k4ilrA';
@@ -35,7 +32,7 @@ export const MapView = () => {
       }
       return null;
     };
-
+    
     const addProducersMarkers = async () => {
       for (const producer of store.producers) {
         if (producer.city) {
@@ -55,7 +52,7 @@ export const MapView = () => {
 
             // Evento click para mostrar el nombre del productor y la ciudad
             el.addEventListener('click', () => {
-              window.alert(`Productor: ${brand_name}, Ciudad: ${city}`);
+              window.alert(`Productor: ${name}, Ciudad: ${city}`);
             });
 
             // Añadir el marcador al mapa
