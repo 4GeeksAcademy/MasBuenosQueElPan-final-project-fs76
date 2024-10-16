@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { useParams } from "react-router-dom";
 // import rigoImageUrl from "../../img/rigo-baby.jpg";
+import "../../styles/customerProductView.css";
 
 export const ProductByCategorie = () => {
     const { store, actions } = useContext(Context);
@@ -70,7 +71,9 @@ export const ProductByCategorie = () => {
         ) : (
             <p className="text-center mt-2">Actualmente no hay productos para mostrar</p>
         )}
-        <button className="btn btn-secondary" onClick={()=> navigate("/")}>Volver</button>
+        <div className="d-flex justify-content-center mt-4">
+            <button className="btn backHome d-flex" onClick={()=> navigate("/")}>Volver</button>
+        </div>
         </>
     );
 };

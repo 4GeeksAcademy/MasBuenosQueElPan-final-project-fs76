@@ -1,0 +1,87 @@
+.login {
+  --primary-color: #159ba2;
+  --secondary-color: #fff;
+  --hover-color: #4ea4a8;
+  --arrow-width: 10px;
+  --arrow-stroke: 2px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 20px;
+  color: var(--secondary-color);
+  padding: 0.7em 1.8em;
+  /* margin-left: 20%; */
+  background: var(--primary-color);
+  display: flex;
+  transition: 0.2s background;
+  align-items: center;
+  gap: 0.6em;
+  font-weight: bold;
+}
+
+.login .arrow-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login .arrow {
+  margin-top: 1px;
+  width: var(--arrow-width);
+  background: var(--primary-color);
+  height: var(--arrow-stroke);
+  position: relative;
+  transition: 0.2s;
+}
+
+.login .arrow::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  border: solid var(--secondary-color);
+  border-width: 0 var(--arrow-stroke) var(--arrow-stroke) 0;
+  display: inline-block;
+  top: -3px;
+  right: 3px;
+  transition: 0.2s;
+  padding: 3px;
+  transform: rotate(-45deg);
+}
+
+.login:hover {
+  background-color: var(--hover-color);
+}
+
+.login:hover .arrow {
+  background: var(--secondary-color);
+}
+
+.login:hover .arrow:before {
+  right: 0;
+}
+
+
+.backHome, .backCategories {
+  --primary-color: #1e6740;
+  --secondary-color: #fff;
+  --hover-color: #1d422e;
+  --arrow-width: 10px;
+  --arrow-stroke: 2px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 20px;
+  color: var(--secondary-color);
+  padding: 0.7em 1.8em;
+  /* margin-left: 20%; */
+  background: var(--primary-color);
+  display: flex;
+  transition: 0.2s background;
+  align-items: center;
+  gap: 0.6em;
+  font-weight: bold;
+}
+
+.backHome:hover, .backCategories:hover {
+  background-color: var(--hover-color);
+  color: var(--secondary-color);
+}
+

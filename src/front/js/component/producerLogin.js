@@ -127,7 +127,7 @@ export const ProducerLogin = () => {
                         </button>
 
                         <div className="text-center mt-3">
-                            <Link to="/producer/signup" className="text-primary">¿No tienes cuenta? Regístrate aquí</Link>
+                            <Link to="/producer/signup" className="text-primary">¿Todavía no tienes cuenta? Regístrate aquí</Link>
                         </div>
                     </form>
 

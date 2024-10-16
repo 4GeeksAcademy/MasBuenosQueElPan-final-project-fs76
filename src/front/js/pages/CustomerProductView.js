@@ -1,11 +1,13 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
+import "../../styles/customerProductView.css";
 
 export const CustomerProductView = () => {
     const { store, actions } = useContext(Context);
     const [product, setProduct] = useState({});
     const [quantity, setQuantity] = useState(1);
+    const customerLogedIn = store.customerIsLogedIn
     const params = useParams();
     const { product_id } = params;  
 
@@ -45,7 +47,8 @@ export const CustomerProductView = () => {
                         <p><span>Origen:</span> <strong style={{ color: 'black' }}>{store.singleProduct.origin || "Cargando..."}</strong></p>
                         <p><span>Productor:</span> <strong style={{ color: 'black' }}>{store.singleProduct.producer_brand_name || "Cargando..."}</strong></p>
 
-                        <div className="d-flex align-items-center">
+                        {/* {customerLogedIn ? (  */}
+                        {/* <>
                             <input
                                 type="number"
                                 min="1"
@@ -53,24 +56,36 @@ export const CustomerProductView = () => {
                                 onChange={(e) => setQuantity(parseInt(e.target.value))}
                                 style={{ width: '80px', marginRight: '10px' }}
                             />
-                            <button className="btn btn-primary" onClick={handleAddToCart}>
+                            <button className="btn login" onClick={handleAddToCart}>
                                 Añadir al Carrito
+                                <div className="arrow-wrapper">
+                                    <div className="arrow"></div>
+                                </div>
                             </button>
-                        </div>
+                        </>
+                        ) : ( */}
+                            <Link to="/customer/Login" className="text-decoration-none">
+                                <button className="btn login">Haz Login para obtener tus productos
+                                <div className="arrow-wrapper">
+                                    <div className="arrow"></div>
+                                </div>
+                                </button>
+                            </Link>
+                        {/* )} */}
                     </div>
                 </div>
             ) : (
                 <p>Cargando producto...</p>
             )}
-            <div className="backButtons d-inline-block justify-content-center flex-end">
+            <div className="backButtons gap-3 d-flex justify-content-center flex-end btn-small">
                 <Link className="text-decoration-none" to={"/"}>
-                    <button className="btn btn-secondary btn-lg d-flex justify-content-center flex-end">
+                    <button className="btn backHome">
                         Volver a Home
                     </button>
                 </Link>
                 <Link className="text-decoration-none" to={`/productByCategorie/${localStorage.getItem('currentCategorieId')}/products`}>
-                    <button className="btn btn-secondary btn-lg d-flex justify-content-center flex-end">
-                        Volver
+                    <button className="btn backCategories">
+                        Volver a {store.singleProduct.categorie_name}
                     </button>
                 </Link>
             </div>

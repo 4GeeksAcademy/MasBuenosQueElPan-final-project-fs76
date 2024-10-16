@@ -1,26 +1,30 @@
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { Context } from "../store/appContext";
 import "../../styles/footer.css"
 
-export const Footer = () => (
+export const Footer = () => {
+	const { store } = useContext(Context)
+	const navigate = useNavigate();
+
+
+	return (
 	<footer className="footer py-3 my-5 text-center">
 		<div className="container mt-3">
 		
 			<div className="row">
 			<div className="col-6 col-md-3 mb-3">
-				<h5>Categorías</h5>
-				<ul className="nav flex-column" style={{cursor: "pointer"}} > 
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Alcoholes destilados</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Alcoholes fermentados</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Carnes</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Cereales</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Especias</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Frutas</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Frutos secos</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Hierbas</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Leche y derivados</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Productos del mar</a></li>
-				<li className="nav-item mb-2"><a className="nav-link p-0 text-body-secondary">Verduras</a></li>
-				</ul>
+			<h5>Categorías</h5>
+                        <ul className="nav flex-column" style={{ cursor: "pointer" }}> 
+                            {store.categories.map((categorie) => (
+                                <li className="nav-item mb-2" key={categorie.id}>
+                                    <a className="nav-link p-0 text-body-secondary" 
+                                       onClick={() => navigate(`/productByCategorie/${categorie.id}/products`)}>
+                                        {categorie.categorie} {/* Cambia aqui según el nombre de la categoría */}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
 			</div>
 
 			<div className="col-6 col-md-2 mb-3">
@@ -75,3 +79,4 @@ export const Footer = () => (
 		</p>
 	</footer>
 );
+}

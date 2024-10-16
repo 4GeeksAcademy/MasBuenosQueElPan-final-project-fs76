@@ -320,8 +320,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 						setStore({products: [...store.products, result]});
 						setStore({producerProducts: [...store.producerProducts, result]});
 						return;
-						// getActions().getProducersProducts(result.producer_id)
-						}
+						},
+						getActions().getProducersProducts(result.producer_id)
 					)
 					.catch((error) => console.error(error));
 			},

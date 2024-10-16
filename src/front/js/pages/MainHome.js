@@ -37,9 +37,6 @@ export const MainHome = () => {
             <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
             <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2" aria-label="Slide 3"></button>
             <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="3" aria-label="Slide 4"></button>
-            {/* <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="4" aria-label="Slide 5"></button> */}
-            {/* <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="5" aria-label="Slide 6"></button> */}
-            {/* <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="6" aria-label="Slide 7"></button> */}
           </div>
           <div className="carousel-inner">
             <div className="carousel-item active" data-bs-interval="10000">
@@ -52,7 +49,7 @@ export const MainHome = () => {
             <div className="carousel-item">
               <img src={ganaderia} className="d-block" alt="..."/>
               <div className="carousel-caption d-none d-md-block">
-                <h4 className="pb-2">Empieza por registrarte si todavía no tienes cuenta: </h4>
+                <h4 className="pb-2 text-white">Empieza por registrarte si todavía no tienes cuenta: </h4>
                 <div className="signupButtons d-inline-flex">
                   <button className="btn btn-primary mb-3 producerSignup" onClick={() => navigate("/producer/signup")}>Productor
                     <div className="arrow-wrapper">
@@ -70,31 +67,18 @@ export const MainHome = () => {
             <div className="carousel-item" data-bs-interval="2000">
               <img src={campo4} className="d-block" alt="..."/>
               <div className="carousel-caption d-none d-md-block">
-                <h2>Encuentra productores y productos cerca de tu zona.</h2>
-                <h4>Hemos querido crear esta plataforma para poder ayudarte a conectarte con los productores de la forma más directa posible.</h4>
+                <h2 className="text-black">Encuentra productores y productos cerca de tu zona.</h2>
+                <h4 className="text-black">Hemos querido crear esta plataforma para poder ayudarte a conectarte con los productores de la forma más directa posible.</h4>
               </div>
             </div>
             <div className="carousel-item">
               <img src={ganaderia2} className="d-block w-100" alt="..."/>
               <div className="carousel-caption d-none d-md-block">
-                <h4>Directo del campo a tu mesa</h4>
-                <p>Productos naturales, que llenan el alma y la tripa</p>
+                <h2 className="text-white">Directo del campo a tu mesa</h2>
+                <h4 className="text-white">Productos naturales, que llenan el alma y la tripa</h4>
               </div>
             </div>
-            {/* <div className="carousel-item">
-              <img src={ganaderia3} className="d-block" alt="..."/>
-              <div className="carousel-caption d-none d-md-block">
-                <h5>6 slide label</h5>
-                <p>Some representative placeholder content for the third slide.</p>
-              </div>
-            </div>
-          </div>
-            <div className="carousel-item">
-              <img src={campo5} className="d-block" alt="..."/>
-              <div className="carousel-caption d-none d-md-block">
-                <h5>7 slide label</h5>
-                <p>Some representative placeholder content for the third slide.</p>
-              </div> */}
+
             </div>
             <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
               <span className="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -202,7 +186,7 @@ export const MainHome = () => {
                                                   console.log(product.id);
                                                   
                                                   navigate(`/product/${product.id}`)}} style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}>
-                                                    Details
+                                                    Detalles
                                                 </button>
                                                 <button
                                                     type="button"
