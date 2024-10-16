@@ -21,11 +21,12 @@ export const MainHome = () => {
     useEffect(() => {
       actions.getCategories();
       actions.getProducts();
-      // actions.getProductsByCategorie();
   }, []);
-//   const handleCategoryClick = (categorieId) => {
-//     actions.getProductsByCategorie(categorieId); // Asegúrate de implementar esta acción
-// };
+
+  const handleCategoryClick = (categorieId) => {
+    localStorage.setItem('currentCategorieId', categorieId);
+    navigate(`productByCategorie/${categorieId}/products`);
+  };
 
 
     return (
@@ -148,14 +149,19 @@ export const MainHome = () => {
                             <div className="row">
                                 {store.categories.map((categorie) => (
                                     <div key={categorie.id} className="col-sm-6 col-md-4 col-lg-3 mb-4">
-                                        <div className="card"
+                                        <div className="card h-100"
                                         onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"}
                                         onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
-                                        style={{cursor: "pointer"}}
-                                        onClick={() => navigate(`productByCategorie/${categorie.id}/products`)}
+                                        style={{
+                                          boxShadow: "0 10px 12px rgba(0,0,0,0.3)",
+                                          overflow: "hidden",
+                                          transition: "transform 0.3s ease-in-out",
+                                          cursor: "pointer"
+                                        }}
+                                        onClick={() => handleCategoryClick(categorie.id)}
                                         // onClick={() => actions.getProductsByCategorie(categorie.id)}
                                         >
-                                            <img src={categorie.url} className="card-img-top" alt={categorie.categorie} />
+                                            <img src={categorie.url} className="card-img-top" style={{ height: "140px", objectFit: "cover" }} alt={categorie.categorie} />
                                             <div className="card-body">
                                                 <h5 className="card-title">{categorie.categorie}</h5>
                                             </div>
@@ -192,7 +198,10 @@ export const MainHome = () => {
                                                 <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Origen: {product.origin}</p>
                                                 <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.brief_description}</p>
                                                 <p className="card-text text-black" style={{ fontSize: "14px" }}>{product.producer_brand_name}</p>
-                                                <button type="button" className="btn btn-info d-inline-flex" onClick={()=> navigate(`/product/${product.id}`)} style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}>
+                                                <button type="button" className="btn btn-info d-inline-flex" onClick={()=> {
+                                                  console.log(product.id);
+                                                  
+                                                  navigate(`/product/${product.id}`)}} style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}>
                                                     Details
                                                 </button>
                                                 <button

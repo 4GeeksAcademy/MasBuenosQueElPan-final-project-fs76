@@ -1,39 +1,18 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
-import rigoImageUrl from "../../img/rigo-baby.jpg";
 
 export const CustomerProductView = () => {
     const { store, actions } = useContext(Context);
     const [product, setProduct] = useState({});
     const [quantity, setQuantity] = useState(1);
     const params = useParams();
-    const { productId } = useParams();
-    const { categorieId } = useParams();
-    console.log(productId);
-    console.log(product.id);
-    
+    const { product_id } = params;  
 
     useEffect(() => {
-        actions.getProduct(productId)
-        // const fetchProduct = async () => {
-        //     try {
-        //         const response = await fetch(`${process.env.BACKEND_URL}/api/product/${productId}`);
-        //         const data = await response.json();
-
-        //         console.log(data);
-
-        //         if (data) {
-        //             setProduct(data);
-        //         } else {
-        //             console.error("Data inválida", data);
-        //         }
-        //     } catch (error) {
-        //         console.error("Error fetching product:", error);
-        //     }
-        // };
-
-        // fetchProduct();
+        actions.getProduct(product_id);
+        console.log(actions.getCategories());
+         
     }, []);
 
     const handleAddToCart = () => {
@@ -43,56 +22,58 @@ export const CustomerProductView = () => {
         }
         actions.addToCart(product, parseInt(quantity));
         alert(`Añadido ${quantity} ${product.name} al carrito!`);
-        setQuantity(1); // Resetear la cantidad a 1
+        setQuantity(1);
     };
 
     return (
         <div className="jumbotron m-3">
             <hr className="my-4" />
-            {store.products && store.products.length > 0  ? (
-                (store.products.map((product, index) => 
-                    <div className="d-flex justify-content-left" key={index}>
-                        <div className="d-flex m-5">
-                            <img src={product.categorie_imageUrl} alt={product.name} style={{ height: '200px', objectFit: 'cover' }} />
-                        </div>
-                        <div className="d-flex align-items-start flex-column m-5">
-                            <h2><strong style={{ color: 'black' }}>{product.name || "Cargando..."}</strong></h2>
-                            <h4>
-                                <span>Precio: </span>
-                                <strong style={{ color: 'black' }}>
-                                    {(product.price && !isNaN(product.price)) ? Number(product.price).toFixed(2) : "0.00"}€
-                                </strong>
-                            </h4>
-                            <p><span>Descripción:</span> <strong style={{ color: 'black' }}>{product.description || "Cargando..."}</strong></p>
-                            <p><span>Origen:</span> <strong style={{ color: 'black' }}>{product.origin || "Cargando..."}</strong></p>
-                            <p><span>Productor:</span> <strong style={{ color: 'black' }}>{product.producer_brand_name || "Cargando..."}</strong></p>
-                            <p><span>Origen:</span> <strong style={{ color: 'black' }}>{product.origin || "Cargando..."}</strong></p>
-                            <p><span>Origen:</span> <strong style={{ color: 'black' }}>{product.origin || "Cargando..."}</strong></p>
+            {store.singleProduct ? (
+                <div className="d-flex justify-content-left">
+                    <div className="d-flex m-5">
+                        <img src={store.singleProduct.categorie_imageUrl} alt={store.singleProduct.name} style={{ height: '200px', objectFit: 'cover' }} />
+                    </div>
+                    <div className="d-flex align-items-start flex-column m-5">
+                        <h2><strong style={{ color: 'black' }}>{store.singleProduct.name || "Cargando..."}</strong></h2>
+                        <h4>
+                            <span>Precio: </span>
+                            <strong style={{ color: 'black' }}>
+                                {(store.singleProduct.price && !isNaN(store.singleProduct.price)) ? Number(store.singleProduct.price).toFixed(2) : "0.00"}€
+                            </strong>
+                        </h4>
+                        <p><span>Descripción:</span> <strong style={{ color: 'black' }}>{store.singleProduct.description || "Cargando..."}</strong></p>
+                        <p><span>Origen:</span> <strong style={{ color: 'black' }}>{store.singleProduct.origin || "Cargando..."}</strong></p>
+                        <p><span>Productor:</span> <strong style={{ color: 'black' }}>{store.singleProduct.producer_brand_name || "Cargando..."}</strong></p>
 
-                            <div className="d-flex align-items-center">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    value={quantity}
-                                    onChange={(e) => setQuantity(e.target.value)}
-                                    style={{ width: '80px', marginRight: '10px' }}
-                                />
-                                <button className="btn btn-primary" onClick={handleAddToCart}>
-                                    Añadir al Carrito
-                                </button>
-                            </div>
+                        <div className="d-flex align-items-center">
+                            <input
+                                type="number"
+                                min="1"
+                                value={quantity}
+                                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                                style={{ width: '80px', marginRight: '10px' }}
+                            />
+                            <button className="btn btn-primary" onClick={handleAddToCart}>
+                                Añadir al Carrito
+                            </button>
                         </div>
                     </div>
-                    )
-                )
+                </div>
             ) : (
-                <p>Cargando producto...</p> // Mensaje mientras se carga el producto
+                <p>Cargando producto...</p>
             )}
-            <Link className="d-flex justify-content-center flex-end" to={`productByCategorie/${categorieId}/products`}>
-                <span className="btn btn-dark btn-lg d-flex justify-content-center flex-end" role="button">
-                    Volver
-                </span>
-            </Link>
+            <div className="backButtons d-inline-block justify-content-center flex-end">
+                <Link className="text-decoration-none" to={"/"}>
+                    <button className="btn btn-secondary btn-lg d-flex justify-content-center flex-end">
+                        Volver a Home
+                    </button>
+                </Link>
+                <Link className="text-decoration-none" to={`/productByCategorie/${localStorage.getItem('currentCategorieId')}/products`}>
+                    <button className="btn btn-secondary btn-lg d-flex justify-content-center flex-end">
+                        Volver
+                    </button>
+                </Link>
+            </div>
         </div>
     );
 };

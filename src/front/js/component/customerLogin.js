@@ -51,7 +51,7 @@ export const CustomerLoginUp = () => {
         <>
         <div className="container d-flex justify-content-center align-items-center mt-2">
         <div className="card p-4 shadow-lg" style={{ width: "400px", borderRadius: "15px", border: "none" }}>
-            <h2 className="text-center mb-4" style={{ fontWeight: "bold", color: "#007bff" }}>Iniciar Sesión</h2>
+            <h2 className="text-center mb-4" style={{ fontWeight: "bold", color: "#111" }}>Iniciar Sesión como comprador</h2>
             
             <form onSubmit={loginData}>
                 <div className="mb-3">

@@ -10,8 +10,14 @@ export const ProductByCategorie = () => {
     const { categorieId, productId } = useParams();
 
     useEffect(() => {
+        const storedCategorieId = localStorage.getItem('currentCategorieId');
+        if (storedCategorieId) {
+            actions.getProductsByCategorie(storedCategorieId);
+        } else {
+            actions.getProductsByCategorie(categorieId);
+        }
         actions.getCategories();
-        actions.getProductsByCategorie(categorieId);
+        
   }, []);
 
   const categorieName = store.categories.find(c => c.id === parseInt(categorieId))?.categorie || "Categoría no encontrada";
@@ -43,7 +49,7 @@ export const ProductByCategorie = () => {
                                     <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.brief_description}</p>
                                     <p className="card-text text-black" style={{ fontSize: "14px" }}>{product.producer_brand_name}</p>
                                     <button type="button" className="btn btn-info d-inline-flex" onClick={()=> navigate(`/product/${product.id}`)} style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}>
-                                        Details
+                                        Detalles
                                     </button>
                                     <button
                                         type="button"

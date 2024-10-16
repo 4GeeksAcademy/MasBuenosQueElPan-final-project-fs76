@@ -3,6 +3,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 		store: {
 			message: null,
 			products: [],
+			singleProduct: [],
 			productsByCategorie: [],
 			token: null,
 			producerProducts: [],
@@ -191,17 +192,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error(error));
 			},
 			//Estos son productos!!
-			getProduct: (productId) => {
+			getProduct: (product_id) => {
 				const store = getStore();
 				const requestOptions = {
 					method: "GET",
 				};
-				fetch(process.env.BACKEND_URL + `/api/product/${productId}`, requestOptions)
+				fetch(process.env.BACKEND_URL + `/api/product/${product_id}`, requestOptions)
 					.then((response) => response.json())
 					.then((data) => {
 						console.log("getting product", data);
-						// setStore({ products: data })
+						setStore({ singleProduct: data })
+						return
 					})
+				.catch((error) => console.error(error));
 			},
 			getProducts: () => {
 				const store = getStore()

@@ -23,7 +23,8 @@ import { CustomerProductList } from "./pages/CustomerProductList";
 import { CustomerProductView } from "./pages/CustomerProductView"; // Importa el componente de vista del producto
 import { CartItems } from "./pages/CartView";
 import { Product } from "./pages/ViewProducts";
-import { CustomerLoginUpview } from "./pages/customerLoginview";
+import { CustomerLoginUp } from "./component/customerLogin";
+// import { CustomerLoginUpview } from "./pages/customerLoginview";
 import { CustomerSignUp } from "./pages/customerSingUp";
 import { HomeCustView } from "./pages/homeCustView"
 import { MainHome } from "./pages/MainHome";
@@ -59,7 +60,8 @@ const Layout = () => {
                         <Route element={<CartItems />} path="/cart" />
                         {/* <Route element={<CustomerSignUp />} path="/customer/singUp" /> */}
                         {/* <Route element={<Product />} path="/product" /> */}
-                        <Route element={<CustomerLoginUpview />} path="/customer/Login" />
+                        {/* <Route element={<CustomerLoginUpview />} path="/customer/Login" /> */}
+                        <Route element={<CustomerLoginUp />} path="/customer/Login" />
                         <Route element={<CustomerSignUp />} path="/customer/singUp" />
                         <Route element={<HomeCustView />} path="/customer/home/:customer_id" />
                         <Route element={<ProducerCartView />} path="/producer/cart" />

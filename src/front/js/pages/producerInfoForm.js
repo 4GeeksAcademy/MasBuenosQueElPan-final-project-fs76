@@ -11,6 +11,9 @@ export const ProducerInfoForm = () => {
     const [ producerInfo, setProducerInfo ] = useState({});
     const [ showSuccessMessage, setShowSuccessMessage ] = useState(false)
 
+    console.log("producerID",producerId);
+    
+
     useEffect(()=>{
         actions.checkToken()
         const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId))
