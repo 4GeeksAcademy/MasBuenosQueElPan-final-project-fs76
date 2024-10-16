@@ -112,6 +112,7 @@ export const ProducerView = () => {
             return;
         }
         actions.addProducts(newProduct);
+        actions.getProducersProducts()
         closeModal();
     };
     const closeModal = () => {
@@ -322,7 +323,13 @@ export const ProducerView = () => {
                                             {categorieImgUrl ? (
                                                 <img src={categorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
                                             ) : (
+                                                <>
                                                 <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
+                                                <div className="mb-3">
+                                                    <label htmlFor="uploadImg" className="form-label">Sube tu foto aquí</label>
+                                                    <input className="form-control" type="file" id="uploadImg"/>
+                                                </div>
+                                                </>
                                             )}
                                         </div>
                                     </div>

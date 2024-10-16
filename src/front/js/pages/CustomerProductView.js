@@ -80,7 +80,7 @@ export const CustomerProductView = () => {
             <div className="backButtons gap-3 d-flex justify-content-center flex-end btn-small">
                 <Link className="text-decoration-none" to={"/"}>
                     <button className="btn backHome">
-                        Volver a Home
+                       Página principal
                     </button>
                 </Link>
                 <Link className="text-decoration-none" to={`/productByCategorie/${localStorage.getItem('currentCategorieId')}/products`}>

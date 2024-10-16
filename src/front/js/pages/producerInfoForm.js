@@ -10,6 +10,9 @@ export const ProducerInfoForm = () => {
     const navigate = useNavigate();
     const [ producerInfo, setProducerInfo ] = useState({});
     const [ showSuccessMessage, setShowSuccessMessage ] = useState(false)
+    useEffect(()=>{
+        actions.getProducer(producerId)
+    },[])
 
     console.log("producerID",producerId);
     
@@ -23,11 +26,7 @@ export const ProducerInfoForm = () => {
         } else console.log("no info to return");
         // console.log("producerId", producerId);
         // console.log("producerInfo", producerInfo);
-        
-        
      },[store.producers, producerId])//  
-    
-     
     const handleEdition = (e) => {
         e.preventDefault();
         actions.addProducerInfo(producerId, producerInfo)
@@ -44,9 +43,8 @@ export const ProducerInfoForm = () => {
         // console.log("name from handleChange", name);
         // console.log("value from handleChange", value);
         setProducerInfo((prevInfo) => ({...prevInfo, [name]: value
-     }));
+     }))
      }
-
     return (
         <>
     <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
@@ -139,11 +137,23 @@ export const ProducerInfoForm = () => {
                     </div>
 
                     <div className="mb-3">
-                        <label htmlFor="provinceInput" className="form-label">Ciudad/Provincia</label>
+                        <label htmlFor="provinceInput" className="form-label">Provincia</label>
                         <input 
                             type="text" 
                             name="province" 
                             value={producerInfo.province || ''} 
+                            onChange={handleChange} 
+                            className="form-control" 
+                            id="provinceInput"
+                            style={{ borderRadius: "10px", padding: "10px" }} 
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="provinceInput" className="form-label">Ciudad</label>
+                        <input 
+                            type="text" 
+                            name="province" 
+                            value={producerInfo.city || ''} 
                             onChange={handleChange} 
                             className="form-control" 
                             id="provinceInput"

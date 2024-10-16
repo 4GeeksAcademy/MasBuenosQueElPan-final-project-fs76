@@ -4,7 +4,8 @@ import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
 import { Link, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { scryRenderedComponentsWithType } from "react-dom/test-utils";
+
+import { Producers } from "../pages/producers";
 
 export const ProducerProfile = () => {
 	const { store, actions } = useContext(Context);
@@ -36,25 +37,27 @@ export const ProducerProfile = () => {
         //     setPhone(data.phone)
         //     setZipcode(data.zip_code)
         //     setProvince(data.province)
-    
         // })
     },[producerId])
     useEffect(() => {
-        const producer = store.producersInfo; // Asegúrate de que esto sea un objeto, no un array
-        console.log(producer);
-        
+        const producer = store.producersInfo.find(p => p.id === parseInt(producerId));
+
         if (producer) {
-            setEmail(producer.email);
-            setName(producer.user_name);
-            setLastName(producer.user_last_name);
-            setBrandName(producer.brand_name);
-            setCif(producer.cif);
-            setAddress(producer.address);
-            setPhone(producer.phone);
-            setZipcode(producer.zip_code);
-            setProvince(producer.province);
+            setEmail(producer.email || "");
+            setName(producer.user_name || "");
+            setLastName(producer.user_last_name || "");
+            setBrandName(producer.brand_name || "");
+            setCif(producer.cif || "");
+            setAddress(producer.address || "");
+            setPhone(producer.phone || "");
+            setZipcode(producer.zip_code || "");
+            setProvince(producer.province || "");
+            setCity(producer.city || "");
         }
-    }, [store.producersInfo]);
+    }, [producerId, store.producersInfo]);
+    
+    console.log("la empresa es:",brandName)
+    console.log(store.producersInfo)
     const handleSaveEditInfo = (event) =>{
         event.preventDefault()
         const updatedInfo={
@@ -80,7 +83,7 @@ export const ProducerProfile = () => {
 	return (
 		<div className="container mt-5">
             {store.producersInfo.map((producer, index) => 
-            <>
+            <React.Fragment key={index}>
             <h1 className="text-center mb-4" key={index} style={{ fontSize: "32px", fontWeight: "bold", color: "#007bff" }}>
                 Hola, <span>{producer.user_name}</span>, aquí puedes editar tu información y la de tu empresa.
             </h1>
@@ -93,12 +96,11 @@ export const ProducerProfile = () => {
                 <form onSubmit={handleSaveEditInfo}>
                     <div className="mb-4">
                         <label htmlFor="emailInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Email</label>
-                        <input type="email" className="form-control" id="emailInput" value={producer.email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@ejemplo.com"
+                        <input type="email" className="form-control" id="emailInput" value={email ||""} onChange={(e) => setEmail(e.target.value)} placeholder="correo@ejemplo.com"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", transition: "box-shadow 0.3s" }}
                             onFocus={(e) => e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)'}
                             onBlur={(e) => e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'}/>
                     </div>
-
                     <hr/>
 
                     {/* Información personal */}
@@ -108,17 +110,17 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="nameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Nombre</label>
-                        <input type="text" className="form-control" id="nameInput" value={producer.user_name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre"
+                        <input type="text" className="form-control" id="nameInput" value={name ||""} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="lastNameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Apellidos</label>
-                        <input type="text" className="form-control" id="lastNameInput" value={producer.user_last_name} onChange={(e) => setLastName(e.target.value)} placeholder="Tus apellidos"
+                        <input type="text" className="form-control" id="lastNameInput" value={lastName || ""} onChange={(e) => setLastName(e.target.value)} placeholder="Tus apellidos"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="phoneInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Número de teléfono</label>
-                        <input type="text" className="form-control" id="phoneInput" value={producer.phone} onChange={(e) => setPhone(e.target.value)} placeholder="Tu número de teléfono"
+                        <input type="text" className="form-control" id="phoneInput" value={phone  || ""} onChange={(e) => setPhone(e.target.value)} placeholder="Tu número de teléfono"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
 
@@ -131,32 +133,32 @@ export const ProducerProfile = () => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="brandNameInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Nombre de Empresa</label>
-                        <input type="text" className="form-control" id="brandNameInput" value={producer.brand_name} onChange={(e) => setBrandName(e.target.value)} placeholder="Nombre de tu empresa"
+                        <input type="text" className="form-control" id="brandNameInput" value={brandName  || ""} onChange={(e) => setBrandName(e.target.value)} placeholder="Nombre de tu empresa"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="cifInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>CIF</label>
-                        <input type="text" className="form-control" id="cifInput" value={cif} onChange={(e) => setCif(e.target.value)} placeholder="CIF de tu empresa"
+                        <input type="text" className="form-control" id="cifInput" value={cif  || ""} onChange={(e) => setCif(e.target.value)} placeholder="CIF de tu empresa"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="addressInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Dirección</label>
-                        <input type="text" className="form-control" id="addressInput" value={producer.address} onChange={(e) => setAddress(e.target.value)} placeholder="Dirección de la empresa"
+                        <input type="text" className="form-control" id="addressInput" value={address  || ""} onChange={(e) => setAddress(e.target.value)} placeholder="Dirección de la empresa"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="addressInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Ciudad</label>
-                        <input type="text" className="form-control" id="addressInput" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nombre de la ciudad/pueblo"
+                        <input type="text" className="form-control" id="addressInput" value={city  || ""} onChange={(e) => setCity(e.target.value)} placeholder="Nombre de la ciudad/pueblo"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="zipcodeInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Código Postal</label>
-                        <input type="text" className="form-control" id="zipcodeInput" value={producer.zip_code} onChange={(e) => setZipcode(e.target.value)} placeholder="Código postal"
+                        <input type="text" className="form-control" id="zipcodeInput" value={zipcode  || ""} onChange={(e) => setZipcode(e.target.value)} placeholder="Código postal"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="provinceInput" className="form-label" style={{ fontWeight: "500", color: "#555" }}>Provincia</label>
-                        <input type="text" className="form-control" id="provinceInput" value={producer.province} onChange={(e) => setProvince(e.target.value)} placeholder="Provincia"
+                        <input type="text" className="form-control" id="provinceInput" value={province  || ""} onChange={(e) => setProvince(e.target.value)} placeholder="Provincia"
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="d-flex justify-content-between">
@@ -171,7 +173,7 @@ export const ProducerProfile = () => {
                     </div>
                 </form>
             </div>
-            </>
+            </React.Fragment>
             )}
         </div>
 	);

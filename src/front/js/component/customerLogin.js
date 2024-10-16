@@ -31,6 +31,7 @@ export const CustomerLoginUp = () => {
 			if (data.access_token){
                 localStorage.setItem("token", data.access_token);
 				actions.setToken(data.access_token)
+                localStorage.setItem("token", data.access_token);
                 localStorage.setItem("customer_id", data.user_id)
 				navigate(`/customer/home/${data.user_id}`);
 			}

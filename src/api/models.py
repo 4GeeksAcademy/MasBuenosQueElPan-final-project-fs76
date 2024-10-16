@@ -193,67 +193,122 @@ class ProductCategories(db.Model):
             "imageUrl": self.imageUrl,
             "name": self.name,
         }
+    
+class OrderStatus(Enum):
+    RECEIVED = "received"
+    IN_PROCESS = "in_process"
+    SHIPPED = "shipped"
+    DONE = "done"
 
-class CartProduct(db.Model):
+
+class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cart_id = db.Column(Integer, unique=False, nullable=False)
-    product_id = db.Column(Integer, unique=False, nullable=False)
-
-    def __repr__(self):
-        return f'<CartProduct {self.product_id}>'
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)  # Relación con el Customer
+    producer_id = db.Column(db.Integer, db.ForeignKey('producer.id'), nullable=False)  # Relación con el Producer
+    total_price = db.Column(Numeric(10, 2), nullable=False)
+    order_date = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECEIVED)
+    customer = db.relationship('Customer', backref='orders', lazy=True)
+    producer = db.relationship('Producer', backref='orders', lazy=True)
 
     def serialize(self):
         return {
             "id": self.id,
-            "cart_id": self.cart_id,
-            "product_id": self.product_id
+            "customer_id": self.customer_id,
+            "producer_id": self.producer_id,
+            "total_price": float(self.total_price),
+            "order_date": self.order_date.isoformat(),
+            "status": self.status.value,
+            "customer_name": self.customer.name,
+            "producer_name": self.producer.brand_name,
+            "items": [item.serialize() for item in self.items]
         }
 
-class CartItem(db.Model):
+class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    customer_cart_id = db.Column(Integer, unique=False, nullable=False)
-    product_id = db.Column(Integer, unique=False, nullable=False)
-    quantity = db.Column(Integer, unique=False, nullable=False)  # Cambiar a Integer
-    price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    subtotal = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)  # Fecha de creación
-    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)  # Fecha de actualización
-
-    def __repr__(self):
-        return f'<CartItem {self.product_id}>'
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)  # Relación con la Orden
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)  # Relación con el Producto
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(Numeric(10, 2), nullable=False)
+    order = db.relationship('Order', backref='items', lazy=True)
+    product = db.relationship('Product', lazy=True)
 
     def serialize(self):
         return {
             "id": self.id,
-            "customer_cart_id": self.customer_cart_id,
+            "product_name": self.product.name,
             "product_id": self.product_id,
             "quantity": self.quantity,
             "price": float(self.price),
-            "subtotal": float(self.subtotal),
-            "total_price": float(self.total_price)
         }
 
-class CustomerCart(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(Integer, unique=False, nullable=False)
-    created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
-    status = db.Column(String(50), unique=False, nullable=False)
 
-    def __repr__(self):
-        return f'<CustomerCart {self.user_id}>'
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "created_at": self.created_at.isoformat(),  # Formato ISO para serialización
-            "updated_at": self.updated_at.isoformat(),  # Formato ISO para serialización
-            "total_price": float(self.total_price),
-            "status": self.status
-        }
+
+
+
+
+
+# class CartProduct(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     cart_id = db.Column(Integer, unique=False, nullable=False)
+#     product_id = db.Column(Integer, unique=False, nullable=False)
+
+#     def __repr__(self):
+#         return f'<CartProduct {self.product_id}>'
+
+#     def serialize(self):
+#         return {
+#             "id": self.id,
+#             "cart_id": self.cart_id,
+#             "product_id": self.product_id
+#         }
+
+# class CartItem(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     customer_cart_id = db.Column(Integer, unique=False, nullable=False)
+#     product_id = db.Column(Integer, unique=False, nullable=False)
+#     quantity = db.Column(Integer, unique=False, nullable=False)  # Cambiar a Integer
+#     price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+#     subtotal = db.Column(Numeric(10, 2), unique=False, nullable=False)
+#     total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+#     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)  # Fecha de creación
+#     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)  # Fecha de actualización
+
+#     def __repr__(self):
+#         return f'<CartItem {self.product_id}>'
+
+#     def serialize(self):
+#         return {
+#             "id": self.id,
+#             "customer_cart_id": self.customer_cart_id,
+#             "product_id": self.product_id,
+#             "quantity": self.quantity,
+#             "price": float(self.price),
+#             "subtotal": float(self.subtotal),
+#             "total_price": float(self.total_price)
+#         }
+
+# class CustomerCart(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(Integer, unique=False, nullable=False)
+#     created_at = db.Column(DateTime, default=datetime.utcnow, nullable=False)
+#     updated_at = db.Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+#     total_price = db.Column(Numeric(10, 2), unique=False, nullable=False)
+#     status = db.Column(String(50), unique=False, nullable=False)
+
+#     def __repr__(self):
+#         return f'<CustomerCart {self.user_id}>'
+
+#     def serialize(self):
+#         return {
+#             "id": self.id,
+#             "user_id": self.user_id,
+#             "created_at": self.created_at.isoformat(),  # Formato ISO para serialización
+#             "updated_at": self.updated_at.isoformat(),  # Formato ISO para serialización
+#             "total_price": float(self.total_price),
+#             "status": self.status
+#         }
            
             
 
