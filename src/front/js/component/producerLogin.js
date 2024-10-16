@@ -81,7 +81,7 @@ export const ProducerLogin = () => {
         <>
             <div className="container d-flex justify-content-center align-items-center mt-2">
                 <div className="card p-4 shadow-lg" style={{ width: "400px", borderRadius: "15px", border: "none" }}>
-                    <h2 className="text-center mb-4" style={{ fontWeight: "bold", color: "#007bff" }}>Iniciar Sesión</h2>
+                    <h2 className="text-center mb-4" style={{ color: "#15a25b", fontWeight: "bold" }}>Iniciar sesión como Productor</h2>
                     
                     {/* Mostrar alertas */}
                     {showEmptyInputs && (
@@ -123,13 +123,13 @@ export const ProducerLogin = () => {
                         <button
                             type="submit"
                             className="btn btn-primary w-100"
-                            style={{ borderRadius: "8px", padding: "12px", fontSize: "16px" }}
+                            style={{ borderRadius: "8px", padding: "12px", fontSize: "16px", backgroundColor: "#15a25b", borderColor:"#15a25b" }}
                         >
                             Iniciar Sesión
                         </button>
 
                         <div className="text-center mt-3">
-                            <Link to="/producer/signup" className="text-primary">¿No tienes cuenta? Regístrate aquí</Link>
+                            <Link to="/producer/signup" className="text-primary">¿Todavía no tienes cuenta? Regístrate aquí</Link>
                         </div>
                     </form>
 

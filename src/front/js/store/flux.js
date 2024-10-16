@@ -3,6 +3,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 		store: {
 			message: null,
 			products: [],
+			singleProduct: [],
+			productsByCategorie: [],
 			token: null,
 			producerProducts: [],
 			tokenProducer: null,
@@ -261,20 +263,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 					)
 					.catch((error) => console.error(error));
 			},
-			//Estos son productos!! fetch(process.env.BACKEND_URL + "/api/producers")
-			// getProducts: () => {
-			// 	const store = getStore();
-			// 	const requestOptions = {
-			// 		method: "GET",
-			// 	};
-			// 	fetch(process.env.BACKEND_URL + "/api/products", requestOptions)
-			// 		.then((response) => response.json())
-			// 		.then((data) => {
-			// 			console.log("getting products", data);
-						
-			// 			// setStore({ products: data })
-			// 		})
-			// },
+			//Estos son productos!!
+			getProduct: (product_id) => {
+				const store = getStore();
+				const requestOptions = {
+					method: "GET",
+				};
+				fetch(process.env.BACKEND_URL + `/api/product/${product_id}`, requestOptions)
+					.then((response) => response.json())
+					.then((data) => {
+						console.log("getting product", data);
+						setStore({ singleProduct: data })
+						return
+					})
+				.catch((error) => console.error(error));
+			},
 			getProducts: () => {
 				const store = getStore()
 				const requestOptions = {
@@ -389,8 +392,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 						setStore({products: [...store.products, result]});
 						setStore({producerProducts: [...store.producerProducts, result]});
 						return;
-						// getActions().getProducersProducts(result.producer_id)
-						}
+						},
+						getActions().getProducersProducts(result.producer_id)
 					)
 					.catch((error) => console.error(error));
 			},
@@ -487,6 +490,26 @@ const getState = ({ getStore, getActions, setStore }) => {
 						setStore({ categories: updatedcategories });
 					})
 					.catch((error) => console.error(error));
+			},
+			// obtener productos por categoría
+			getProductsByCategorie: (categorieId) => {
+				const requestOptions = {
+					method: "GET",
+				};
+				fetch(`${process.env.BACKEND_URL}/api/categorie/${categorieId}/products`, requestOptions)
+				.then((response) => {
+					if (response.status === 404) {
+						throw new Error('Error al obtener productos por categoría');
+					}
+					return response.json();
+				})
+				.then((result) => {
+					console.log("Products by category:", result);
+					setStore({ productsByCategorie: result.data });
+				})
+				.catch((error) => {
+					console.error(error);
+				});
 			},
 			//Estos son productores!!
 			producerSignup: (email, password) => {
@@ -610,97 +633,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => console.error("Error al editar el productor", error));
 			},
-			// editProducer: (producerId, updatedInfo) => {
-			// 	const store = getStore();
-			// 	// const raw = JSON.stringify({
-			// 	// "name": updatedInfo.name,
-			// 	// "email": updatedInfo.email,
-			// 	// "brand_name": updatedInfo.brand_name,
-			// 	// "user_name": updatedInfo.user_name,
-			// 	// "user_last_name": updatedInfo.user_last_name,
-			// 	// "cif": updatedInfo.cif,
-			// 	// "address": updatedInfo.address,
-			// 	// "province": updatedInfo.province,
-			// 	// "zip_code": updatedInfo.zip_code,
-			// 	// "phone": updatedInfo.phone,
-			// 	//   });
-			// 	//   const requestOptions = {
-			// 	// 	method: "PUT",
-			// 	// 	headers: {
-			// 	// 		"Content-type": "application/json",
-			// 	// 	},
-			// 	// 	body: raw,
-			// 	// };
-			// 	// Si producersInfo es un objeto, no uses find
-			// 	// const currentProducer = store.producersInfo; // Accedes al objeto directamente
-			// 	// if (!currentProducer || currentProducer.id !== parseInt(producerId)) {
-			// 	// 	console.error("Producer not found");
-			// 	// 	return;
-			// 	// }
-			// 	// Obtener el productor actual desde el estado
-			// 	const currentProducer = store.producersInfo.find(producer => producer.id === parseInt(producerId));
-			// 	console.log("currentProducer in edition", currentProducer);
-			
-			// 	if (!currentProducer) {
-			// 		console.error("Producer not found");
-			// 		return;
-			// 	}
-			// 	const requestOptions = {
-			// 		method: "PUT",
-			// 		headers: { "Content-Type": "application/json" },
-			// 		body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
-			// 	};
-			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
-			// 		.then((response) => {
-			// 			if (!response.ok) {
-			// 				throw new Error("Error editing producer");
-			// 			}
-			// 			return response.json();
-			// 		})
-			// 		.then((data) => {
-			// 			console.log("Updated producer data from server:", data);
-			// 			setStore({ producers: [data] });
-			// 			setStore({ producersInfo: [data] });
-			// 		})
-			// 		.catch((error) => console.error("Error editing producer", error));
-			// },
-			// editProducer: (producerId, updatedInfo) => {
-			// 	const store = getStore();
-			
-			// 	// Obtener el productor actual desde el estado
-			// 	const currentProducer = store.producersInfo.find(producer => producer.id === parseInt(producerId));
-			// 	console.log("currentProducer in edition", currentProducer);
-			
-			// 	if (!currentProducer) {
-			// 		console.error("Producer not found");
-			// 		return;
-			// 	}
-			
-			// 	const requestOptions = {
-			// 		method: "PUT",
-			// 		headers: { "Content-Type": "application/json" },
-			// 		body: JSON.stringify({ ...currentProducer, ...updatedInfo }),
-			// 	};
-			
-			// 	fetch(`${process.env.BACKEND_URL}/api/producer/${producerId}`, requestOptions)
-			// 		.then((response) => {
-			// 			if (!response.ok) {
-			// 				throw new Error("Error editing producer");
-			// 			}
-			// 			return response.json();
-			// 		})
-			// 		.then((data) => {
-			// 			console.log("Updated producer data from server:", data);
-			// 			setStore({ producersInfo: data });
-			// 			// Actualizar el estado con los datos retornados por el servidor
-			// 			// const updatedProducerInfo = store.producersInfo.map(producer =>
-			// 			// 	producer.id === parseInt(producerId) ? data : producer
-			// 			// );
-
-			// 			// setStore({ producersInfo: updatedProducerInfo });
-			// 		})
-			// 		.catch((error) => console.error("Error editing producer", error));
-			// },
 			producerLogout: () => {
 				setStore({ producerIsLogedIn: false })
 				localStorage.removeItem("token");

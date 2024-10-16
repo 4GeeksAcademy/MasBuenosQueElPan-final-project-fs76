@@ -16,16 +16,25 @@ export const ProducerSignup = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+        
+        setShowEmptyInputs(false);
+        setShowAt(false);
+        setShowExists(false);
+        setShowSuccessMessage(false);
+
         if (!email || !password) {
             setShowEmptyInputs(true)
+            return;
         }
         if (!email.includes("@")) {
             setShowAt(true)
+            return;
         }
     
         const producerExists = await actions.checkProducerExists(email);
             if (producerExists) {
                 setShowExists(true)
+                return;
             }
             try {
                 await actions.producerSignup(email, password); 
@@ -34,7 +43,7 @@ export const ProducerSignup = () => {
                 console.log("Signup successful, navigating to login");
                 
                 setTimeout(() => {
-                    navigate("/"); 
+                    navigate("/producer/login"); 
                 }, 3000);
             } catch (error) {
                 console.error("Signup error:", error);
@@ -45,7 +54,7 @@ export const ProducerSignup = () => {
         <>
         <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
             <div className="card shadow-lg p-5" style={{ width: "100%", maxWidth: "500px", borderRadius: "15px", backgroundColor: "#ffffff" }}>
-                <h2 className="text-center mb-4" style={{ color: "#28a745", fontWeight: "bold" }}>Regístrate como Productor</h2>
+                <h2 className="text-center mb-4" style={{ color: "#0b532f", fontWeight: "bold" }}>Regístrate como Productor</h2>
                 
                 {showEmptyInputs && (
                     <div className="alert alert-warning alert-dismissible fade show text-center" role="alert">
@@ -68,7 +77,7 @@ export const ProducerSignup = () => {
 
                 <form onSubmit={handleSignup}>
                     <div className="mb-3">
-                        <label htmlFor="signupEmailInput" className="form-label">Email</label>
+                        <label htmlFor="signupEmailInput" className="form-label" style={{ fontWeight: "500", fontSize: "14px", color: "#6b6b6b" }}>Email</label>
                         <input
                             type="email"
                             className="form-control"
@@ -77,14 +86,16 @@ export const ProducerSignup = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             style={{
-                                borderRadius: "10px",
+                                borderRadius: "12px",
                                 border: "1px solid #28a745",
                                 padding: "10px",
+                                backgroundColor: "#f4f4f4",
+                                fontSize: "15px"
                             }}
                         />
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="signupPasswordInput" className="form-label">Contraseña</label>
+                        <label htmlFor="signupPasswordInput" className="form-label" style={{ fontWeight: "500", fontSize: "14px", color: "#6b6b6b" }}>Contraseña</label>
                         <input
                             type="password"
                             id="signupPasswordInput"
@@ -96,6 +107,10 @@ export const ProducerSignup = () => {
                                 borderRadius: "10px",
                                 border: "1px solid #28a745",
                                 padding: "10px",
+                                backgroundColor: "#f4f4f4",
+                                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
+                                transition: "all 0.3s ease",
+                                fontSize: "15px"
                             }}
                         />
                         <div id="passwordHelpBlock" className="form-text">
@@ -111,15 +126,23 @@ export const ProducerSignup = () => {
                         </div>
                     )}
 
-                    <div className="d-grid gap-2">
+                    <div className="col-12 d-flex justify-content-between">
                         <button
                             type="submit"
-                            className="btn btn-success"
+                            className="btn px-5 py-2"
                             style={{
-                                borderRadius: "10px",
-                                padding: "10px 20px",
-                                fontWeight: "bold",
+                                borderRadius: "12px", 
+                                border: "none", 
+                                padding: "12px 30px", 
+                                fontSize: "16px", 
+                                fontWeight: "600", 
+                                boxShadow: "0px 4px 15px rgba(0, 123, 255, 0.3)",
+                                transition: "background-color 0.3s ease",
+                                backgroundColor: "#0b532f",
+                                color: "#fff",
                             }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
                         >
                             Registrarse
                         </button>

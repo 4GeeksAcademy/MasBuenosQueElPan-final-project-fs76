@@ -29,6 +29,7 @@ export const CustomerLoginUp = () => {
 		.then((response)=> response.json())
 		.then((data)=>{
 			if (data.access_token){
+                localStorage.setItem("token", data.access_token);
 				actions.setToken(data.access_token)
                 localStorage.setItem("token", data.access_token);
                 localStorage.setItem("customer_id", data.user_id)
@@ -51,7 +52,7 @@ export const CustomerLoginUp = () => {
         <>
         <div className="container d-flex justify-content-center align-items-center mt-2">
         <div className="card p-4 shadow-lg" style={{ width: "400px", borderRadius: "15px", border: "none" }}>
-            <h2 className="text-center mb-4" style={{ fontWeight: "bold", color: "#007bff" }}>Iniciar Sesión</h2>
+            <h2 className="text-center mb-4" style={{ fontWeight: "bold", color: "#159ba2" }}>Iniciar sesión como Comprador</h2>
             
             <form onSubmit={loginData}>
                 <div className="mb-3">
@@ -84,7 +85,7 @@ export const CustomerLoginUp = () => {
                 <button
                     type="submit"
                     className="btn btn-primary w-100"
-                    style={{ borderRadius: "8px", padding: "12px", fontSize: "16px" }}
+                    style={{ borderRadius: "8px", borderColor: "#159ba2", padding: "12px", fontSize: "16px", backgroundColor: "#159ba2" }}
                 >
                     {loading ? (
                         <span>

@@ -283,7 +283,7 @@ export const ProducerView = () => {
                 {/* Modal para añadir productos */}
                 {showModal && (
                     <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-                        <div className="modal-dialog" style={{ maxWidth: "600px", margin: "100px auto" }}>
+                        <div className="modal-dialog" style={{ maxWidth: "700px", margin: "100px auto" }}>
                             <div className="modal-content" style={{ borderRadius: "15px", padding: "20px", boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)" }}>
                                 <div className="modal-header" style={{ borderBottom: "none", paddingBottom: "10px" }}>
                                     <h1 className="modal-title fs-5" id="exampleModalLabel" style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>Añadir Producto</h1>
@@ -291,7 +291,7 @@ export const ProducerView = () => {
                                 </div>
                                 <div className="modal-body" style={{ paddingTop: "10px" }}>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="name" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Nombre Producto </span>
+                                        <span className="input-group-text" id="name" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Producto </span>
                                         <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setName(e.target.value)} value={name} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="mb-3">
@@ -323,7 +323,13 @@ export const ProducerView = () => {
                                             {categorieImgUrl ? (
                                                 <img src={categorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
                                             ) : (
+                                                <>
                                                 <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
+                                                <div className="mb-3">
+                                                    <label htmlFor="uploadImg" className="form-label">Sube tu foto aquí</label>
+                                                    <input className="form-control" type="file" id="uploadImg"/>
+                                                </div>
+                                                </>
                                             )}
                                         </div>
                                     </div>

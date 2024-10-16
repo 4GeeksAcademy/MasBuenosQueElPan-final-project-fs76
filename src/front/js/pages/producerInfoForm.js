@@ -14,6 +14,9 @@ export const ProducerInfoForm = () => {
         actions.getProducer(producerId)
     },[])
 
+    console.log("producerID",producerId);
+    
+
     useEffect(()=>{
         actions.checkToken()
         const currentProducer = store.producers.find(producer => producer.id === parseInt(producerId))
