@@ -14,7 +14,7 @@ import { ProducerInfoForm } from "./pages/producerInfoForm";
 import { ProducerView } from "./pages/producerView";
 import { AddProduct } from "./pages/producerAddProduct";
 import injectContext from "./store/appContext";
-import { ProducerCartView } from "./pages/producerCartView";
+import { ProducerCart } from "./pages/producerCartView";
 import { ProducerCartDescriptio } from "./pages/producerCartDescription"
 import { ProducerProfile } from "./component/producerProfile";
 import { Navbar } from "./component/navbar";
@@ -28,6 +28,7 @@ import { CustomerSignUp } from "./pages/customerSingUp";
 import { HomeCustView } from "./pages/homeCustView"
 import { MainHome } from "./pages/MainHome";
 import { CustomerInfoForm } from "./pages/customerInfoForm";
+import { CustomerCartView } from "./pages/customerCartView";
 
 const Layout = () => {
     const basename = process.env.BASENAME || "";
@@ -46,6 +47,7 @@ const Layout = () => {
                         <Route element={<Producers />} path="/producer/login" />
                         <Route element={<ProducerProfile/>} path="/producer/profile/:producerId" />
                         <Route element={<CustomerInfoForm/>} path="/customer/profile/:customer_id" />
+                        <Route element={<CustomerCartView/>} path="/customer/cart/:customer_id" />
                         <Route element={<EditProducer />} path="/producer/edit/:producerId" />
                         <Route element={<ProducerSignup />} path="/producer/signup" />
                         <Route element={<ProducerView />} path="/producer/dashboard/:producerId" />
@@ -61,7 +63,7 @@ const Layout = () => {
                         <Route element={<CustomerLoginUpview />} path="/customer/Login" />
                         <Route element={<CustomerSignUp />} path="/customer/singUp" />
                         <Route element={<HomeCustView />} path="/customer/home/:customer_id" />
-                        <Route element={<ProducerCartView />} path="/producer/cart" />
+                        <Route element={<ProducerCart />} path="/producer/cart/:producerId" />
                         <Route element={<ProducerCartDescriptio />} path="/producer/cart/description/:customer_id" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
