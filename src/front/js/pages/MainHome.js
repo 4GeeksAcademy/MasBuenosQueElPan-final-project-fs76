@@ -17,6 +17,7 @@ export const MainHome = () => {
     const { store, actions } = useContext(Context);
     const displayLogin = store.displayLogin;
     const navigate = useNavigate()
+    const customerIsLogedIn = store.customerIsLogedIn;
 
     useEffect(() => {
       actions.getCategories();
@@ -28,6 +29,11 @@ export const MainHome = () => {
     navigate(`productByCategorie/${categorieId}/products`);
   };
 
+  const handleAddProductToCart = () => {
+    if (customerIsLogedIn) {
+      actions.addToCart()
+    }
+  }
 
     return (
         <>
@@ -191,6 +197,7 @@ export const MainHome = () => {
                                                 <button
                                                     type="button"
                                                     className="btn btn-warning"
+                                                    onClick={() => handleAddProductToCart(product.id)}
                                                     style={{ borderRadius: "10px", transition: "background-color 0.3s ease", marginLeft: "10px" }}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">

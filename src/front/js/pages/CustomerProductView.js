@@ -12,9 +12,9 @@ export const CustomerProductView = () => {
     const { product_id } = params;  
 
     useEffect(() => {
+        window.scrollTo(0, 0)
         actions.getProduct(product_id);
         console.log(actions.getCategories());
-         
     }, []);
 
     const handleAddToCart = () => {

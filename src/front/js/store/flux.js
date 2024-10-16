@@ -426,7 +426,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				};
 				fetch(`${process.env.BACKEND_URL}/api/categorie/${categorieId}/products`, requestOptions)
 				.then((response) => {
-					if (!response.ok) {
+					if (response.status === 404) {
 						throw new Error('Error al obtener productos por categoría');
 					}
 					return response.json();

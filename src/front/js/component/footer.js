@@ -16,8 +16,8 @@ export const Footer = () => {
 			<div className="col-6 col-md-3 mb-3">
 			<h5>Categorías</h5>
                         <ul className="nav flex-column" style={{ cursor: "pointer" }}> 
-                            {store.categories.map((categorie) => (
-                                <li className="nav-item mb-2" key={categorie.id}>
+                            {store.categories.map((categorie, index) => (
+                                <li className="nav-item mb-2" key={index}>
                                     <a className="nav-link p-0 text-body-secondary" 
                                        onClick={() => navigate(`/productByCategorie/${categorie.id}/products`)}>
                                         {categorie.categorie} {/* Cambia aqui según el nombre de la categoría */}

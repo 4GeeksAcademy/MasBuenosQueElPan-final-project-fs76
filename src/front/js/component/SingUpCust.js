@@ -54,7 +54,7 @@ export const SingUp = () => {
                         onChange={(event) => setEmail(event.target.value)} 
                         style={{ 
                             borderRadius: "12px", 
-                            border: "1px solid #dcdcdc", 
+                            border: "1px solid #10757a", 
                             padding: "12px", 
                             backgroundColor: "#f4f4f4",
                             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
@@ -74,7 +74,7 @@ export const SingUp = () => {
                         onChange={(event) => setPassword(event.target.value)} 
                         style={{ 
                             borderRadius: "12px", 
-                            border: "1px solid #dcdcdc", 
+                            border: "1px solid #10757a", 
                             padding: "12px", 
                             backgroundColor: "#f4f4f4",
                             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
@@ -90,7 +90,7 @@ export const SingUp = () => {
                 <div className="col-12 d-flex justify-content-between">
                     <button 
                         type="submit" 
-                        className="btn btn-primary px-5 py-2" 
+                        className="btn px-5 py-2" 
                         style={{ 
                             borderRadius: "12px", 
                             backgroundColor: "#10757a", 
@@ -99,7 +99,8 @@ export const SingUp = () => {
                             fontSize: "16px", 
                             fontWeight: "600", 
                             boxShadow: "0px 4px 15px rgba(0, 123, 255, 0.3)",
-                            transition: "background-color 0.3s ease" 
+                            transition: "background-color 0.3s ease",
+                            color: "#fff",
                         }}
                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}

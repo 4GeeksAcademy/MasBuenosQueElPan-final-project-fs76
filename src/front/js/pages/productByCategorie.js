@@ -11,14 +11,14 @@ export const ProductByCategorie = () => {
     const { categorieId, productId } = useParams();
 
     useEffect(() => {
-        const storedCategorieId = localStorage.getItem('currentCategorieId');
-        if (storedCategorieId) {
-            actions.getProductsByCategorie(storedCategorieId);
-        } else {
-            actions.getProductsByCategorie(categorieId);
+        const fetchProductsByCategorie = async () => {
+            window.scrollTo(0, 0)
+            const storedCategorieId = localStorage.getItem('currentCategorieId');
+            const idToUse = storedCategorieId || categorieId;
+            await actions.getProductsByCategorie(idToUse); 
+            actions.getCategories();
         }
-        actions.getCategories();
-        
+        fetchProductsByCategorie();
   }, []);
 
   const categorieName = store.categories.find(c => c.id === parseInt(categorieId))?.categorie || "Categoría no encontrada";

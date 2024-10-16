@@ -52,7 +52,7 @@ export const ProducerSignup = () => {
 
     return (
         <>
-        <div className="container-fluid d-flex justify-content-center align-items-center mt-5" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
+        <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
             <div className="card shadow-lg p-5" style={{ width: "100%", maxWidth: "500px", borderRadius: "15px", backgroundColor: "#ffffff" }}>
                 <h2 className="text-center mb-4" style={{ color: "#0b532f", fontWeight: "bold" }}>Regístrate como Productor</h2>
                 
@@ -86,7 +86,7 @@ export const ProducerSignup = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             style={{
-                                borderRadius: "10px",
+                                borderRadius: "12px",
                                 border: "1px solid #28a745",
                                 padding: "10px",
                                 backgroundColor: "#f4f4f4",
@@ -129,13 +129,20 @@ export const ProducerSignup = () => {
                     <div className="col-12 d-flex justify-content-between">
                         <button
                             type="submit"
-                            className="btn btn-success"
+                            className="btn px-5 py-2"
                             style={{
-                                borderRadius: "10px",
-                                padding: "10px 20px",
-                                fontWeight: "bold",
+                                borderRadius: "12px", 
+                                border: "none", 
+                                padding: "12px 30px", 
+                                fontSize: "16px", 
+                                fontWeight: "600", 
+                                boxShadow: "0px 4px 15px rgba(0, 123, 255, 0.3)",
+                                transition: "background-color 0.3s ease",
                                 backgroundColor: "#0b532f",
+                                color: "#fff",
                             }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
                         >
                             Registrarse
                         </button>
