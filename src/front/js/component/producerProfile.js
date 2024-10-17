@@ -84,13 +84,13 @@ export const ProducerProfile = () => {
 		<div className="container mt-5">
             {store.producersInfo.map((producer, index) => 
             <React.Fragment key={index}>
-            <h1 className="text-center mb-4" key={index} style={{ fontSize: "32px", fontWeight: "bold", color: "#007bff" }}>
+            <h1 className="text-center mb-4" key={index} style={{ fontSize: "32px", fontWeight: "bold", color: "#388E3C" }}>
                 Hola, <span>{producer.user_name}</span>, aquí puedes editar tu información y la de tu empresa.
             </h1>
             <div className="card" style={{ padding: "20px", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
                 {/* Información de usuario */}
                 <div className="d-flex align-items-center mb-3">
-                    <i className="fas fa-user-circle fa-2x" style={{ color: "#007bff", marginRight: "10px" }}></i>
+                    <i className="fas fa-user-circle fa-2x" style={{ color: "#A5D6A7", marginRight: "10px" }}></i>
                     <h3 style={{ fontWeight: "600", color: "#333" }}>Información de usuario</h3>
                 </div>
                 <form onSubmit={handleSaveEditInfo}>
@@ -105,7 +105,7 @@ export const ProducerProfile = () => {
 
                     {/* Información personal */}
                     <div className="d-flex align-items-center mb-3">
-                        <i className="fas fa-address-card fa-2x" style={{ color: "#007bff", marginRight: "10px" }}></i>
+                        <i className="fas fa-address-card fa-2x" style={{ color: "#A5D6A7", marginRight: "10px" }}></i>
                         <h3 style={{ fontWeight: "600", color: "#333" }}>Información personal</h3>
                     </div>
                     <div className="mb-4">
@@ -128,7 +128,7 @@ export const ProducerProfile = () => {
 
                     {/* Información de empresa */}
                     <div className="d-flex align-items-center mb-3">
-                        <i className="fas fa-building fa-2x" style={{ color: "#007bff", marginRight: "10px" }}></i>
+                        <i className="fas fa-building fa-2x" style={{ color: "#A5D6A7", marginRight: "10px" }}></i>
                         <h3 style={{ fontWeight: "600", color: "#333" }}>Información de empresa</h3>
                     </div>
                     <div className="mb-4">
@@ -166,7 +166,7 @@ export const ProducerProfile = () => {
                             Guardar
                         </button>
                         <Link to={`/producer/dashboard/${producerId}`}>
-                            <button type="button" className="btn btn-primary" style={{ padding: "12px 24px", fontWeight: "bold", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
+                            <button type="button" className="btn btn-primary" style={{ padding: "12px 24px", fontWeight: "bold",backgroundColor: "#6c757d", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
                                 Volver atrás
                             </button>
                         </Link>

@@ -60,12 +60,12 @@ export const CustomerInfoForm = () => {
 
     return (
         <div className="container mt-5">
-            <h1 className="text-center mb-4" style={{ fontSize: "32px", fontWeight: "bold", color: "#007bff" }}>
+            <h1 className="text-center mb-4" style={{ fontSize: "32px", fontWeight: "bold", color: "#388E3C" }}>
                 Bienvenido a tu perfil, <span>{store.customerInfo?.customer_name}</span>
             </h1>
             <div className="card" style={{ padding: "20px", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
                 <div className="d-flex align-items-center mb-3">
-                    <i className="fas fa-user-circle fa-2x" style={{ color: "#007bff", marginRight: "10px" }}></i>
+                    <i className="fas fa-user-circle fa-2x" style={{ color: "#A5D6A7", marginRight: "10px" }}></i>
                     <h3 style={{ fontWeight: "600", color: "#333" }}>Información de usuario</h3>
                 </div>
                 <form onSubmit={handleSaveEditInfo}>
@@ -85,7 +85,7 @@ export const CustomerInfoForm = () => {
                             </div>
                             <hr/>
                             <div className="d-flex align-items-center mb-3">
-                                <i className="fas fa-address-card fa-2x" style={{ color: "#007bff", marginRight: "10px" }}></i>
+                                <i className="fas fa-address-card fa-2x" style={{ color: "#A5D6A7", marginRight: "10px" }}></i>
                                 <h3 style={{ fontWeight: "600", color: "#333" }}>Información de usuario</h3>
                             </div>
                             <div className="mb-4">
@@ -100,7 +100,7 @@ export const CustomerInfoForm = () => {
                             </div>
                             <hr/>
                             <div className="d-flex align-items-center mb-3">
-                                <i className="fas fa-address-card fa-2x" style={{ color: "#007bff", marginRight: "10px" }}></i>
+                                <i className="fas fa-address-card fa-2x" style={{ color: "#A5D6A7", marginRight: "10px" }}></i>
                                 <h3 style={{ fontWeight: "600", color: "#333" }}>Información personal</h3>
                             </div>
                             <div className="mb-4">

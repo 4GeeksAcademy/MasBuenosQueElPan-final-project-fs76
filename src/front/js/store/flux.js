@@ -121,7 +121,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					setStore({ token: token, producerIsLogedIn: true });
 				}
 			},
-			costumerLogout: () => {
+			customerLogout: () => {
 				setStore({ token: null })
 				setStore({customerIsLogedIn: false})
 			},
