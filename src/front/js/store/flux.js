@@ -391,9 +391,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 						// getActions().getProducts()
 						setStore({products: [...store.products, result]});
 						setStore({producerProducts: [...store.producerProducts, result]});
+						getActions().getProducersProducts(result.producer_id)
 						return;
 						},
-						getActions().getProducersProducts(result.producer_id)
 					)
 					.catch((error) => console.error(error));
 			},
@@ -505,10 +505,15 @@ const getState = ({ getStore, getActions, setStore }) => {
 				})
 				.then((result) => {
 					console.log("Products by category:", result);
-					setStore({ productsByCategorie: result.data });
+					if (result.data && result.data.length > 0) {
+						setStore({ productsByCategorie: result.data });
+					} else {
+						setStore(productsByCategorie = []);
+					}
 				})
 				.catch((error) => {
 					console.error(error);
+					setStore({ productsByCategorie: [] })
 				});
 			},
 			//Estos son productores!!
