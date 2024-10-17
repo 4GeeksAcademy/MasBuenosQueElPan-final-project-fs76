@@ -13,7 +13,7 @@ export const Footer = () => {
 	};
 
 	return (
-		<footer className="footer py-3 my-6 py-5">
+		<footer className="footer py-3 my-5 py-5">
 			<div className="row">
 				<div className="col-6 my-4">
 					<h6 className="">Categorías</h6>

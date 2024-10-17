@@ -56,10 +56,33 @@ export const Navbar = () => {
 	);
 
 	return (
-		<nav className="navbar border-bottom border-body justify-content-between d-flex" id="navbar">
-			<Link to="/" className="text-decoration-none py-4 ps-2 ms-5">
+		<nav className="navbar border-bottom border-body justify-content-between d-flex mb-5" id="navbar">
+			<div className="mx-5 mt-3">
+			<Link to="/" className="text-decoration-none ms-4">
 				<span className="navbar-brand h1">¡Más Buenos que el Pan!</span>
 			</Link>
+			<div className="d-flex mx-3 mt-3 ">
+					<div className="dropdown">
+						<button className="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Regístrate
+						</button>
+						<ul className="dropdown-menu">
+						<li><a className="dropdown-item" onClick={() => navigate("/producer/signup")} href="#">Productor</a></li>
+						<li><a className="dropdown-item" onClick={() => navigate("/customer/singUp")} href="#">Comprador</a></li>
+						{/* <li><a className="dropdown-item" href="#">Something else here</a></li> */}
+						</ul>
+					</div>
+					<div className="dropdown">
+						<button className="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Login
+						</button>
+						<ul className="dropdown-menu">
+						<li><a className="dropdown-item" onClick={() => navigate("/producer/login")} href="#">Productor</a></li> 
+						<li><a className="dropdown-item" onClick={() => navigate("/customer/Login")} href="#">Comprador</a></li>
+						</ul>
+					</div>
+					</div>
+			</div>
 
 			<div className="dropdown" style={{ position: "relative" }}>
 				{/* Aquí colocamos el menú desplegable */}
@@ -70,23 +93,23 @@ export const Navbar = () => {
 					/>
 				) : (
 					<>
-					<div class="btn-group me-5">
-					<button type="button" class="btn dropdown-toggle text-white" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-					<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" className="bi bi-person-circle" viewBox="0 0 16 16">
-						<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-						<path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
-					</svg>
-					</button>
-					<ul class="dropdown-menu dropdown-menu-start dropdown-menu-lg-end">
+					<div className="btn-group me-5">
+						<button type="button" className="btn dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" className="bi bi-person-circle" viewBox="0 0 16 16">
+							<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+							<path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+						</svg>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end">
 						<li><a className="dropdown-item" style={{ cursor: "pointer" }} onClick={() => navigate("/producer/signup")}>Regístrate como productor</a></li>
-						<li><a className="dropdown-item" style={{ cursor: "pointer" }} onClick={() => navigate("/customer/signup")}>Regístrate como comprador</a></li>
-						<li><hr className="dropdown-divider" /></li>
-						<li><a className="dropdown-item" style={{ cursor: "pointer" }} onClick={() => navigate("/producer/login")}>Login como productor</a></li>
-						<li><a className="dropdown-item" style={{ cursor: "pointer" }} onClick={() => navigate("/customer/login")}>Login como comprador</a></li>
-						<li><hr className="dropdown-divider" /></li>
-						<li><a className="dropdown-item" href="#">Sobre nosotros</a></li>
-					</ul>
-				  </div>
+							<li><a className="dropdown-item" style={{ cursor: "pointer" }} onClick={() => navigate("/customer/signup")}>Regístrate como comprador</a></li>
+							<li><hr className="dropdown-divider" /></li>
+							<li><a className="dropdown-item" style={{ cursor: "pointer" }} onClick={() => navigate("/producer/login")}>Login como productor</a></li>
+							<li><a className="dropdown-item" style={{ cursor: "pointer" }} onClick={() => navigate("/customer/login")}>Login como comprador</a></li>
+							<li><hr className="dropdown-divider" /></li>
+							<li><a className="dropdown-item" href="#">Sobre nosotros</a></li>
+						</ul>
+					</div>
 				  </>
 				)}
 			</div>

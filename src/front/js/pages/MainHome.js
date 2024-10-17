@@ -152,12 +152,14 @@ export const MainHome = () => {
                         <p>Mostrando categorías</p>
                     )}
                     {store.products.length > 0 ? (
-                        <div className="container-fluid">
+                        <div className="container-fluid mb-5 pb-5">
                             <h1 className="my-5 ms-5" style={{marginLeft: "6%"}}>Productos</h1>
                             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 ">
                                 {store.products.map((product, index) => (
                                     <div key={index} className="col">
                                         <div className="card"
+                                            onClick={()=> {
+                                            navigate(`/product/${product.id}`)}}
                                             onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
                                             onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
                                             style={{

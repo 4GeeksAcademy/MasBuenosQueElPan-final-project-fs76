@@ -100,3 +100,34 @@
   .producerSignup:hover .arrow:before, .customerSignup:hover .arrow:before{
     right: 0;
   }
+
+
+/* 
+  .dropdown-menu {
+    display: none; 
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block; 
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    color: #333; 
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+    color: #0f0e0e; 
+} */
