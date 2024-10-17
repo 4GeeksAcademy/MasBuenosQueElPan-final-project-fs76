@@ -112,7 +112,7 @@ export const ProducerView = () => {
             return;
         }
         actions.addProducts(newProduct);
-        actions.getProducersProducts()
+        actions.getProducersProducts(producerId)
         closeModal();
     };
     const closeModal = () => {
@@ -178,6 +178,7 @@ export const ProducerView = () => {
             }
         }
         actions.modifyProduct(updatedProduct);
+        actions.getProducersProducts()
         closeEditModal();
     };
     const closeEditModal = () => {
@@ -209,60 +210,75 @@ export const ProducerView = () => {
         <>
             <div className="container">
                 <div className="row">
-                {store.producersInfo.map((producer, index) => 
-                    <h1 key={index} className="my-3">¡Encantados de recibirte, {producer.user_name}!</h1>
-                )}
-                {store.producerProducts.length > 0 ? <h1>Tus productos son los siguientes:</h1> : <h1>¡Es momento de añadir nuevos productos!</h1>}
-                    <br />
+                    {/* Mensaje de bienvenida al productor */}
+                    {store.producersInfo.map((producer, index) => (
+                        <h1 key={index} className="my-2" style={{ fontWeight: "bold", color: "#4CAF50", fontSize: "2rem" }}>
+                            ¡Encantados de recibirte, {producer.user_name}!
+                        </h1>
+                    ))}
+                    
+                    {/* Título dinámico dependiendo de si tiene productos o no */}
+                    {store.producerProducts.length > 0 ? (
+                        <h4 className="my-3" style={{ fontWeight: "bold", color: "#433", marginTop: "20px" }}>Tus productos son los siguientes:</h4>
+                    ) : (
+                        <h3 style={{ fontWeight: "bold", color: "#333", marginTop: "20px" }}>¡Es momento de añadir nuevos productos!</h3>
+                    )}
+            
                     <hr />
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems:"center" }}>
+
+                    {/* Productos del productor */}
+                    <div className="mt-4" style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "center" }}>
                         {store.producerProducts.length > 0 && store.producerProducts.map((product, index) => (
                             <div key={index} className="card"
-                            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                            onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
-                            style={{
-                                width: "300px",
-                                borderRadius: "12px",
-                                boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
-                                overflow: "hidden",
-                                transition: "transform 0.3s ease-in-out",
-                                cursor: "pointer",
-                            }}>
-                                <img src={product.categorie_imageUrl} className="card-img-top" alt="Cargando imagen..." style={{ height: "200px", objectFit: "cover" }} />
+                                onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                                onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+                                style={{
+                                    width: "300px",
+                                    borderRadius: "12px",
+                                    boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
+                                    overflow: "hidden",
+                                    transition: "transform 0.3s ease-in-out",
+                                    cursor: "pointer",
+                                    backgroundColor: "#fff"
+                                }}>
+                                <img src={product.categorie_imageUrl} className="card-img-top" alt="Imagen del producto" 
+                                    style={{ height: "200px", objectFit: "cover" }} />
                                 <div className="card-body" style={{ padding: "20px" }}>
                                     <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</h5>
-                                    <p className="card-text" style={{color:"#777", fontSize: "14px"}}>Categoría: {product.categorie_name}</p>
+                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Categoría: {product.categorie_name}</p>
                                     <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {product.price} €/kg</p>
                                     <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Origen del producto: {product.origin}</p>
-                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Breve descripción: {product.brief_description}</p>
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-danger" 
-                                        style={{ borderRadius: "10px", backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", transition: "background-color 0.3s ease" }} 
-                                        onClick={() => actions.deleteProduct(product.id)}
-                                    >
-                                        Eliminar producto
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-warning" 
-                                        style={{ borderRadius: "10px", backgroundColor: "#ffc107", borderColor: "#ffc107", transition: "background-color 0.3s ease", marginLeft: "10px" }}
-                                        onClick={() => handleEditProduct(product)}
-                                    >
-                                        Editar
-                                    </button>
+                                    <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Descripción: {product.brief_description}</p>
+
+                                    <div className="d-flex justify-content-between mt-3">
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-danger" 
+                                            style={{ borderRadius: "10px", backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", transition: "background-color 0.3s ease" }} 
+                                            onClick={() => actions.deleteProduct(product.id)}
+                                        >
+                                            Eliminar
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-warning" 
+                                            style={{ borderRadius: "10px", backgroundColor: "#ffc107", borderColor: "#ffc107", transition: "background-color 0.3s ease" }}
+                                            onClick={() => handleEditProduct(product)}
+                                        >
+                                            Editar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                         
                         {/* Botón para añadir una nueva tarjeta */}
                         <button
-                            className="add-card-button "
+                            className="add-card-button btn btn-success "
                             style={{
                                 width: "40px",
                                 height: "40px",
                                 borderRadius: "50%",
-                                backgroundColor: "#007bff",
                                 color: "#fff",
                                 fontSize: "24px",
                                 border: "none",
@@ -285,13 +301,13 @@ export const ProducerView = () => {
                     <div className="modal fade show d-block" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
                         <div className="modal-dialog" style={{ maxWidth: "700px", margin: "100px auto" }}>
                             <div className="modal-content" style={{ borderRadius: "15px", padding: "20px", boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)" }}>
-                                <div className="modal-header" style={{ borderBottom: "none", paddingBottom: "10px" }}>
-                                    <h1 className="modal-title fs-5" id="exampleModalLabel" style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>Añadir Producto</h1>
+                                <div className="modal-header" style={{ borderBottom: "none", paddingBottom: "10px", display: "flex", justifyContent: "space-between" }}>
+                                    <h1 className="modal-title fs-5" id="exampleModalLabel" style={{ fontSize: "24px", fontWeight: "bold", color: "#444" }}>Añadir Producto</h1>
                                     <button type="button" className="btn-close" onClick={() => closeModal()} aria-label="Close" style={{ fontSize: "20px", cursor: "pointer" }}></button>
                                 </div>
                                 <div className="modal-body" style={{ paddingTop: "10px" }}>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="name" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Producto </span>
+                                        <span className="input-group-text" id="name" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Producto </span>
                                         <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setName(e.target.value)} value={name} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="mb-3">
@@ -322,90 +338,112 @@ export const ProducerView = () => {
                                         <div className="my-3">
                                             {categorieImgUrl ? (
                                                 <img src={categorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
-                                            ) : (
-                                                <>
-                                                <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
-                                                <div className="mb-3">
-                                                    <label htmlFor="uploadImg" className="form-label">Sube tu foto aquí</label>
-                                                    <input className="form-control" type="file" id="uploadImg"/>
-                                                </div>
-                                                </>
+                                            ) : (""
+                                                // <>
+                                                // <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
+                                                // <div className="mb-3">
+                                                //     <label htmlFor="uploadImg" className="form-label">Sube tu foto aquí</label>
+                                                //     <input className="form-control" type="file" id="uploadImg"/>
+                                                // </div>
+                                                // </>
                                             )}
                                         </div>
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="origin" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
+                                        <span className="input-group-text" id="origin" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Origen</span>
                                         <input type="text" className="form-control" placeholder="ej: Valencia" onChange={(e) => setOrigin(e.target.value)} value={origin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="weight" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Peso</span>
+                                        <span className="input-group-text" id="weight" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Peso</span>
                                         <input type="number" className="form-control" placeholder="ej: 1" onChange={(e) => setWeight(e.target.value)} value={weight} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="volume" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Volumen</span>
+                                        <span className="input-group-text" id="volume" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Volumen</span>
                                         <input type="number" className="form-control" placeholder="ej: 3" onChange={(e) => setVolume(e.target.value)} value={volume} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="minimum" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Cantidad mínima</span>
+                                        <span className="input-group-text" id="minimum" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Cantidad mínima</span>
                                         <input type="number" className="form-control" placeholder="Pon la cantidad mínima que el comprador debe comprar. ej: 5" onChange={(e) => setMinimum(e.target.value)} value={minimum} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="briefDescription" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Breve descripción</span>
+                                        <span className="input-group-text" id="briefDescription" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Breve descripción</span>
                                         <input type="text" className="form-control" placeholder="Cuenta en pocas palabras algo interesante del producto" onChange={(e) => setBriefDescription(e.target.value)} value={briefDescription} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="description" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
+                                        <span className="input-group-text" id="description" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Descripción</span>
                                         <input type="text" className="form-control" placeholder="Aquí te puedes explayar!" onChange={(e) => setDescription(e.target.value)} value={description} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="price" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
+                                        <span className="input-group-text" id="price" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Precio</span>
                                         <input type="number" className="form-control" placeholder="3,14..." onChange={(e) => setPrice(e.target.value)} value={price} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="status" className="form-label">Estatus</label>
-                                        <div className="mb-3 d-block">
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="available"
-                                                name="available"
-                                                checked={status.available}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="available">Disponible</label>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="lastUnits"
-                                                name="lastUnits"
-                                                checked={status.lastUnits}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="lastUnits">Últimas unidades</label>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="soon"
-                                                name="soon"
-                                                checked={status.soon}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="soon">Pronto en nuestra página</label>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="not_available"
-                                                name="not_available"
-                                                checked={status.not_available}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="not_available">No disponible</label>
+                                        <label htmlFor="status" className="form-label" style={{ fontWeight: "bold", fontSize: "1.1rem", color: "#333" }}>
+                                            Estatus
+                                        </label>
+                                        <div className="d-flex flex-wrap" style={{ gap: "15px" }}>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editAvailable"
+                                                    name="editAvailable"
+                                                    checked={editStatus.available}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editAvailable" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    Disponible
+                                                </label>
+                                            </div>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editLastUnits"
+                                                    name="editLastUnits"
+                                                    checked={editStatus.lastUnits}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editLastUnits" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    Últimas unidades
+                                                </label>
+                                            </div>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editSoon"
+                                                    name="editSoon"
+                                                    checked={editStatus.soon}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editSoon" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    Pronto en nuestra página
+                                                </label>
+                                            </div>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editNot_available"
+                                                    name="editNot_available"
+                                                    checked={editStatus.not_available}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editNot_available" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    No disponible
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="modal-footer" style={{ borderTop: "none", paddingTop: "10px" }}>
-                                    <button type="button" className="btn btn-secondary" onClick={() => closeModal()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#6c757d", borderColor: "#6c757d" }}>Cerrar</button>
-                                    <button type="button" className="btn btn-primary" onClick={() => handleSaveProduct()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#007bff", borderColor: "#007bff" }}>Guardar</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => closeModal()} style={{ borderRadius: "10px", padding: "10px 20px"}}>Cerrar</button>
+                                    <button type="button" className="btn btn-success" onClick={() => handleSaveProduct()} style={{ borderRadius: "10px", padding: "10px 20px"}}>Guardar</button>
                                 </div>
                             </div>
                         </div>
@@ -423,7 +461,7 @@ export const ProducerView = () => {
                                 </div>
                                 <div className="modal-body" style={{ paddingTop: "10px" }}>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Nombre Producto</span>
+                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Nombre Producto</span>
                                         <input type="text" className="form-control" placeholder="Tomate..." onChange={(e) => setEditName(e.target.value)} value={editName} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="mb-3">
@@ -462,78 +500,100 @@ export const ProducerView = () => {
                                         </div>
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Origen</span>
+                                        <span className="input-group-text" id="addon-wrapping" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Origen</span>
                                         <input type="text" className="form-control" placeholder="Valencia..." onChange={(e) => setEditOrigin(e.target.value)} value={editOrigin} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="weightEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Peso</span>
+                                        <span className="input-group-text" id="weightEdit" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Peso</span>
                                         <input type="number" className="form-control" placeholder="ej: 1" onChange={(e) => setEditWeight(e.target.value)} value={editWeight} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="volumeEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Volumen</span>
+                                        <span className="input-group-text" id="volumeEdit" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Volumen</span>
                                         <input type="number" className="form-control" placeholder="ej: 3" onChange={(e) => setEditVolume(e.target.value)} value={editVolume} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="minimumEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Cantidad mínima</span>
+                                        <span className="input-group-text" id="minimumEdit" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Cantidad mínima</span>
                                         <input type="number" className="form-control" placeholder="Pon la cantidad mínima que el comprador debe comprar. ej: 5" value={editMinimum} onChange={(e) => setEditMinimum(e.target.value)}  aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="briefDescriptionEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Breve descripción</span>
+                                        <span className="input-group-text" id="briefDescriptionEdit" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Breve descripción</span>
                                         <input type="text" className="form-control" placeholder="Cuenta en pocas palabras algo interesante del producto"  value={editBriefDescription} onChange={(e) => setEditBriefDescription(e.target.value)} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="descriptionEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Descripción</span>
+                                        <span className="input-group-text" id="descriptionEdit" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Descripción</span>
                                         <input type="text" className="form-control" placeholder="Había una vez..." onChange={(e) => setEditDescription(e.target.value)} value={editDescription} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
-                                        <span className="input-group-text" id="priceEdit" style={{ width: "150px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>Precio</span>
+                                        <span className="input-group-text" id="priceEdit" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Precio</span>
                                         <input type="text" className="form-control" placeholder="3,14..." onChange={(e) => setEditPrice(e.target.value)} value={editPrice} aria-label="Username" aria-describedby="addon-wrapping" style={{ borderRadius: "0 10px 10px 0" }} />
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="status" className="form-label">Estatus</label>
-                                        <div className="mb-3 d-block">
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="editAvailable"
-                                                name="editAvailable"
-                                                checked={editStatus.available}
-                                                onChange={handleEditCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="editAvailable">Disponible</label>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="editLastUnits"
-                                                name="editLastUnits"
-                                                checked={editStatus.lastUnits}
-                                                onChange={handleEditCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="editLastUnits">Últimas unidades</label>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="editSoon"
-                                                name="editSoon"
-                                                checked={editStatus.soon}
-                                                onChange={handleEditCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="editSoon">Pronto en nuestra página</label>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input me-1"
-                                                id="editNot_available"
-                                                name="editNot_available"
-                                                checked={editStatus.not_available}
-                                                onChange={handleEditCheckboxChange}
-                                            />
-                                            <label className="form-check-label me-4" htmlFor="editNot_available">No disponible</label>
+                                        <label htmlFor="status" className="form-label" style={{ fontWeight: "bold", fontSize: "1.1rem", color: "#333" }}>
+                                            Estatus
+                                        </label>
+                                        <div className="d-flex flex-wrap" style={{ gap: "15px" }}>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editAvailable"
+                                                    name="editAvailable"
+                                                    checked={editStatus.available}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editAvailable" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    Disponible
+                                                </label>
+                                            </div>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editLastUnits"
+                                                    name="editLastUnits"
+                                                    checked={editStatus.lastUnits}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editLastUnits" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    Últimas unidades
+                                                </label>
+                                            </div>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editSoon"
+                                                    name="editSoon"
+                                                    checked={editStatus.soon}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editSoon" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    Pronto en nuestra página
+                                                </label>
+                                            </div>
+                                            <div className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="editNot_available"
+                                                    name="editNot_available"
+                                                    checked={editStatus.not_available}
+                                                    onChange={handleEditCheckboxChange}
+                                                    style={{ marginRight: "10px" }}
+                                                />
+                                                <label className="form-check-label" htmlFor="editNot_available" style={{ fontSize: "1rem", color: "#555" }}>
+                                                    No disponible
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="modal-footer" style={{ borderTop: "none", paddingTop: "10px" }}>
-                                    <button type="button" className="btn btn-secondary" onClick={() => closeEditModal()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#6c757d", borderColor: "#6c757d" }}>Cerrar</button>
-                                    <button type="button" className="btn btn-primary" onClick={() => handleSaveEditProduct()} style={{ borderRadius: "10px", padding: "10px 20px", backgroundColor: "#007bff", borderColor: "#007bff" }}>Guardar Cambios</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => closeEditModal()} style={{ borderRadius: "10px", padding: "10px 20px" }}>Cerrar</button>
+                                    <button type="button" className="btn btn-success" onClick={() => handleSaveEditProduct()} style={{ borderRadius: "10px", padding: "10px 20px" }}>Guardar Cambios</button>
                                 </div>
                             </div>
                         </div>

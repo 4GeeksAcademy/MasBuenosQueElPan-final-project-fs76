@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
 import "../../styles/home.css";
 import { object } from "prop-types";
@@ -44,15 +44,22 @@ export const CustomerCartView = () => {
     };
 	const objectredivedlenght = store.customerCartInfo?.received_orders?.length || 0;
     const objectshippedlenght = store.orderHistory?.shipped_orders?.length || 0;
-    console.log(objectredivedlenght)
-    console.log(store.orderHistory)
     return (
         <div className="mt-5 container">
-            <h2>Productos en tu carrito (estado: Recibido):</h2>
-            <br></br>
+            <div className="d-flex justify-content-between align-items-center  mt-3" >
+                <h2 style={{ fontWeight: "bold", color: "#343a40", marginBottom: "20px" }}>
+                    Productos en tu carrito 
+                </h2>
+                <Link to={`/customer/home/${customer_id}`}>
+                    <button className="btn btn-success" style={{ borderRadius: "10px", padding: "10px 20px" }}>
+                        Volver
+                    </button>
+                </Link>
+            </div>
+
             {objectredivedlenght > 0 ? (
-                <table className="table table-striped">
-                    <thead>
+                <table className="table table-bordered shadow-sm" style={{ borderRadius: "10px", overflow: "hidden" }}>
+                    <thead className="thead-dark" style={{ backgroundColor: "#4CAF50", color: "white" }}>
                         <tr>
                             <th scope="col">Id Pedido</th>
                             <th scope="col">Producto</th>
@@ -76,7 +83,7 @@ export const CustomerCartView = () => {
                                 </td>
                                 <td>
                                     {carrito.items.map((item, i) => (
-                                        <div key={i}>{item.price}</div>
+                                        <div key={i}>{item.price} €</div>
                                     ))}
                                 </td>
                             </tr>
@@ -84,17 +91,26 @@ export const CustomerCartView = () => {
                     ))}
                 </table>
             ) : (
-                <h5>Aún no tienes productos en el carrito.</h5>
+                <div className="alert alert-info" role="alert">
+                    Aún no tienes productos en el carrito.
+                </div>
             )}
-            <button className="btn btn-primary" onClick={handleFinalizePurchase}>
+
+            <button 
+                className="btn btn-success shadow-sm mt-3" 
+                onClick={handleFinalizePurchase} 
+                style={{ borderRadius: "10px", padding: "10px 20px" }}>
                 Finalizar compra
             </button>
 
             {/* Historial de pedidos (Shipped Orders) */}
-            <h2 className="mt-4">Historial de pedidos:</h2>
+            <h2 className="mt-5" style={{ fontWeight: "bold", color: "#343a40", marginBottom: "20px" }}>
+                Historial de pedidos:
+            </h2>
+
             {objectshippedlenght > 0 ? (
-                <table className="table table-striped">
-                    <thead>
+                <table className="table table-bordered shadow-sm" style={{ borderRadius: "10px", overflow: "hidden" }}>
+                    <thead className="thead-dark" style={{ backgroundColor: "#8B4513", color: "white" }}>
                         <tr>
                             <th scope="col">Id Pedido</th>
                             <th scope="col">Producto</th>
@@ -111,14 +127,16 @@ export const CustomerCartView = () => {
                                         <div key={i}>{item.product_name}</div>
                                     ))}
                                 </td>
-                                <td>{order.total_price}</td>
+                                <td>{order.total_price} €</td>
                                 <td>{order.status}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             ) : (
-                <h5>No tienes pedidos completados.</h5>
+                <div className="alert alert-info" role="alert">
+                    No tienes pedidos completados.
+                </div>
             )}
         </div>
     );
