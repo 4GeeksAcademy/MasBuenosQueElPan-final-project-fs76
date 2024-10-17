@@ -45,14 +45,14 @@ export const MainHome = () => {
             <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="3" aria-label="Slide 4"></button>
           </div>
           <div className="carousel-inner">
-            <div className="carousel-item active" data-bs-interval="10000">
+            <div className="carousel-item active" data-bs-interval="1000">
               <img src={campo2} id="campo2" className="d-block" alt="..."/>
               <div className="carousel-caption d-none d-md-block">
                 <h1 className="welcome text-white">¡Bienvenido a <strong>Más Buenos que el Pan!</strong></h1>
                 <h4 className="welcome2 text-white">La nueva forma de potenciar el comercio local.</h4>
               </div>
             </div>
-            <div className="carousel-item">
+            <div className="carousel-item" data-bs-interval="10000">
               <img src={ganaderia} className="d-block" alt="..."/>
               <div className="carousel-caption d-none d-md-block">
                 <h4 className="pb-2 text-white">Empieza por registrarte si todavía no tienes cuenta: </h4>
@@ -95,19 +95,6 @@ export const MainHome = () => {
               <span className="visually-hidden">Next</span>
             </button>
           </div>
-
-            {/* <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "90vh", backgroundColor: "#f7f7f7" }}>
-            <div className="card p-5 shadow-lg" style={{ width: "100%", maxWidth: "900px", borderRadius: "20px", backgroundColor: "#fff" }}>
-                <div className="text-center">
-                    <h1 className="mb-4" style={{ color: "#007bff", fontWeight: "bold" }}>
-                        Bienvenido a <span style={{ color: "#28a745" }}>Mas Buenos que el Pan</span> 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-emoji-smile-fill ms-2" viewBox="0 0 16 16">
-                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M10 8c-.552 0-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5S10.552 8 10 8" />
-                        </svg>
-                    </h1>
-                    <h3 className="mb-4" style={{ color: "#6c757d", fontWeight: "lighter" }}>La nueva forma de potenciar el comercio local</h3>
-                    <p style={{ color: "#6c757d" }}>Para hacer tu experiencia única, a continuación logeate o, si no tienes cuenta, puedes crear una nueva...</p>
-                </div> */}
                 {/* Login Productor */}
                 {displayLogin ? (
                 <>
@@ -134,11 +121,11 @@ export const MainHome = () => {
             ) : (
                 <>
                     {store.categories.length > 0 ? (
-                        <div className="container text-center">
-                            <h1 className="my-5">Categorías</h1>
+                        <div className="container-fluid">
+                            <h1 className="my-5" style={{marginLeft: "6%"}}>Categorías</h1>
                             <div className="row">
                                 {store.categories.map((categorie) => (
-                                    <div key={categorie.id} className="col-sm-6 col-md-4 col-lg-3 mb-4">
+                                    <div key={categorie.id} className="col-sm-6 col-md-4 col-lg-2 mb-4">
                                         <div className="card h-100"
                                         onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"}
                                         onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
@@ -146,14 +133,15 @@ export const MainHome = () => {
                                           boxShadow: "0 10px 12px rgba(0,0,0,0.3)",
                                           overflow: "hidden",
                                           transition: "transform 0.3s ease-in-out",
-                                          cursor: "pointer"
+                                          cursor: "pointer",
+                                          // height: "30%"
                                         }}
                                         onClick={() => handleCategoryClick(categorie.id)}
                                         // onClick={() => actions.getProductsByCategorie(categorie.id)}
                                         >
-                                            <img src={categorie.url} className="card-img-top" style={{ height: "140px", objectFit: "cover" }} alt={categorie.categorie} />
-                                            <div className="card-body">
-                                                <h5 className="card-title">{categorie.categorie}</h5>
+                                            <img src={categorie.url} className="card-img-top" style={{ height: "120px", objectFit: "cover" }} alt={categorie.categorie} />
+                                            <div className="py-3">
+                                                <p className="card-title text-center">{categorie.categorie}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -164,8 +152,8 @@ export const MainHome = () => {
                         <p>Mostrando categorías</p>
                     )}
                     {store.products.length > 0 ? (
-                        <div className="container-fluid text-center gap-3">
-                            <h1 className="my-5 ms-5">Productos</h1>
+                        <div className="container-fluid">
+                            <h1 className="my-5 ms-5" style={{marginLeft: "6%"}}>Productos</h1>
                             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 ">
                                 {store.products.map((product, index) => (
                                     <div key={index} className="col">
@@ -173,7 +161,7 @@ export const MainHome = () => {
                                             onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
                                             onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
                                             style={{
-                                                height: "400px",
+                                                height: "350px",
                                                 borderRadius: "12px",
                                                 boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
                                                 overflow: "hidden",
@@ -182,28 +170,35 @@ export const MainHome = () => {
                                             }}>
                                             <img src={product.categorie_imageUrl} className="card-img-top" alt="Cargando imagen..." style={{ height: "120px", objectFit: "cover" }} />
                                             <div className="card-body" style={{ padding: "10px" }}>
-                                                <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</h5>
-                                                <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Categoría: {product.categorie_name}</p>
-                                                <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Precio: {product.price} €/kg</p>
-                                                <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>Origen: {product.origin}</p>
-                                                <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.brief_description}</p>
+                                                <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.categorie_name}</p>
+                                                <p className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</p>
+                                                <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.price} €/kg</p>
+                                                {/* <p className="card-text" style={{ color: "#777", fontSize: "13px" }}>{product.brief_description}</p> */}
                                                 <p className="card-text text-black" style={{ fontSize: "14px" }}>{product.producer_brand_name}</p>
-                                                <button type="button" className="btn btn-info d-inline-flex" onClick={()=> {
+                                                <button type="button" className="btn d-inline-flex text-black border border-secondary" onClick={()=> {
                                                   console.log(product.id);
-                                                  
-                                                  navigate(`/product/${product.id}`)}} style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}>
-                                                    Detalles
+                                                  navigate(`/product/${product.id}`)}}
+                                                  style={{ borderRadius: "10px", transition: "background-color 0.3s ease" }}
+                                                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "grey")}
+													                        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "white")}>
+                                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
+                                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                                  </svg>
                                                 </button>
+                                                {customerIsLogedIn ? 
                                                 <button
-                                                    type="button"
-                                                    className="btn btn-warning"
-                                                    onClick={() => handleAddProductToCart(product.id)}
-                                                    style={{ borderRadius: "10px", transition: "background-color 0.3s ease", marginLeft: "10px" }}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">
-                                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
-                                                    </svg>
+                                                type="button"
+                                                className="btn text-white text-bold"
+                                                onClick={() => handleAddProductToCart(product.id)}
+                                                style={{ backgroundColor: "#1ec63d", borderRadius: "10px", transition: "background-color 0.3s ease", marginLeft: "10px"}}
+                                                ><strong>Add to cart +</strong> 
+                                                {/* <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">
+                                                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                                                </svg> */}
                                                 </button>
+                                                : ""} 
+                                                
                                             </div>
                                         </div>
                                     </div>

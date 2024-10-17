@@ -21,6 +21,7 @@
 /* From Uiverse.io by satyamchaudharydev */ 
 .producerSignup, .customerSignup {
     --primary-color: #15a25b;
+    --thrid-color: #060d07;
     --secondary-color: #fff;
     --hover-color: #111;
     --arrow-width: 10px;

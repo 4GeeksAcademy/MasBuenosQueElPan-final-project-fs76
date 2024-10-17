@@ -19,7 +19,7 @@ export const MapView = () => {
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [-3.70256, 40.4165],
-      zoom: 6
+      zoom: 5
     });
 
     // Llamada a la API de geocodificación para cada productor
