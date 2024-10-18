@@ -46,14 +46,14 @@ export const MainHome = () => {
           </div>
           <div className="carousel-inner">
             <div className="carousel-item active" data-bs-interval="1000">
-              <img src={campo2} id="campo2" className="d-block" alt="..."/>
+              <img src={campo2} id="campo2" className="d-block" alt="..." loading="lazy" />
               <div className="carousel-caption d-none d-md-block">
                 <h1 className="welcome text-white">¡Bienvenido a <strong>Más Buenos que el Pan!</strong></h1>
                 <h4 className="welcome2 text-white">La nueva forma de potenciar el comercio local.</h4>
               </div>
             </div>
             <div className="carousel-item" data-bs-interval="10000">
-              <img src={ganaderia} className="d-block" alt="..."/>
+              <img src={ganaderia} className="d-block" alt="..." loading="lazy" />
               <div className="carousel-caption d-none d-md-block">
                 <h4 className="pb-2 text-white">Empieza por registrarte si todavía no tienes cuenta: </h4>
                 <div className="signupButtons d-inline-flex">
@@ -71,14 +71,14 @@ export const MainHome = () => {
               </div>
             </div>
             <div className="carousel-item" data-bs-interval="2000">
-              <img src={campo4} className="d-block" alt="..."/>
+              <img src={campo4} className="d-block" alt="..." loading="lazy"/>
               <div className="carousel-caption d-none d-md-block">
                 <h2 className="text-black">Encuentra productores y productos cerca de tu zona.</h2>
                 <h4 className="text-black">Hemos querido crear esta plataforma para poder ayudarte a conectarte con los productores de la forma más directa posible.</h4>
               </div>
             </div>
             <div className="carousel-item">
-              <img src={ganaderia2} className="d-block w-100" alt="..."/>
+              <img src={ganaderia2} className="d-block w-100" alt="..." loading="lazy" />
               <div className="carousel-caption d-none d-md-block">
                 <h2 className="text-white">Directo del campo a tu mesa</h2>
                 <h4 className="text-white">Productos naturales, que llenan el alma y la tripa</h4>
@@ -139,7 +139,7 @@ export const MainHome = () => {
                                         onClick={() => handleCategoryClick(categorie.id)}
                                         // onClick={() => actions.getProductsByCategorie(categorie.id)}
                                         >
-                                            <img src={categorie.url} className="card-img-top" style={{ height: "120px", objectFit: "cover" }} alt={categorie.categorie} />
+                                            <img src={categorie.url} className="card-img-top" loading="lazy" style={{ height: "120px", objectFit: "cover" }} alt={categorie.categorie} />
                                             <div className="py-3">
                                                 <p className="card-title text-center">{categorie.categorie}</p>
                                             </div>
@@ -170,7 +170,7 @@ export const MainHome = () => {
                                                 transition: "transform 0.3s ease-in-out",
                                                 cursor: "pointer",
                                             }}>
-                                            <img src={product.categorie_imageUrl} className="card-img-top" alt="Cargando imagen..." style={{ height: "120px", objectFit: "cover" }} />
+                                            <img src={product.categorie_imageUrl} className="card-img-top" loading="lazy" alt="Cargando imagen..." style={{ height: "120px", objectFit: "cover" }} />
                                             <div className="card-body" style={{ padding: "10px" }}>
                                                 <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.categorie_name}</p>
                                                 <p className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</p>
