@@ -102,6 +102,7 @@ class Product(db.Model):
     description = db.Column(db.String(500), unique=False, nullable=True)
     origin = db.Column(db.String(120), unique=False, nullable=False)
     brief_description = db.Column(db.String(200), unique=False, nullable=True)
+    imageUrl = db.Column(db.String(255), nullable=True)
     categorie_id = db.Column(db.Integer, db.ForeignKey('product_categories.id'))
     categorie = db.relationship('ProductCategories', backref='products')
     available = db.Column(db.Boolean, default=False, nullable=False)
@@ -139,6 +140,7 @@ class Product(db.Model):
             "last_units": self.last_units,
             "soon": self.soon,
             "not_available": self.not_available,
+            "imageUrl": self.imageUrl,
         }
 
 class Producer(db.Model):

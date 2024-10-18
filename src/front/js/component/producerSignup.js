@@ -138,11 +138,11 @@ export const ProducerSignup = () => {
                                 fontWeight: "600", 
                                 boxShadow: "0px 4px 15px rgba(0, 123, 255, 0.3)",
                                 transition: "background-color 0.3s ease",
-                                backgroundColor: "#0b532f",
+                                backgroundColor: "#28a745",
                                 color: "#fff",
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
-                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0b532f"}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#28a745"}
                         >
                             Registrarse
                         </button>
@@ -156,7 +156,7 @@ export const ProducerSignup = () => {
                                     fontWeight: "bold",
                                 }}
                             >
-                                Volver
+                                Inicio
                             </button>
                         </Link>
                     </div>

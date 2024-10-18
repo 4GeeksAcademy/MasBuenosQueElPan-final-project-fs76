@@ -299,45 +299,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// 		.then((response) => response.json())
 			// 		.then((data) => setStore({ products: data }));
 			// },
-			modifyProduct: (updatedProduct) => {
-				const store = getStore()
-				const myid = updatedProduct.id
-				const raw = JSON.stringify({
-					"name": updatedProduct.name,
-					"description": updatedProduct.description,
-					"price": updatedProduct.price,
-					"origin": updatedProduct.origin,
-					"weight": updatedProduct.weight,
-					"volume": updatedProduct.volume,
-					"minimum": updatedProduct.minimum,
-					"brief_description": updatedProduct.brief_description,
-					"description": updatedProduct.description,
-					"categorie_id": updatedProduct.categorie_id,
-					"producer_id": updatedProduct.producer_id,
-					"available": updatedProduct.available,
-					"lastUnits": updatedProduct.lastUnits,
-					"soon": updatedProduct.soon,
-					"not_available": updatedProduct.not_available,
-				  });
-				  const requestOptions = {
+			modifyProduct: (formData, productId) => {
+				const requestOptions = {
 					method: "PUT",
-					headers: {
-						"Content-type": "application/json",
-					},
-					body: raw,
+					body: formData,
 				};
-				fetch(`${process.env.BACKEND_URL}/api/product/${myid}`, requestOptions)
+			
+				fetch(`${process.env.BACKEND_URL}/api/product/${productId}`, requestOptions)
 					.then((response) => response.json())
-					.then((data) =>{
-						console.log("edited product",data);
+					.then((data) => {
+						console.log("edited product", data);
 						setStore({
 							producerProducts: store.producerProducts.map((product) => 
-							  product.id === updatedProduct.id ? updatedProduct : product
+								product.id === productId ? data : product
 							)
-						  })
-						getActions().getProducersProducts(data.producer_id)
-						return;
+						});
+						getActions().getProducersProducts(data.producer_id);
 					})
+					.catch((error) => console.error("Error:", error));
 			},
 			deleteProduct: (productId) => {
 				console.log(productId);
@@ -357,46 +336,96 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			addProducts: (newProduct) => {
 				const store = getStore();
-				const raw = JSON.stringify({
-					"name": newProduct.name,
-					"origin": newProduct.origin,
-					"price": newProduct.price,
-					"description": newProduct.description,
-					"brief_description": newProduct.brief_description || "",
-					"weight": newProduct.weight,
-					"volume": newProduct.volume,
-					"minimum": newProduct.minimum,
-					"categorie_id": newProduct.categorie_id,
-					"producer_id": newProduct.producer_id,
-					"available": newProduct.available,
-					"lastUnits": newProduct.lastUnits,
-					"soon": newProduct.soon,
-					"not_available": newProduct.not_available,
-				});
-				console.log("raw product", raw)
+				const formData = new FormData();
+				formData.append("name", newProduct.name);
+				formData.append("origin", newProduct.origin);
+				formData.append("price", newProduct.price);
+				formData.append("description", newProduct.description);
+				formData.append("brief_description", newProduct.brief_description || "");
+				// formData.append("weight", newProduct.weight);
+				// formData.append("volume", newProduct.volume);
+				// formData.append("minimum", newProduct.minimum);
+				formData.append("categorie_id", newProduct.categorie_id);
+				formData.append("producer_id", newProduct.producer_id);
+				formData.append("available", newProduct.available);
+				formData.append("lastUnits", newProduct.lastUnits);
+				formData.append("soon", newProduct.soon);
+				formData.append("not_available", newProduct.not_available);
+				// formData.append("file", newProduct.file);
+			    if (newProduct.weight !== undefined) {
+					formData.append("weight", newProduct.weight); // Solo lo agrega si no es undefined
+				}
+				
+				if (newProduct.volume !== undefined) {
+					formData.append("volume", newProduct.volume); // Solo lo agrega si no es undefined
+				}
+				
+				if (newProduct.minimum !== undefined) {
+					formData.append("minimum", newProduct.minimum); // Solo lo agrega si no es undefined
+				}
+				if (newProduct.file) {
+					formData.append("file", newProduct.file);
+				}
 				const requestOptions = {
 					method: "POST",
-					body: raw,
-					headers: {
-						"Content-type": "application/json",
-					}
+					body: formData,
 				};
 				fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
 					.then((response) => {
 						console.log(response.status);
 						return response.json()
 					})
-					.then((result) => 
-						{console.log("new product added", result)
-						// getActions().getProducts()
-						setStore({products: [...store.products, result]});
-						setStore({producerProducts: [...store.producerProducts, result]});
-						getActions().getProducersProducts(result.producer_id)
+					.then((result) => {
+						console.log("new product added", result);
+						setStore({ products: [...store.products, result] });
+						setStore({ producerProducts: [...store.producerProducts, result] });
+						getActions().getProducersProducts(result.producer_id);
 						return;
-						},
-					)
+					})
 					.catch((error) => console.error(error));
 			},
+			// addProducts: (newProduct) => {
+			// 	const store = getStore();
+			// 	const raw = JSON.stringify({
+			// 		"name": newProduct.name,
+			// 		"origin": newProduct.origin,
+			// 		"price": newProduct.price,
+			// 		"description": newProduct.description,
+			// 		"brief_description": newProduct.brief_description || "",
+			// 		"weight": newProduct.weight,
+			// 		"volume": newProduct.volume,
+			// 		"minimum": newProduct.minimum,
+			// 		"categorie_id": newProduct.categorie_id,
+			// 		"producer_id": newProduct.producer_id,
+			// 		"available": newProduct.available,
+			// 		"lastUnits": newProduct.lastUnits,
+			// 		"soon": newProduct.soon,
+			// 		"not_available": newProduct.not_available,
+			// 	});
+			// 	console.log("raw product", raw)
+			// 	const requestOptions = {
+			// 		method: "POST",
+			// 		body: raw,
+			// 		headers: {
+			// 			"Content-type": "application/json",
+			// 		}
+			// 	};
+			// 	fetch(process.env.BACKEND_URL + "/api/product", requestOptions)
+			// 		.then((response) => {
+			// 			console.log(response.status);
+			// 			return response.json()
+			// 		})
+			// 		.then((result) => 
+			// 			{console.log("new product added", result)
+			// 			// getActions().getProducts()
+			// 			setStore({products: [...store.products, result]});
+			// 			setStore({producerProducts: [...store.producerProducts, result]});
+			// 			getActions().getProducersProducts(result.producer_id)
+			// 			return;
+			// 			},
+			// 		)
+			// 		.catch((error) => console.error(error));
+			// },
 			// Traer los productos de cada productor
 			getProducersProducts:(producerId) => {
 				const store = getStore()

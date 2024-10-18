@@ -49,7 +49,6 @@ export const ProducerLogin = () => {
                 if (data.access_token) {
                     localStorage.setItem("token", data.access_token);
                     localStorage.setItem("producerId", data.producerId)
-
                     setLoginIn(true)
                 }
                 if (data.isVerify) {
@@ -124,12 +123,20 @@ export const ProducerLogin = () => {
                             type="submit"
                             className="btn btn-primary w-100"
                             style={{ borderRadius: "8px", padding: "12px", fontSize: "16px", backgroundColor: "#15a25b", borderColor:"#15a25b" }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.backgroundColor = "#0b532f";
+                                e.currentTarget.style.borderColor = "#0b532f";
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.backgroundColor = "#15a25b";
+                                e.currentTarget.style.borderColor = "#15a25b";
+                            }}
                         >
                             Iniciar Sesión
                         </button>
 
                         <div className="text-center mt-3">
-                            <Link to="/producer/signup" className="text-primary">¿Todavía no tienes cuenta? Regístrate aquí</Link>
+                            <Link to="/producer/signup" className="text-success">¿Todavía no tienes cuenta? Regístrate aquí</Link>
                         </div>
                     </form>
 

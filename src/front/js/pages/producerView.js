@@ -19,6 +19,7 @@ export const ProducerView = () => {
     const [showModal, setShowModal] = useState(false);
     const [categorieId, setCategorieId] = useState("");
     const [categorieImgUrl, setCategorieImgUrl] = useState("");
+    const [file, setFile] = useState("");
     const [showEditModal, setShowEditModal] = useState(false);
     const [editProductId, setEditProductId] = useState(null);
     const [editName, setEditName] = useState("");
@@ -44,9 +45,11 @@ export const ProducerView = () => {
         soon: false,
         not_available: false,
     });
+    const [editFile, setEditFile] = useState("");
 
     const autenticate = store.producerIsLogedIn;
     const [isLoading, setIsLoading] = useState(true);
+    const [showAddingMessage, setShowAddingMessage] = useState(false);
     
     useEffect(() => {
         actions.checkToken().then(() => {
@@ -77,17 +80,19 @@ export const ProducerView = () => {
         if (!weight && !volume) return "Debes introducir al menos el peso o el volumen.";
         if (weight && volume) return "Debes introducir solo el peso o el volumen.";
         for (let field in product) {
-            if (field !== 'weight' && field !== 'volume' && field !== 'soon' && field !== 'available' && field !== 'lastUnits' && field !== 'not_available' && !product[field]) {
+            if (field !== 'weight' && field !== 'volume' && field !== 'soon' && field !== 'available' && field !== 'lastUnits' && field !== 'not_available' && field !== 'file' && !product[field]) {
                 return `No se han introducido los datos en: ${field}`;
             }
         }
         return null;
     };
-    const handleSaveProduct = () => {
+
+    const handleSaveProduct = async () => {
         const parsePrice = parseFloat(price);
-        const parseWeight = weight ? parseInt(weight) : null;
-        const parseVolume = volume ? parseInt(volume) : null;
-        const parseMinimum = minimum ? parseInt(minimum) : null;
+        const parseWeight = weight ? parseInt(weight) : undefined;
+        const parseVolume = volume ? parseInt(volume) : undefined;
+        const parseMinimum = minimum ? parseInt(minimum) : undefined;
+        
         const newProduct = {
             name: name,
             price: parsePrice,
@@ -103,18 +108,80 @@ export const ProducerView = () => {
             lastUnits: status.lastUnits,
             soon: status.soon,
             not_available: status.not_available,
+            file: file
         };
-        console.log("newProduct to be save in store",newProduct);
+
+        const imageInput = document.getElementById('uploadImg');
+        if (imageInput.files.length > 0) {
+            newProduct.file = imageInput.files[0];
+        } else {
+            newProduct.imageUrl = categorieImgUrl;
+        }
+        console.log("newProduct to be saved in store", newProduct);
         console.log("producerId antes de añadir producto:", producerId);
+        
         const error = validateProduct(newProduct);
         if (error) {
             alert(error);
             return;
         }
-        actions.addProducts(newProduct);
-        actions.getProducersProducts(producerId)
-        closeModal();
-    };
+        setShowAddingMessage(true)
+        await actions.addProducts(newProduct); // Aquí debes asegurarte que esta acción maneje tanto el archivo como el URL
+        await actions.getProducersProducts(producerId);
+        setName("");
+        setPrice("");
+        setOrigin("");
+        setWeight("");
+        setVolume("");
+        setMinimum("");
+        setBriefDescription("");
+        setDescription("");
+        setCategorieId("");
+        setCategorieImgUrl("");
+        setFile("");
+        setStatus({
+            available: false,
+            lastUnits: false,
+            soon: false,
+            not_available: false,
+    });
+
+    closeModal(); 
+};
+
+// ANTIGUO CÓDIGO SIN IMAGEN SUBIDA POR EL PRODUCTOR
+    // const handleSaveProduct = () => {
+    //     const parsePrice = parseFloat(price);
+    //     const parseWeight = weight ? parseInt(weight) : null;
+    //     const parseVolume = volume ? parseInt(volume) : null;
+    //     const parseMinimum = minimum ? parseInt(minimum) : null;
+    //     const newProduct = {
+    //         name: name,
+    //         price: parsePrice,
+    //         origin: origin,
+    //         weight: parseWeight,
+    //         volume: parseVolume,
+    //         minimum: parseMinimum,
+    //         brief_description: briefDescription,
+    //         description: description,
+    //         categorie_id: categorieId,
+    //         producer_id: producerId ? parseInt(producerId) : null,
+    //         available: status.available,
+    //         lastUnits: status.lastUnits,
+    //         soon: status.soon,
+    //         not_available: status.not_available,
+    //     };
+    //     console.log("newProduct to be save in store",newProduct);
+    //     console.log("producerId antes de añadir producto:", producerId);
+    //     const error = validateProduct(newProduct);
+    //     if (error) {
+    //         alert(error);
+    //         return;
+    //     }
+    //     actions.addProducts(newProduct);
+    //     actions.getProducersProducts(producerId)
+    //     closeModal();
+    // };
     const closeModal = () => {
         setShowModal(false);
     };
@@ -138,47 +205,51 @@ export const ProducerView = () => {
             soon: product.soon,
             not_available: editStatus.not_available,
         });
+        setEditFile(product.file);
+    };
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        setEditFile(file);
     };
 
-    const handleSaveEditProduct = () => {
+    const handleSaveEditProduct = async () => {
         const parsePrice = parseFloat(editPrice);
         const parseWeight = editWeight ? parseInt(editWeight) : null;
         const parseVolume = editVolume ? parseInt(editVolume) : null;
         const parseMinimum = editMinimum ? parseInt(editMinimum) : null;
-        const updatedProduct = {
-            id: editProductId,
-            name: editName,
-            price: parsePrice,
-            origin: editOrigin,
-            weight: parseWeight,
-            volume: parseVolume,
-            minimum: parseMinimum,
-            brief_description: editBriefDescription,
-            description: editDescription,
-            categorie_id: editCategorieId,
-            producer_id: producerId ? parseInt(producerId) : null,
-            available: editStatus.available,
-            lastUnits: editStatus.lastUnits,
-            soon: editStatus.soon,
-            not_available: editStatus.not_available,
-        };
-        if (!parseWeight && !parseVolume) {
-            alert(`Debes introducir al menos el peso o el volumen.`);
+    
+        const updatedProduct = new FormData();
+        updatedProduct.append("name", editName);
+        updatedProduct.append("price", parsePrice);
+        updatedProduct.append("origin", editOrigin);
+        updatedProduct.append("weight", parseWeight);
+        updatedProduct.append("volume", parseVolume);
+        updatedProduct.append("minimum", parseMinimum);
+        updatedProduct.append("brief_description", editBriefDescription);
+        updatedProduct.append("description", editDescription);
+        updatedProduct.append("categorie_id", editCategorieId);
+        updatedProduct.append("producer_id", producerId);
+        updatedProduct.append("available", editStatus.available);
+        updatedProduct.append("lastUnits", editStatus.lastUnits);
+        updatedProduct.append("soon", editStatus.soon);
+        updatedProduct.append("not_available", editStatus.not_available);
+        updatedProduct.append("not_available", editStatus.not_available);
+        updatedProduct.append("file", editFile);
+    
+        const imageInput = document.getElementById(`uploadImage_${editProductId}`);
+        if (imageInput.files.length > 0) {
+            updatedProduct.append("file", imageInput.files[0]);
+        }
+        
+        const error = validateProduct(updatedProduct);
+        if (error) {
+            alert(error);
             return;
         }
-        if (parseWeight && parseVolume) {
-            alert(`Debes introducir solo el peso o el volumen.`);
-            return;
-        }
-        for (let field in updatedProduct) {
-            // Excluir 'categorie_id' de la validación
-            if (field !== 'categorie_id' && field !== "weight" && field !== "volume" && field !== 'soon' && field !== 'available' && field !== 'lastUnits' && field !== 'not_available' && !updatedProduct[field]) {
-                alert(`No se han introducido los datos en: ${field}`);
-                return;
-            }
-        }
-        actions.modifyProduct(updatedProduct);
-        actions.getProducersProducts()
+    
+        // Enviar la solicitud de actualización (PUT)
+        await actions.modifyProduct(updatedProduct, editProductId);
+        await actions.getProducersProducts(producerId);
         closeEditModal();
     };
     const closeEditModal = () => {
@@ -219,9 +290,55 @@ export const ProducerView = () => {
                     
                     {/* Título dinámico dependiendo de si tiene productos o no */}
                     {store.producerProducts.length > 0 ? (
-                        <h4 className="my-3" style={{ fontWeight: "bold", color: "#433", marginTop: "20px" }}>Tus productos son los siguientes:</h4>
+                        <>
+                        <div className="d-flex justify-content-between">
+                            <h4 className="my-3" style={{ fontWeight: "bold", color: "#433", marginTop: "20px" }}>Tus productos son los siguientes:</h4>
+                            <button
+                                className="add-card-button btn btn-success text-center pb-2"
+                                style={{
+                                    width: "40px",
+                                    height: "40px",
+                                    borderRadius: "50%",
+                                    color: "#fff",
+                                    fontSize: "24px",
+                                    border: "none",
+                                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    cursor: "pointer",
+                                    transition: "background-color 0.3s ease"
+                                }}
+                                onClick={() => openModal()} // Abre el modal para añadir una nueva tarjeta
+                            >
+                                <strong>+</strong>
+                            </button>
+                        </div>
+                        </>
                     ) : (
+                        <>
                         <h3 style={{ fontWeight: "bold", color: "#333", marginTop: "20px" }}>¡Es momento de añadir nuevos productos!</h3>
+                        <button
+                        className="add-card-button btn btn-success text-center"
+                        style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
+                            color: "#fff",
+                            fontSize: "24px",
+                            border: "none",
+                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s ease"
+                        }}
+                        onClick={() => openModal()} // Abre el modal para añadir una nueva tarjeta
+                    >
+                        <strong>+</strong>
+                    </button>
+                    </>
                     )}
             
                     <hr />
@@ -241,7 +358,7 @@ export const ProducerView = () => {
                                     cursor: "pointer",
                                     backgroundColor: "#fff"
                                 }}>
-                                <img src={product.categorie_imageUrl} className="card-img-top" alt="Imagen del producto" 
+                                <img src={product.imageUrl || product.categorie_imageUrl} className="card-img-top" alt="Imagen del producto" 
                                     style={{ height: "200px", objectFit: "cover" }} />
                                 <div className="card-body" style={{ padding: "20px" }}>
                                     <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</h5>
@@ -273,26 +390,7 @@ export const ProducerView = () => {
                         ))}
                         
                         {/* Botón para añadir una nueva tarjeta */}
-                        <button
-                            className="add-card-button btn btn-success "
-                            style={{
-                                width: "40px",
-                                height: "40px",
-                                borderRadius: "50%",
-                                color: "#fff",
-                                fontSize: "24px",
-                                border: "none",
-                                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                cursor: "pointer",
-                                transition: "background-color 0.3s ease"
-                            }}
-                            onClick={() => openModal()} // Abre el modal para añadir una nueva tarjeta
-                        >
-                            +
-                        </button>
+                        
                     </div>
                 </div>
                 
@@ -336,17 +434,20 @@ export const ProducerView = () => {
                                             )}
                                         </select>
                                         <div className="my-3">
-                                            {categorieImgUrl ? (
+                                            {categorieImgUrl && (
                                                 <img src={categorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
-                                            ) : (""
-                                                // <>
-                                                // <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
-                                                // <div className="mb-3">
-                                                //     <label htmlFor="uploadImg" className="form-label">Sube tu foto aquí</label>
-                                                //     <input className="form-control" type="file" id="uploadImg"/>
-                                                // </div>
-                                                // </>
                                             )}
+                                            <p className="text-secondary">Si lo prefieres, puedes subir tu propia imagen para este producto.</p>
+                                            <div className="mb-3">
+                                                <label htmlFor="uploadImg" className="form-label">Sube tu foto aquí</label>
+                                                <input className="form-control"
+                                                type="file"
+                                                
+                                                id="uploadImg"
+                                                accept="image/*"
+                                                onChange={(e) => setFile(e.target.files[0])}   
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
@@ -441,6 +542,13 @@ export const ProducerView = () => {
                                         </div>
                                     </div>
                                 </div>
+                                {showAddingMessage && (
+                                    <div className="alert alert-info mt-3">
+                                        ¡Añadiendo nuevo producto!
+                                        <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
+                                        <span className="visually-hidden" role="status">Llevándote a tus productos...</span>
+                                    </div>
+                                )}
                                 <div className="modal-footer" style={{ borderTop: "none", paddingTop: "10px" }}>
                                     <button type="button" className="btn btn-danger" onClick={() => closeModal()} style={{ borderRadius: "10px", padding: "10px 20px"}}>Cerrar</button>
                                     <button type="button" className="btn btn-success" onClick={() => handleSaveProduct()} style={{ borderRadius: "10px", padding: "10px 20px"}}>Guardar</button>
@@ -492,12 +600,33 @@ export const ProducerView = () => {
                                             )}
                                         </select>
                                         <div className="my-3">
+                                            {editCategorieImgUrl && (
+                                                <img src={editCategorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
+                                            )}
+                                            <p className="text-secondary">Si lo prefieres, puedes subir tu propia imagen para este producto.</p>
+                                            <div className="mb-3">
+                                                <label htmlFor="uploadImg" className="form-label">Sube tu foto aquí</label>
+                                                <input className="form-control"
+                                                type="file" 
+                                                id="uploadEditedImg"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                // onChange={(e) => setEditFile(e.target.files[0])}   
+                                                />
+                                            </div>
+                                        </div>
+                                        {/* <div className="my-3">
                                             {editCategorieImgUrl ? (
                                                 <img src={editCategorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
                                             ) : (
-                                                <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
+
+
+                                                <>
+                                                    <input type="file" onChange={handleFileChange} accept="image/*" />
+                                                    <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
+                                                </>
                                             )}
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="input-group flex-nowrap mb-3" style={{ marginBottom: "15px" }}>
                                         <span className="input-group-text" id="addon-wrapping" style={{ width: "180px", backgroundColor: "#A8D5BA", fontWeight: "bold", borderRadius: "10px 0 0 10px" }}>Origen</span>

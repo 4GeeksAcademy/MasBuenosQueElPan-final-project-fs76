@@ -170,7 +170,7 @@ export const MainHome = () => {
                                                 transition: "transform 0.3s ease-in-out",
                                                 cursor: "pointer",
                                             }}>
-                                            <img src={product.categorie_imageUrl} className="card-img-top" alt="Cargando imagen..." style={{ height: "120px", objectFit: "cover" }} />
+                                            <img src={product.imageUrl || product.imageUrl} className="card-img-top" alt="Cargando imagen..." style={{ height: "120px", objectFit: "cover" }} />
                                             <div className="card-body" style={{ padding: "10px" }}>
                                                 <p className="card-text" style={{ color: "#777", fontSize: "14px" }}>{product.categorie_name}</p>
                                                 <p className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</p>
@@ -208,7 +208,10 @@ export const MainHome = () => {
                             </div>
                         </div>
                     ) : (
-                        <p className="text-center mt-2">Actualmente no hay productos para mostrar</p>
+                      <div className="container-fluid" style={{marginLeft: "6%"}}>
+                        <h1 className="my-5">Productos</h1>
+                        <p className="mb-5 pb-5">Actualmente no hay productos para mostrar</p>
+                      </div>
                     )}
                 </>
             )}

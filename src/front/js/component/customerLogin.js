@@ -86,6 +86,14 @@ export const CustomerLoginUp = () => {
                     type="submit"
                     className="btn btn-primary w-100"
                     style={{ borderRadius: "8px", borderColor: "#159ba2", padding: "12px", fontSize: "16px", backgroundColor: "#159ba2" }}
+                    onMouseOver={(e) => {
+                        e.currentTarget.style.backgroundColor = "#10757a";
+                        e.currentTarget.style.borderColor = "#10757a";
+                    }}
+                    onMouseOut={(e) => {
+                        e.currentTarget.style.backgroundColor = "#2f8b90";
+                        e.currentTarget.style.borderColor = "#2f8b90";
+                    }}
                 >
                     {loading ? (
                         <span>
@@ -98,7 +106,7 @@ export const CustomerLoginUp = () => {
                 </button>
 
                 <div className="text-center mt-3">
-                    <Link to="/customer/singUp" className="text-primary">
+                    <Link to="/customer/singUp" style={{color: "#10757a"}} className="">
                         ¿Todavía no tienes cuenta? Regístrate aquí
                     </Link>
                 </div>

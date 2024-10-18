@@ -49,7 +49,8 @@ export const SingUp = () => {
                     <input 
                         type="email" 
                         className="form-control shadow-sm" 
-                        id="inputEmail4" 
+                        id="inputEmail4"
+                        placeholder="alguien@example.com"
                         value={email} 
                         onChange={(event) => setEmail(event.target.value)} 
                         style={{ 
@@ -93,7 +94,7 @@ export const SingUp = () => {
                         className="btn px-5 py-2" 
                         style={{ 
                             borderRadius: "12px", 
-                            backgroundColor: "#10757a", 
+                            backgroundColor: "#2f8b90", 
                             border: "none", 
                             padding: "12px 30px", 
                             fontSize: "16px", 
@@ -102,8 +103,16 @@ export const SingUp = () => {
                             transition: "background-color 0.3s ease",
                             color: "#fff",
                         }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = "#10757a";
+                            e.currentTarget.style.borderColor = "#10757a";
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = "#2f8b90";
+                            e.currentTarget.style.borderColor = "#2f8b90";
+                        }}
+                        // onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
+                        // onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
                     >
                         Registrarse
                     </button>
@@ -123,7 +132,7 @@ export const SingUp = () => {
                             onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#5a6268"}
                             onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#6c757d"}
                         >
-                            Volver
+                            Inicio
                         </button>
                     </Link>
                 </div>

@@ -21,6 +21,7 @@ export const ProducerProfile = () => {
     const [province, setProvince] = useState("")
     const [city, setCity] = useState("")
     const [loading, setLoading] = useState(false);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)
     const navigate = useNavigate();
     useEffect(()=>{
         actions.checkToken()
@@ -71,6 +72,7 @@ export const ProducerProfile = () => {
             phone: phone,
             city: city
         }
+        setShowSuccessMessage(true)
         actions.editProducer(producerId, updatedInfo)
         setLoading(true)
         setTimeout(() => {
@@ -162,12 +164,19 @@ export const ProducerProfile = () => {
                             style={{ borderRadius: "8px", padding: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}/>
                     </div>
                     <div className="d-flex justify-content-between">
+                    {showSuccessMessage && (
+                        <div className="alert alert-success mt-3">
+                            ¡Información editada con éxito! Llevándote a tus productos...
+                            <span className="spinner-border spinner-border-sm ms-3" aria-hidden="true"></span>
+                            <span className="visually-hidden" role="status">Llevándote a tus productos...</span>
+                        </div>
+                    )}
                         <button type="submit" className="btn btn-success" style={{ padding: "12px 24px", fontWeight: "bold", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
                             Guardar
                         </button>
                         <Link to={`/producer/dashboard/${producerId}`}>
-                            <button type="button" className="btn btn-primary" style={{ padding: "12px 24px", fontWeight: "bold",backgroundColor: "#6c757d", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
-                                Volver atrás
+                            <button type="button" className="btn btn-secondary" style={{ padding: "12px 24px", fontWeight: "bold", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
+                                Volver a productos
                             </button>
                         </Link>
                     </div>

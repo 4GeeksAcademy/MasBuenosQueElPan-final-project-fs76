@@ -14,6 +14,18 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from werkzeug.security import check_password_hash , generate_password_hash
 
+import os
+from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+load_dotenv()
+cloudinary.config(
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET')
+)
+
 
 api = Blueprint('api', __name__)
 
@@ -201,25 +213,23 @@ def get_products():
 #     products = Product.query.all()
 #     return jsonify([product.serialize() for product in products]), 200
 
-#####GET Product#####
-@api.route('/product/<int:product_id>', methods=['GET'])
-def view_product(product_id):
-    product = Product.query.get(product_id)
-    if product is None:
-        return jsonify (message="Product not found"), 404
-        
-    return jsonify(product.serialize()), 200
-
-#####POST Products#####
-
+#####POST Product#####
 @api.route('/product', methods=['POST'])
 def add_product():
     try:
-        data = request.get_json()
-        print(data)
+        data = request.form
+        file = request.files.get('file')
+
+        print("datos recibidos del nuevo producto", data.to_dict())
+        print("imagen recibida para el nuevo producto", file)
+
         if not data:
-            return jsonify({"msg":"No se han proporcionado datos"}), 400 
-        ##Body Obtener respuesta
+            return jsonify({"msg": "No se han proporcionado datos"}), 400
+        
+        if file is None or file.filename == '':
+            return jsonify({"msg": "No se ha subido ningún archivo"}), 400
+        
+        # Obtener otros datos
         name = data.get('name')
         price = data.get('price')
         description = data.get('description')
@@ -230,38 +240,31 @@ def add_product():
         minimum = data.get('minimum')
         categorie_id = data.get('categorie_id')
         producer_id = data.get('producer_id')
-        available = data.get('available')
-        last_units = data.get('last_units')
-        soon = data.get('soon')
-        not_available = data.get('not_available')
-        print(producer_id)
-        # categorie_name= data.get('categorie_name')
-        # categorie_imageUrl= data.get('categorie_imageUrl')
-        # producer_email= data.get('producer_email')
-        # producer_brand_name= data.get('producer_brand_name')
+        available = data.get('available') == 'true'
+        last_units = data.get('last_units') == 'true'
+        soon = data.get('soon') == 'true'
+        not_available = data.get('not_available') == 'true'
+        print("price", price, "weight", weight, "volume", volume, "minimum", minimum)
 
-        #Validación de la respuesta
         if not name or not price or not description or not origin or not brief_description or not minimum:
             return jsonify({"msg": "Faltan datos"}), 400
-        weight = data.get('weight')
-        volume = data.get('volume')
+        
+        # if (weight and volume) or (not weight and not volume):
+        #     return jsonify({"msg": "Debes proporcionar solo uno de los campos: weight o volume."}), 400
 
-        if (weight and volume) or (not weight and not volume):
-            return jsonify({"msg": "Debes proporcionar solo uno de los campos: weight o volume."}), 400
+        # Subir el archivo a Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        file_url = upload_result['secure_url'] 
 
-        # Asegúrate de convertir weight y volume a enteros si están presentes
-        if weight:
-            weight = int(weight) if weight else None
-        if volume:
-            volume = int(volume) if volume else None
-        #Hago verificación de que el precio sea número
+        # Validación de precio
         try:
             price = float(price)
-            if price <0:
-                return jsonify({"msg":"El número debe ser positivo"}), 400
+            if price < 0:
+                return jsonify({"msg": "El número debe ser positivo"}), 400
         except ValueError:
-            return jsonify({"msg":"El precio debe ser un número"}), 400
-        #Añadir nuevo producto
+            return jsonify({"msg": "El precio debe ser un número"}), 400
+
+        # Crear el nuevo producto
         new_product = Product(
             name=name,
             price=price,
@@ -273,21 +276,20 @@ def add_product():
             minimum=minimum,
             categorie_id=categorie_id,
             producer_id=producer_id,
-            available=available,
-            last_units=last_units,
-            soon=soon,
-            not_available=not_available
-            # categorie_name=categorie_name,
-            # categorie_imageUrl=categorie_imageUrl,
-            # producer_email=producer_email,
-            # producer_brand_name=producer_brand_name,
+            available=available,  # Ahora es un booleano
+            last_units=last_units,  # Ahora es un booleano
+            soon=soon,  # Ahora es un booleano
+            not_available=not_available,  # Ahora es un booleano
+            imageUrl=file_url 
         )
-        print("nuevo producto desde routes",new_product)
-        #Actualizar la base de datos
+        
+        print("Nuevo producto desde routes:", new_product)
+
         db.session.add(new_product)
         db.session.commit()
 
-        return jsonify(new_product.serialize()),201
+        return jsonify(new_product.serialize()), 201
+
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -298,78 +300,45 @@ def add_product():
 @api.route('/product/<int:id>', methods=['PUT'])
 def edit_product(id):
     try:
-        #Primero traemos el producto de la base de datos
+
         product = Product.query.get(id)
         if not product:
-            return jsonify({"msg":"Product no encontrado"}), 404
-        #Traemos la respuesta
-        data = request.get_json()
-        if not data:
-            return jsonify({"msg":"No se han proporcionado datos"}), 400
-        
-        name = data.get('name')
-        price = data.get('price')
-        description = data.get('description')
-        origin = data.get('origin')
-        brief_description = data.get('brief_description')
-        weight = data.get('weight')
-        volume = data.get('volume')
-        minimum = data.get('minimum')
-        categorie_id= data.get('categorie_id')
-        producer_id= data.get('producer_id')
-        available = data.get('available')
-        last_units = data.get('last_units')
-        soon = data.get('soon')
-        not_available = data.get('not_available')
-        #Actualizamos la base de datos
-        if name:
-            product.name = name
-        if price:
-            try:
-                product.price = float(price)
-            except ValueError:
-                return jsonify({"msg":"El precio debe ser un número"}), 400
-            product.price = price
-        if origin:
-            product.origin = origin
-        if weight:
-            try:
-                product.weight = int(weight)
-            except ValueError:
-                return jsonify({"msg":"El precio debe ser un número"}), 400
-            product.weight = weight
-        if volume:
-            try:
-                product.volume = int(volume)
-            except ValueError:
-                return jsonify({"msg":"El precio debe ser un número"}), 400
-            product.volume = volume
-        if minimum:
-            try:
-                product.minimum = int(minimum)
-            except ValueError:
-                return jsonify({"msg":"El precio debe ser un número"}), 400
-            product.minimum = minimum
-        if brief_description:
-            product.brief_description = brief_description
-        if description:
-            product.description = description
-        if categorie_id:
-            product.categorie_id = categorie_id
-        if producer_id:
-            product.producer_id = producer_id
-        if available:
-            product.available = available
-        if last_units:
-            product.last_units = last_units
-        if soon:
-            product.soon = soon
-        if not_available:
-            product.not_available = not_available
+            return jsonify({"msg":"Product not found"}), 404
 
-        #Guardamos los datos en la base de datos
+        data = request.form
+        file = request.files.get('file') 
+
+        if not data:
+            return jsonify({"msg":"No data provided"}), 400
+
+        product.name = data.get('name', product.name)
+        product.price = float(data.get('price', product.price))
+        product.description = data.get('description', product.description)
+        product.origin = data.get('origin', product.origin)
+        product.brief_description = data.get('brief_description', product.brief_description)
+
+        # Solo actualizamos weight y volume si se pasan
+        if 'weight' in data:
+            product.weight = int(data['weight']) if data['weight'] else None
+        if 'volume' in data:
+            product.volume = int(data['volume']) if data['volume'] else None
+        if 'minimum' in data:
+            product.minimum = int(data['minimum']) if data['minimum'] else None
+
+        # Actualizamos el estado del producto
+        product.available = data.get('available') == 'true'
+        product.last_units = data.get('lastUnits') == 'true'
+        product.soon = data.get('soon') == 'true'
+        product.not_available = data.get('not_available') == 'true'
+        
+        # Manejo del archivo de imagen
+        if file:
+            upload_result = cloudinary.uploader.upload(file)
+            product.imageUrl = upload_result['secure_url']
+
         db.session.commit()
-        return jsonify(product.serialize()),200
+        return jsonify(product.serialize()), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
