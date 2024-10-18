@@ -91,6 +91,7 @@ export const HomeCustView = () => {
     };
     return (
         <div className="container mt-5">
+          {customer_name && customer_name != "" ? (
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 style={{fontSize: '2rem', fontWeight: 'bold',color: '#343a40'}}>Encantados de tenerte aquí, {customer_name}!</h2>
                 <div className="d-flex justify-content-end  align-items-center mb-4">
@@ -121,6 +122,7 @@ export const HomeCustView = () => {
                     </button>
                 </div>
             </div>
+          ):""}
 
             {view === "list" ? (
                 customer_name ? (

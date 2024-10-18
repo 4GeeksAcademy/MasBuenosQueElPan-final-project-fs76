@@ -52,7 +52,7 @@ export const ProducerSignup = () => {
 
     return (
         <>
-        <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh", backgroundColor: "#f9f9f9" }}>
+        <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
             <div className="card shadow-lg p-5" style={{ width: "100%", maxWidth: "500px", borderRadius: "15px", backgroundColor: "#ffffff" }}>
                 <h2 className="text-center mb-4" style={{ color: "#0b532f", fontWeight: "bold" }}>Regístrate como Productor</h2>
                 
