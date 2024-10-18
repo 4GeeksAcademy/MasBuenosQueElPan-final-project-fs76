@@ -241,7 +241,7 @@ export const ProducerView = () => {
                                     cursor: "pointer",
                                     backgroundColor: "#fff"
                                 }}>
-                                <img src={product.categorie_imageUrl} loading="lazy" className="card-img-top" alt="Imagen del producto" 
+                                <img src={product.categorie_imageUrl} className="card-img-top" alt="Imagen del producto" 
                                     style={{ height: "200px", objectFit: "cover" }} />
                                 <div className="card-body" style={{ padding: "20px" }}>
                                     <h5 className="card-title" style={{ fontWeight: "bold", color: "#333" }}>{product.name}</h5>
@@ -337,7 +337,7 @@ export const ProducerView = () => {
                                         </select>
                                         <div className="my-3">
                                             {categorieImgUrl ? (
-                                                <img src={categorieImgUrl} alt="Imagen de categoría" loading="lazy" style={{ width: '30%', height: 'auto' }} />
+                                                <img src={categorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
                                             ) : (""
                                                 // <>
                                                 // <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
@@ -493,7 +493,7 @@ export const ProducerView = () => {
                                         </select>
                                         <div className="my-3">
                                             {editCategorieImgUrl ? (
-                                                <img src={editCategorieImgUrl} loading="lazy" alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
+                                                <img src={editCategorieImgUrl} alt="Imagen de categoría" style={{ width: '30%', height: 'auto' }} />
                                             ) : (
                                                 <p className="text-secondary">Hemos dado una imagen por defecto a cada categoría, pero si lo prefieres puedes subir tu propia imagen!</p>
                                             )}

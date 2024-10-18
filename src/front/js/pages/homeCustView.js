@@ -144,7 +144,6 @@ export const HomeCustView = () => {
                                     <img
                                       src={producto.categorie_imageUrl}
                                       className="card-img-top"
-                                      loading="lazy"
                                       alt={producto.name}
                                       style={{
                                         height: "250px",
