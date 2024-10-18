@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useContext } from 'react';
 import { Context } from "../store/appContext";
 import mapboxgl from 'mapbox-gl'; // Importa el paquete de Mapbox
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 export const MapView = () => {
   const { store, actions } = useContext(Context);

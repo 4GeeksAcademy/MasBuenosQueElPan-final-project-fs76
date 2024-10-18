@@ -56,6 +56,7 @@ export const ProducerView = () => {
         actions.getCategories();
         actions.getProducersProducts(producerId)
     }, []);
+
     if (isLoading) {
         return <div>Cargando...</div>;
     }
@@ -83,7 +84,7 @@ export const ProducerView = () => {
         }
         return null;
     };
-    const handleSaveProduct = () => {
+    const handleSaveProduct = async () => {
         const parsePrice = parseFloat(price);
         const parseWeight = weight ? parseInt(weight) : null;
         const parseVolume = volume ? parseInt(volume) : null;
@@ -111,8 +112,8 @@ export const ProducerView = () => {
             alert(error);
             return;
         }
-        actions.addProducts(newProduct);
-        actions.getProducersProducts(producerId)
+        await actions.addProducts(newProduct);
+        await actions.getProducersProducts(producerId)
         closeModal();
     };
     const closeModal = () => {
